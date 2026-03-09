@@ -1,26 +1,78 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ============================================
+   ROOTS Design System — CSS Custom Properties
+   Source of truth: docs/01-brand-and-styling.md
+   Tie-breaker: docs/01-theme-extracted-values.md
+   ============================================ */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Colors */
+  --color-roots-green: #045c4b;
+  --color-roots-green-2: #0b6a57;
+  --color-roots-navy: #003049;
+  --color-roots-orange: #f77f00;
+  --color-roots-cream: #fdf0d5;
+  --color-roots-cream-2: #f3e8c8;
+  --color-roots-overlay: rgba(0, 48, 41, 0.55);
+  --color-roots-line-soft: rgba(253, 240, 213, 0.45);
+
+  /* Font families */
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --page-max-width: 1410px;
+  --btn-height: 60px;
+  --header-height: 80px;
+  --logo-width-desktop: 185px;
+  --logo-width-mobile: 125px;
+  --radius-btn: 8px;
+  --radius-input: 20px;
+  --radius-card: 8px;
+  --radius-hero: 16px;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--color-roots-navy);
+  background-color: var(--color-roots-cream);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-roots-cream);
+  outline-offset: 2px;
+}
+
+::selection {
+  background-color: var(--color-roots-green);
+  color: var(--color-roots-cream);
+}
+
+.page-container {
+  max-width: var(--page-max-width);
+  margin-inline: auto;
+  padding-inline: 48px;
+}
+
+@media (max-width: 1024px) {
+  .page-container {
+    padding-inline: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-container {
+    padding-inline: 16px;
+  }
 }
