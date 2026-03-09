@@ -1,0 +1,280 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 700" fill="none">
+  <style>
+    .l { stroke: #fdf0d5; fill: none; }
+    .l1 { stroke-width: 0.8; }
+    .l2 { stroke-width: 0.5; }
+    .l3 { stroke-width: 1.2; }
+    .d { stroke-dasharray: 3 3; }
+  </style>
+
+  <!-- ============ LEFT QUARTER ============ -->
+  <g opacity="0.12">
+    <!-- Supplement bottle detailed -->
+    <g class="l l1" transform="translate(60, 60)">
+      <rect x="0" y="40" width="70" height="130" rx="8"/>
+      <rect x="15" y="18" width="40" height="28" rx="4"/>
+      <rect x="10" y="5" width="50" height="16" rx="8"/>
+      <rect x="10" y="80" width="50" height="55" rx="4" class="l l2"/>
+      <line x1="20" y1="95" x2="50" y2="95" class="l l2"/>
+      <line x1="20" y1="108" x2="45" y2="108" class="l l2"/>
+      <line x1="20" y1="121" x2="40" y2="121" class="l l2"/>
+      <circle cx="35" cy="72" r="6" class="l l2"/>
+      <line x1="35" y1="66" x2="35" y2="78" class="l l2"/>
+      <line x1="29" y1="72" x2="41" y2="72" class="l l2"/>
+    </g>
+
+    <!-- Mortar and pestle detailed -->
+    <g class="l l1" transform="translate(30, 280)">
+      <path d="M0 50 Q0 90 50 95 Q100 90 100 50"/>
+      <ellipse cx="50" cy="50" rx="52" ry="14"/>
+      <path d="M10 50 Q10 80 50 84 Q90 80 90 50" class="l l2 d"/>
+      <line x1="38" y1="40" x2="15" y2="-10" stroke-linecap="round" class="l l3"/>
+      <circle cx="13" cy="-13" r="5" class="l l1"/>
+    </g>
+
+    <!-- DNA double helix -->
+    <g class="l l1" transform="translate(180, 30)">
+      <path d="M0 0 Q25 40 0 80 Q-25 120 0 160 Q25 200 0 240 Q-25 280 0 320"/>
+      <path d="M30 0 Q5 40 30 80 Q55 120 30 160 Q5 200 30 240 Q55 280 30 320"/>
+      <g class="l l2">
+        <line x1="3" y1="40" x2="27" y2="40"/>
+        <line x1="3" y1="80" x2="27" y2="80"/>
+        <line x1="3" y1="120" x2="27" y2="120"/>
+        <line x1="3" y1="160" x2="27" y2="160"/>
+        <line x1="3" y1="200" x2="27" y2="200"/>
+        <line x1="3" y1="240" x2="27" y2="240"/>
+        <line x1="3" y1="280" x2="27" y2="280"/>
+      </g>
+    </g>
+
+    <!-- Injection pen detailed -->
+    <g class="l l1" transform="translate(80, 420) rotate(-20)">
+      <rect x="0" y="0" width="28" height="140" rx="6"/>
+      <rect x="4" y="-25" width="20" height="30" rx="4"/>
+      <rect x="8" y="-40" width="12" height="18" rx="6"/>
+      <rect x="11" y="140" width="6" height="45" rx="2"/>
+      <rect x="12.5" y="185" width="3" height="20" rx="1"/>
+      <!-- Dose markings -->
+      <g class="l l2">
+        <line x1="4" y1="30" x2="12" y2="30"/>
+        <line x1="4" y1="50" x2="12" y2="50"/>
+        <line x1="4" y1="70" x2="12" y2="70"/>
+        <line x1="4" y1="90" x2="12" y2="90"/>
+        <line x1="4" y1="110" x2="12" y2="110"/>
+      </g>
+      <!-- Dose window -->
+      <rect x="5" y="40" width="18" height="35" rx="3" class="l l2"/>
+    </g>
+
+    <!-- Stethoscope -->
+    <g class="l l1" transform="translate(220, 380)">
+      <path d="M0 0 Q0 80 40 100 Q80 120 80 60"/>
+      <path d="M30 0 Q30 70 55 85"/>
+      <circle cx="80" cy="48" r="18"/>
+      <circle cx="80" cy="48" r="7" class="l l2"/>
+      <circle cx="0" cy="-5" r="6"/>
+      <circle cx="30" cy="-5" r="6"/>
+    </g>
+
+    <!-- Pill capsules scattered -->
+    <g class="l l1">
+      <g transform="translate(260, 100) rotate(-30)">
+        <rect x="0" y="0" width="55" height="22" rx="11"/>
+        <line x1="27.5" y1="0" x2="27.5" y2="22"/>
+      </g>
+      <g transform="translate(170, 520) rotate(15)">
+        <rect x="0" y="0" width="48" height="20" rx="10"/>
+        <line x1="24" y1="0" x2="24" y2="20"/>
+      </g>
+    </g>
+
+    <!-- Heartbeat ECG -->
+    <g class="l l1" transform="translate(20, 620)">
+      <polyline points="0,0 30,0 40,0 48,-25 56,30 64,-10 72,5 85,5 120,5 150,5 158,-20 166,25 174,-8 182,3 200,3"/>
+    </g>
+
+    <!-- Leaf / botanical -->
+    <g class="l l1" transform="translate(300, 260)">
+      <path d="M0 40 Q15 0 30 0 Q45 0 30 40"/>
+      <path d="M15 50 Q20 15 30 0"/>
+      <path d="M5 30 Q15 25 22 18" class="l l2"/>
+      <path d="M10 38 Q18 32 25 25" class="l l2"/>
+    </g>
+
+    <!-- Concentric measurement circles -->
+    <g class="l l2" transform="translate(310, 560)">
+      <circle cx="0" cy="0" r="50"/>
+      <circle cx="0" cy="0" r="38"/>
+      <circle cx="0" cy="0" r="26"/>
+      <circle cx="0" cy="0" r="3"/>
+      <line x1="0" y1="-50" x2="0" y2="-44"/>
+      <line x1="0" y1="44" x2="0" y2="50"/>
+      <line x1="-50" y1="0" x2="-44" y2="0"/>
+      <line x1="44" y1="0" x2="50" y2="0"/>
+      <line x1="35" y1="-35" x2="31" y2="-31" />
+      <line x1="-35" y1="-35" x2="-31" y2="-31"/>
+      <line x1="35" y1="35" x2="31" y2="31"/>
+      <line x1="-35" y1="35" x2="-31" y2="31"/>
+    </g>
+  </g>
+
+  <!-- ============ RIGHT QUARTER ============ -->
+  <g opacity="0.12">
+    <!-- Dropper bottle detailed -->
+    <g class="l l1" transform="translate(1280, 50)">
+      <rect x="0" y="55" width="65" height="120" rx="8"/>
+      <rect x="18" y="30" width="30" height="30" rx="4"/>
+      <ellipse cx="33" cy="22" rx="18" ry="22"/>
+      <line x1="33" y1="60" x2="33" y2="130" class="l l2"/>
+      <!-- Drop -->
+      <path d="M30 178 Q33 190 36 178 Q33 170 30 178" class="l l1"/>
+      <!-- Label -->
+      <rect x="8" y="90" width="50" height="50" rx="4" class="l l2"/>
+      <line x1="16" y1="105" x2="50" y2="105" class="l l2"/>
+      <line x1="16" y1="115" x2="45" y2="115" class="l l2"/>
+      <line x1="16" y1="125" x2="38" y2="125" class="l l2"/>
+    </g>
+
+    <!-- Molecular hexagon structure -->
+    <g class="l l1" transform="translate(1120, 80)">
+      <polygon points="30,0 60,17 60,52 30,69 0,52 0,17"/>
+      <polygon points="90,17 120,34 120,69 90,86 60,69 60,34" class="l l2"/>
+      <circle cx="30" cy="0" r="4"/>
+      <circle cx="60" cy="17" r="4"/>
+      <circle cx="60" cy="52" r="4"/>
+      <circle cx="30" cy="69" r="4"/>
+      <circle cx="0" cy="52" r="4"/>
+      <circle cx="0" cy="17" r="4"/>
+      <circle cx="90" cy="17" r="3" class="l l2"/>
+      <circle cx="120" cy="34" r="3" class="l l2"/>
+      <circle cx="120" cy="69" r="3" class="l l2"/>
+      <circle cx="90" cy="86" r="3" class="l l2"/>
+      <!-- Bond lines extending out -->
+      <line x1="30" y1="-4" x2="30" y2="-20" class="l l2"/>
+      <line x1="124" y1="34" x2="140" y2="28" class="l l2"/>
+      <line x1="124" y1="69" x2="140" y2="75" class="l l2"/>
+    </g>
+
+    <!-- Large capsule -->
+    <g class="l l1" transform="translate(1100, 240) rotate(-40)">
+      <rect x="0" y="0" width="90" height="36" rx="18"/>
+      <line x1="45" y1="0" x2="45" y2="36"/>
+      <!-- Shine line -->
+      <path d="M12 8 Q20 6 28 8" class="l l2"/>
+    </g>
+
+    <!-- Weighing scale -->
+    <g class="l l1" transform="translate(1300, 290)">
+      <line x1="40" y1="0" x2="40" y2="70"/>
+      <line x1="10" y1="0" x2="70" y2="0"/>
+      <!-- Left pan -->
+      <line x1="10" y1="0" x2="0" y2="25"/>
+      <line x1="10" y1="0" x2="20" y2="25"/>
+      <path d="M-5 25 Q10 35 25 25" class="l l2"/>
+      <!-- Right pan -->
+      <line x1="70" y1="0" x2="60" y2="20"/>
+      <line x1="70" y1="0" x2="80" y2="20"/>
+      <path d="M55 20 Q70 30 85 20" class="l l2"/>
+      <!-- Base -->
+      <ellipse cx="40" cy="72" rx="30" ry="8"/>
+      <line x1="25" y1="70" x2="25" y2="80" class="l l2"/>
+      <line x1="55" y1="70" x2="55" y2="80" class="l l2"/>
+    </g>
+
+    <!-- Water drops -->
+    <g class="l l1" transform="translate(1150, 400)">
+      <path d="M20 45 Q20 15 35 0 Q50 15 50 45 Q50 62 35 68 Q20 62 20 45Z"/>
+      <path d="M28 48 Q30 38 35 32" class="l l2"/>
+    </g>
+    <g class="l l2" transform="translate(1200, 440)">
+      <path d="M10 22 Q10 8 17 0 Q24 8 24 22 Q24 30 17 34 Q10 30 10 22Z"/>
+    </g>
+
+    <!-- Thermometer -->
+    <g class="l l1" transform="translate(1400, 200)">
+      <rect x="0" y="0" width="18" height="90" rx="9"/>
+      <circle cx="9" cy="105" r="16"/>
+      <circle cx="9" cy="105" r="8" class="l l2"/>
+      <line x1="9" y1="98" x2="9" y2="25" class="l l2"/>
+      <!-- Markings -->
+      <line x1="18" y1="25" x2="24" y2="25" class="l l2"/>
+      <line x1="18" y1="40" x2="22" y2="40" class="l l2"/>
+      <line x1="18" y1="55" x2="24" y2="55" class="l l2"/>
+      <line x1="18" y1="70" x2="22" y2="70" class="l l2"/>
+    </g>
+
+    <!-- Shield / GPhC trust -->
+    <g class="l l1" transform="translate(1120, 490)">
+      <path d="M30 0 L0 15 L0 50 Q0 75 30 85 Q60 75 60 50 L60 15Z"/>
+      <polyline points="18,45 27,54 45,34" class="l l3"/>
+      <circle cx="30" cy="20" r="4" class="l l2"/>
+    </g>
+
+    <!-- Botanical leaves cluster -->
+    <g class="l l1" transform="translate(1250, 500)">
+      <path d="M0 60 Q20 20 40 0 Q60 20 40 60"/>
+      <path d="M20 65 Q30 30 40 0" class="l l2"/>
+      <path d="M5 45 Q15 38 25 28" class="l l2"/>
+      <path d="M10 55 Q20 48 30 38" class="l l2"/>
+      <!-- Second leaf -->
+      <path d="M50 55 Q65 25 80 15 Q85 35 70 60" class="l l2"/>
+      <path d="M60 58 Q68 40 78 20" class="l l2"/>
+    </g>
+
+    <!-- Heartbeat ECG right -->
+    <g class="l l1" transform="translate(1100, 620)">
+      <polyline points="0,0 35,0 45,-22 53,28 61,-8 69,4 90,4 130,4"/>
+    </g>
+
+    <!-- Rx prescription symbol -->
+    <g class="l l3" transform="translate(1370, 500)" opacity="0.7">
+      <text x="0" y="40" font-size="52" font-family="'Times New Roman', serif" stroke="#fdf0d5" stroke-width="0.8" fill="none">Rx</text>
+    </g>
+
+    <!-- Beaker / flask -->
+    <g class="l l1" transform="translate(1380, 400)">
+      <path d="M10 0 L10 40 L0 70 Q0 80 10 80 L40 80 Q50 80 50 70 L40 40 L40 0"/>
+      <line x1="10" y1="0" x2="40" y2="0"/>
+      <path d="M5 60 Q25 55 45 60" class="l l2 d"/>
+      <!-- Bubbles -->
+      <circle cx="20" cy="65" r="3" class="l l2"/>
+      <circle cx="30" cy="58" r="2" class="l l2"/>
+    </g>
+  </g>
+
+  <!-- ============ CENTER SUBTLE ============ -->
+  <g opacity="0.04">
+    <!-- Faint concentric rings -->
+    <circle cx="720" cy="350" r="200" class="l l2"/>
+    <circle cx="720" cy="350" r="170" class="l l2"/>
+    <circle cx="720" cy="350" r="140" class="l l2"/>
+    <!-- Cross hairs -->
+    <line x1="720" y1="145" x2="720" y2="165" class="l l2"/>
+    <line x1="720" y1="535" x2="720" y2="555" class="l l2"/>
+    <line x1="515" y1="350" x2="535" y2="350" class="l l2"/>
+    <line x1="905" y1="350" x2="925" y2="350" class="l l2"/>
+  </g>
+
+  <!-- Scattered small dots for texture -->
+  <g fill="#fdf0d5" opacity="0.06">
+    <circle cx="420" cy="80" r="1.5"/>
+    <circle cx="500" cy="180" r="2"/>
+    <circle cx="580" cy="120" r="1.5"/>
+    <circle cx="660" cy="200" r="1"/>
+    <circle cx="780" cy="150" r="1.5"/>
+    <circle cx="860" cy="90" r="2"/>
+    <circle cx="940" cy="170" r="1"/>
+    <circle cx="1020" cy="110" r="1.5"/>
+    <circle cx="460" cy="550" r="2"/>
+    <circle cx="540" cy="480" r="1.5"/>
+    <circle cx="650" cy="580" r="1"/>
+    <circle cx="780" cy="530" r="1.5"/>
+    <circle cx="870" cy="600" r="2"/>
+    <circle cx="950" cy="520" r="1"/>
+    <circle cx="1030" cy="580" r="1.5"/>
+    <circle cx="400" cy="350" r="1"/>
+    <circle cx="1040" cy="320" r="1"/>
+    <circle cx="480" cy="300" r="1.5"/>
+    <circle cx="960" cy="400" r="1.5"/>
+  </g>
+</svg>
