@@ -60,6 +60,11 @@ h3, h4, h5, h6 {
   letter-spacing: -0.025em;
 }
 
+/* Any large display text (28px+) should have tight spacing regardless of tag */
+.text-display {
+  letter-spacing: -0.04em;
+}
+
 /* Uppercase text needs wider spacing to stay legible */
 .uppercase, .tracking-wider, .tracking-widest {
   letter-spacing: 0.05em;

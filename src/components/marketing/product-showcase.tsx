@@ -86,7 +86,7 @@ export default function ProductShowcase() {
             <span className="mb-2 text-sm font-medium uppercase tracking-wider text-roots-green/60">
               {product.type}
             </span>
-            <h3 className="mb-4 text-[32px] font-medium leading-tight text-roots-green md:text-[42px] lg:text-[52px]">
+            <h3 className="text-display mb-4 text-[32px] font-medium leading-tight text-roots-green md:text-[42px] lg:text-[52px]">
               {product.name}
             </h3>
             <p className="mb-2 text-xl font-medium text-roots-green">

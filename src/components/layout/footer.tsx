@@ -8,7 +8,7 @@ export default function Footer() {
       {/* Top band — editorial statement */}
       <div className="border-b border-roots-line-soft">
         <div className="page-container py-16 text-center md:py-20">
-          <p className="mx-auto max-w-2xl text-2xl font-medium leading-snug md:text-3xl lg:text-[36px]">
+          <p className="text-display mx-auto max-w-2xl text-2xl font-medium leading-snug md:text-3xl lg:text-[36px]">
             Clinical weight loss and wellness, delivered with care and
             discretion.
           </p>
