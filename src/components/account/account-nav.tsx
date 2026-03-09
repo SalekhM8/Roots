@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useClerk } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
+import { ROUTES } from "@/lib/constants";
 
 const links = [
   { href: "/account", label: "Overview" },
@@ -14,6 +16,12 @@ const links = [
 
 export function AccountNav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { signOut } = useClerk();
+
+  function handleSignOut() {
+    signOut(() => router.push(ROUTES.home));
+  }
 
   return (
     <nav className="flex gap-1 overflow-x-auto border-b border-roots-green/10 pb-px" aria-label="Account navigation">
@@ -38,6 +46,13 @@ export function AccountNav() {
           </Link>
         );
       })}
+      <button
+        type="button"
+        onClick={handleSignOut}
+        className="whitespace-nowrap border-b-2 border-transparent px-4 py-3 text-sm font-medium text-roots-navy/50 transition-colors duration-200 hover:text-roots-navy"
+      >
+        Sign Out
+      </button>
     </nav>
   );
 }

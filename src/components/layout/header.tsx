@@ -1,21 +1,47 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useUser, useClerk } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS, ROUTES } from "@/lib/constants";
 import { Logo } from "@/components/layout/logo";
 import { SearchIcon, UserIcon, CartIcon, MenuIcon, CloseIcon } from "@/components/icons";
+import { useCartCount } from "@/components/cart/cart-count-provider";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { isSignedIn } = useUser();
+  const { signOut } = useClerk();
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const { count: cartCount } = useCartCount();
 
   // Close mobile menu on route change
   useEffect(() => {
     setMobileOpen(false);
+    setUserMenuOpen(false);
   }, [pathname]);
+
+  // Close user dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    if (userMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [userMenuOpen]);
+
+  function handleSignOut() {
+    signOut(() => router.push(ROUTES.home));
+  }
 
   return (
     <>
@@ -46,13 +72,54 @@ export default function Header() {
               <SearchIcon />
             </button>
 
-            <Link
-              href={ROUTES.account}
-              className="text-roots-cream transition-opacity duration-200 hover:opacity-80"
-              aria-label="Account"
-            >
-              <UserIcon />
-            </Link>
+            {/* User icon with auth-aware behavior */}
+            <div className="relative" ref={userMenuRef}>
+              {isSignedIn ? (
+                <>
+                  <button
+                    type="button"
+                    className="text-roots-cream transition-opacity duration-200 hover:opacity-80"
+                    aria-label="Account menu"
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  >
+                    <UserIcon />
+                  </button>
+
+                  {/* User dropdown */}
+                  {userMenuOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-48 rounded-lg border border-roots-green/10 bg-white py-1 shadow-lg">
+                      <Link
+                        href={ROUTES.account}
+                        className="block px-4 py-2.5 text-sm font-medium text-roots-navy transition-colors duration-150 hover:bg-roots-cream/50"
+                      >
+                        My Account
+                      </Link>
+                      <Link
+                        href={ROUTES.accountOrders}
+                        className="block px-4 py-2.5 text-sm font-medium text-roots-navy transition-colors duration-150 hover:bg-roots-cream/50"
+                      >
+                        My Orders
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={handleSignOut}
+                        className="block w-full px-4 py-2.5 text-left text-sm font-medium text-roots-navy transition-colors duration-150 hover:bg-roots-cream/50"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <Link
+                  href={ROUTES.signIn}
+                  className="text-roots-cream transition-opacity duration-200 hover:opacity-80"
+                  aria-label="Sign in"
+                >
+                  <UserIcon />
+                </Link>
+              )}
+            </div>
 
             <Link
               href={ROUTES.cart}
@@ -60,6 +127,11 @@ export default function Header() {
               aria-label="Cart"
             >
               <CartIcon />
+              {cartCount > 0 && (
+                <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-roots-orange text-[10px] font-bold leading-none text-white">
+                  {cartCount > 9 ? "9+" : cartCount}
+                </span>
+              )}
             </Link>
 
             {/* Mobile menu toggle */}
@@ -93,12 +165,31 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
-          <Link
-            href={ROUTES.signIn}
-            className="mt-4 py-4 text-lg font-medium text-roots-cream/70"
-          >
-            Sign In
-          </Link>
+
+          {isSignedIn ? (
+            <>
+              <Link
+                href={ROUTES.account}
+                className="border-b border-roots-line-soft py-4 text-lg font-medium text-roots-cream transition-opacity duration-200 hover:opacity-80"
+              >
+                My Account
+              </Link>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="border-b border-roots-line-soft py-4 text-left text-lg font-medium text-roots-cream/70 transition-opacity duration-200 hover:opacity-80"
+              >
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <Link
+              href={ROUTES.signIn}
+              className="mt-4 py-4 text-lg font-medium text-roots-cream/70"
+            >
+              Sign In
+            </Link>
+          )}
         </nav>
       </div>
     </>

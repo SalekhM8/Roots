@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   Elements,
@@ -18,11 +18,27 @@ import type { CreateOrderResult } from "@/server/services/order";
 import { ROUTES } from "@/lib/constants";
 import type { AddressInput } from "@/lib/validation/schemas";
 
+export interface SavedAddress {
+  id: string;
+  label?: string | null;
+  firstName: string;
+  lastName: string;
+  line1: string;
+  line2?: string | null;
+  city: string;
+  postcode: string;
+  countryCode: string;
+  phone?: string | null;
+  isDefaultShipping: boolean;
+  isDefaultBilling: boolean;
+}
+
 interface CheckoutFormProps {
   subtotalMinor: number;
   totalMinor: number;
   itemCount: number;
   hasPomItems: boolean;
+  savedAddresses: SavedAddress[];
 }
 
 const INITIAL_ADDRESS: AddressInput = {
@@ -38,15 +54,54 @@ const INITIAL_ADDRESS: AddressInput = {
   isDefaultBilling: false,
 };
 
+function savedToInput(saved: SavedAddress): AddressInput {
+  return {
+    firstName: saved.firstName,
+    lastName: saved.lastName,
+    line1: saved.line1,
+    line2: saved.line2 ?? "",
+    city: saved.city,
+    postcode: saved.postcode,
+    countryCode: saved.countryCode,
+    phone: saved.phone ?? "",
+    isDefaultShipping: saved.isDefaultShipping,
+    isDefaultBilling: saved.isDefaultBilling,
+  };
+}
+
 export function CheckoutForm(props: CheckoutFormProps) {
+  const { savedAddresses } = props;
+
+  const defaultAddress = useMemo(
+    () => savedAddresses.find((a) => a.isDefaultShipping) ?? null,
+    [savedAddresses],
+  );
+
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
-  const [address, setAddress] = useState<AddressInput>(INITIAL_ADDRESS);
+  const [address, setAddress] = useState<AddressInput>(
+    defaultAddress ? savedToInput(defaultAddress) : INITIAL_ADDRESS,
+  );
+  const [selectedAddressId, setSelectedAddressId] = useState<string>(
+    defaultAddress?.id ?? "",
+  );
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function updateAddress(field: keyof AddressInput, value: string) {
     setAddress((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function handleSelectSavedAddress(addressId: string) {
+    setSelectedAddressId(addressId);
+    if (addressId === "") {
+      setAddress(INITIAL_ADDRESS);
+      return;
+    }
+    const found = savedAddresses.find((a) => a.id === addressId);
+    if (found) {
+      setAddress(savedToInput(found));
+    }
   }
 
   function handleCreateOrder() {
@@ -81,6 +136,31 @@ export function CheckoutForm(props: CheckoutFormProps) {
               Prescription items require clinical approval. Your payment will be
               authorised but not charged until a prescriber reviews your
               consultation.
+            </div>
+          )}
+
+          {savedAddresses.length > 0 && (
+            <div className="mb-6">
+              <label className="mb-2 block text-sm font-medium text-roots-navy/70">
+                Use a saved address
+              </label>
+              <select
+                value={selectedAddressId}
+                onChange={(e) => handleSelectSavedAddress(e.target.value)}
+                className="w-full rounded-xl border border-roots-navy/20 bg-white px-4 py-3 text-sm text-roots-navy outline-none transition-colors focus:border-roots-green focus:ring-1 focus:ring-roots-green"
+              >
+                <option value="">Enter a new address</option>
+                {savedAddresses.map((addr) => (
+                  <option key={addr.id} value={addr.id}>
+                    {addr.label
+                      ? `${addr.label} — `
+                      : ""}
+                    {addr.firstName} {addr.lastName}, {addr.line1}, {addr.city},{" "}
+                    {addr.postcode}
+                    {addr.isDefaultShipping ? " (default)" : ""}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 

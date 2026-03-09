@@ -8,6 +8,7 @@ import {
   removeCartItemAction,
 } from "@/app/(shop)/cart/actions";
 import type { CartWithItems } from "@/server/queries/cart";
+import { useCartCount } from "@/components/cart/cart-count-provider";
 
 interface CartItemsProps {
   items: CartWithItems["items"];
@@ -15,6 +16,7 @@ interface CartItemsProps {
 
 export function CartItems({ items }: CartItemsProps) {
   const [isPending, startTransition] = useTransition();
+  const { refresh } = useCartCount();
 
   function handleUpdate(itemId: string, quantity: number) {
     startTransition(async () => {
@@ -23,6 +25,7 @@ export function CartItems({ items }: CartItemsProps) {
       } else {
         await updateCartItemAction(itemId, quantity);
       }
+      refresh();
     });
   }
 

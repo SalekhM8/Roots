@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { getCartWithItems } from "@/server/queries/cart";
+import { getCustomerAddresses } from "@/server/queries/account";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
 import { ROUTES } from "@/lib/constants";
 
@@ -12,7 +13,11 @@ export const metadata: Metadata = {
 export default async function CheckoutPage() {
   const user = await requireUser();
 
-  const cart = await getCartWithItems(user.id);
+  const [cart, savedAddresses] = await Promise.all([
+    getCartWithItems(user.id),
+    getCustomerAddresses(user.id),
+  ]);
+
   if (!cart || cart.items.length === 0) {
     redirect(ROUTES.cart);
   }
@@ -38,6 +43,7 @@ export default async function CheckoutPage() {
         totalMinor={totalMinor}
         itemCount={itemCount}
         hasPomItems={hasPomItems}
+        savedAddresses={savedAddresses}
       />
     </div>
   );
