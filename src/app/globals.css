@@ -45,16 +45,16 @@ body {
   font-weight: 400;
   font-size: 16px;
   line-height: 1.65;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: var(--color-roots-navy);
   background-color: var(--color-roots-cream);
 }
 
 h1, h2, h3, h4, h5, h6 {
-  letter-spacing: -0.04em;
+  letter-spacing: -4px;
 }
 
-nav a, button, .tracking-tight {
+nav a, button {
   letter-spacing: -0.03em;
 }
 

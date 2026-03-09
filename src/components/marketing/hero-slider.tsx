@@ -280,39 +280,28 @@ export default function HeroSlider() {
 
       {/* Content */}
       <div className="page-container relative flex min-h-[540px] flex-col items-center justify-center py-20 text-center md:min-h-[600px] lg:min-h-[640px]">
-        <div className="overflow-hidden">
-          <p
-            className="mb-4 text-sm font-medium uppercase tracking-widest text-roots-cream/70 transition-all duration-500 ease-out"
-            style={{
-              opacity: isTransitioning ? 0 : 1,
-              transform: isTransitioning ? "translateY(20px)" : "translateY(0)",
-            }}
-          >
-            {slide.subtitle}
-          </p>
-        </div>
+        <p
+          className="mb-4 text-sm font-medium uppercase tracking-widest text-roots-cream/70 transition-opacity duration-500 ease-out"
+          style={{ opacity: isTransitioning ? 0 : 1 }}
+        >
+          {slide.subtitle}
+        </p>
 
-        <div className="overflow-hidden">
-          <h1
-            className="mx-auto max-w-3xl text-[38px] font-medium leading-[0.95] text-roots-cream transition-all duration-600 ease-out md:text-[56px] lg:text-[72px]"
-            style={{
-              opacity: isTransitioning ? 0 : 1,
-              transform: isTransitioning
-                ? "translateY(40px) scale(0.95)"
-                : "translateY(0) scale(1)",
-              transitionDelay: isTransitioning ? "0ms" : "100ms",
-            }}
-          >
-            {slide.headline}
-          </h1>
-        </div>
-
-        <div
-          className="transition-all duration-500 ease-out"
+        <h1
+          className="mx-auto max-w-3xl text-[38px] font-medium leading-[0.95] text-roots-cream transition-opacity duration-600 ease-out md:text-[56px] lg:text-[72px]"
           style={{
             opacity: isTransitioning ? 0 : 1,
-            transform: isTransitioning ? "translateY(20px)" : "translateY(0)",
-            transitionDelay: isTransitioning ? "0ms" : "200ms",
+            transitionDelay: isTransitioning ? "0ms" : "80ms",
+          }}
+        >
+          {slide.headline}
+        </h1>
+
+        <div
+          className="transition-opacity duration-500 ease-out"
+          style={{
+            opacity: isTransitioning ? 0 : 1,
+            transitionDelay: isTransitioning ? "0ms" : "160ms",
           }}
         >
           <LinkButton href={slide.cta.href} variant="primary" className="mt-10">
