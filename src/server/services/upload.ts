@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { createPresignedUploadUrl } from "@/lib/uploads/s3";
 import { writeAuditLog } from "@/lib/security/audit";
-import type { UploadType } from "@/generated/prisma";
+import type { UploadType } from "@/generated/prisma/client";
 import { z } from "zod";
 
 const presignSchema = z.object({

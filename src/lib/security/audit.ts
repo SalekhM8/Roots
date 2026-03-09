@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import type { Prisma } from "@/generated/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 
 interface AuditLogEntry {
   actorUserId?: string;

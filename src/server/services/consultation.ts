@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ConsultationStatus } from "@/generated/prisma";
+import { ConsultationStatus } from "@/generated/prisma/client";
 import { consultationAnswersSchema, type ConsultationAnswersInput } from "@/lib/validation/schemas";
 import { writeAuditLog } from "@/lib/security/audit";
 import { inngest } from "@/server/workflows/inngest";

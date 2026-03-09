@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import type { ConsultationStatus, PaymentStatus, FulfillmentStatus } from "@/generated/prisma";
+import type { ConsultationStatus, PaymentStatus, FulfillmentStatus } from "@/generated/prisma/client";
 
 const PAGE_SIZE = 25;
 

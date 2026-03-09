@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { OrderType, type Prisma } from "@/generated/prisma";
+import { OrderType, type Prisma } from "@/generated/prisma/client";
 import { createPaymentIntent } from "@/lib/payments/stripe";
 import { writeAuditLog } from "@/lib/security/audit";
 import { generateOrderNumber } from "@/lib/validation/schemas";

@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import { writeAuditLog } from "@/lib/security/audit";
 import { checkRateLimit } from "@/lib/security/rate-limit";
 import { z } from "zod";
-import type { Prisma } from "@/generated/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 
 interface ActionResult {
   success: boolean;
