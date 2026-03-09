@@ -1,20 +1,32 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { Role } from "@/generated/prisma/client";
 import { redirect } from "next/navigation";
+import { syncClerkUser } from "./sync";
 
 /**
  * Get the current user's app DB record from their Clerk session.
- * Returns null if not authenticated or user not found in DB.
+ * Self-healing: if user exists in Clerk but not in our DB (e.g. webhook failed),
+ * automatically syncs them on first request.
+ * Returns null if not authenticated.
  */
 export async function getCurrentUser() {
   const { userId: clerkUserId } = await auth();
   if (!clerkUserId) return null;
 
-  const user = await db.user.findUnique({
+  let user = await db.user.findUnique({
     where: { clerkUserId },
     include: { roles: true },
   });
+
+  // Self-heal: user has valid Clerk session but isn't in our DB
+  if (!user) {
+    const clerkUser = await currentUser();
+    const email = clerkUser?.emailAddresses?.[0]?.emailAddress;
+    if (email) {
+      user = await syncClerkUser(clerkUserId, email);
+    }
+  }
 
   return user;
 }
