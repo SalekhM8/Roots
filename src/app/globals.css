@@ -45,17 +45,24 @@ body {
   font-weight: 400;
   font-size: 16px;
   line-height: 1.65;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.025em;
   color: var(--color-roots-navy);
   background-color: var(--color-roots-cream);
 }
 
-h1, h2, h3, h4, h5, h6 {
-  letter-spacing: -0.06em;
+/* Large display headings — tight like Shopify */
+h1, h2 {
+  letter-spacing: -0.04em;
 }
 
-a, button, label, span, p, li, td, th, input, textarea, select {
-  letter-spacing: inherit;
+/* Smaller headings — less aggressive */
+h3, h4, h5, h6 {
+  letter-spacing: -0.025em;
+}
+
+/* Uppercase text needs wider spacing to stay legible */
+.uppercase, .tracking-wider, .tracking-widest {
+  letter-spacing: 0.05em;
 }
 
 :focus-visible {
