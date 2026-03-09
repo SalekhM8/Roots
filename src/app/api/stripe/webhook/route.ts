@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getStripe } from "@/lib/payments/stripe";
 import { db } from "@/lib/db";
 import { writeAuditLog } from "@/lib/security/audit";
+import { inngest } from "@/server/workflows/inngest";
 import type Stripe from "stripe";
 
 /**
@@ -91,7 +92,9 @@ async function handlePaymentIntentSucceeded(
 ) {
   const payment = await db.payment.findFirst({
     where: { stripePaymentIntentId: paymentIntent.id },
-    include: { order: { select: { id: true, orderType: true } } },
+    include: {
+      order: { select: { id: true, orderType: true, orderNumber: true, userId: true } },
+    },
   });
 
   if (!payment) return;
@@ -133,6 +136,19 @@ async function handlePaymentIntentSucceeded(
       orderType: payment.order.orderType,
     },
   });
+
+  // Emit payment/captured event for auto-capture (supplements)
+  if (isCaptured) {
+    await inngest.send({
+      name: "payment/captured",
+      data: {
+        userId: payment.order.userId,
+        orderId: payment.order.id,
+        amountMinor: paymentIntent.amount,
+        orderNumber: payment.order.orderNumber,
+      },
+    });
+  }
 }
 
 async function handlePaymentIntentFailed(

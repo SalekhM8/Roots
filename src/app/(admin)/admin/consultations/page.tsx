@@ -70,10 +70,12 @@ export default async function ConsultationQueuePage({
                 ).length;
                 const order = c.orders[0];
                 const authExpiry = order?.payments[0]?.captureBefore;
-                const isExpiringBefore48h =
-                  authExpiry &&
-                  new Date(authExpiry).getTime() - Date.now() <
-                    48 * 60 * 60 * 1000;
+                const hoursUntilExpiry = authExpiry
+                  ? (new Date(authExpiry).getTime() - Date.now()) / (60 * 60 * 1000)
+                  : null;
+                const isExpiryCritical = hoursUntilExpiry !== null && hoursUntilExpiry < 24;
+                const isExpiryWarning =
+                  hoursUntilExpiry !== null && hoursUntilExpiry >= 24 && hoursUntilExpiry < 48;
 
                 return (
                   <tr
@@ -103,14 +105,30 @@ export default async function ConsultationQueuePage({
                     </td>
                     <td className="px-4 py-3">
                       {authExpiry ? (
-                        <span
-                          className={
-                            isExpiringBefore48h
-                              ? "font-medium text-red-600"
-                              : "text-roots-navy/70"
-                          }
-                        >
-                          {formatDate(authExpiry)}
+                        <span className="inline-flex items-center gap-1.5">
+                          {isExpiryCritical && (
+                            <span className="inline-block h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                          )}
+                          {isExpiryWarning && (
+                            <span className="inline-block h-2 w-2 rounded-full bg-amber-500" />
+                          )}
+                          <span
+                            className={
+                              isExpiryCritical
+                                ? "font-semibold text-red-600"
+                                : isExpiryWarning
+                                  ? "font-medium text-amber-600"
+                                  : "text-roots-navy/70"
+                            }
+                          >
+                            {formatDate(authExpiry)}
+                            {isExpiryCritical && (
+                              <span className="ml-1 text-xs">(&lt;24h)</span>
+                            )}
+                            {isExpiryWarning && (
+                              <span className="ml-1 text-xs">(&lt;48h)</span>
+                            )}
+                          </span>
                         </span>
                       ) : (
                         "—"

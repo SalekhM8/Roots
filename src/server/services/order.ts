@@ -49,34 +49,40 @@ export async function createOrder(
   userId: string,
   cart: CartWithItems,
   shippingAddress: AddressInput,
-  billingAddress?: AddressInput
+  billingAddress?: AddressInput,
+  consultationId?: string
 ): Promise<CreateOrderResult> {
   if (cart.items.length === 0) {
     return { success: false, error: "Cart is empty." };
   }
 
-  // Check POM items have an approved consultation
+  // Check POM items have a submitted or approved consultation
   const pomItems = cart.items.filter(
     (i) => i.productVariant.product.requiresConsultation
   );
 
+  let linkedConsultationId = consultationId ?? null;
+
   if (pomItems.length > 0) {
-    const approvedConsultation = await db.consultation.findFirst({
+    const consultation = await db.consultation.findFirst({
       where: {
         userId,
-        status: "approved",
+        status: { in: ["submitted", "approved"] },
         productId: { in: pomItems.map((i) => i.productVariant.product.id) },
       },
       select: { id: true },
+      orderBy: { submittedAt: "desc" },
     });
 
-    if (!approvedConsultation) {
+    if (!consultation) {
       return {
         success: false,
         error:
-          "A consultation must be approved before ordering prescription items.",
+          "A consultation must be submitted before ordering prescription items.",
       };
     }
+
+    linkedConsultationId = linkedConsultationId ?? consultation.id;
   }
 
   const orderType = determineOrderType(cart.items);
@@ -126,6 +132,7 @@ export async function createOrder(
         userId,
         orderNumber,
         orderType,
+        consultationId: linkedConsultationId,
         shippingAddressSnapshot:
           shippingAddress as unknown as Prisma.InputJsonValue,
         billingAddressSnapshot: (billingAddress ??

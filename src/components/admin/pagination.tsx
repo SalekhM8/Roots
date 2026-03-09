@@ -4,12 +4,26 @@ interface AdminPaginationProps {
   basePath: string;
   page: number;
   totalPages: number;
+  /** Extra search params to preserve when paginating (e.g. q, status, type) */
+  extraParams?: Record<string, string>;
+}
+
+function buildHref(basePath: string, page: number, extraParams?: Record<string, string>) {
+  const params = new URLSearchParams();
+  if (extraParams) {
+    for (const [k, v] of Object.entries(extraParams)) {
+      if (v) params.set(k, v);
+    }
+  }
+  params.set("page", String(page));
+  return `${basePath}?${params.toString()}`;
 }
 
 export function AdminPagination({
   basePath,
   page,
   totalPages,
+  extraParams,
 }: AdminPaginationProps) {
   if (totalPages <= 1) return null;
 
@@ -21,7 +35,7 @@ export function AdminPagination({
       <div className="flex gap-2">
         {page > 1 && (
           <Link
-            href={`${basePath}?page=${page - 1}`}
+            href={buildHref(basePath, page - 1, extraParams)}
             className="rounded-lg border border-roots-green/15 px-3 py-1.5 text-roots-green hover:bg-roots-green/5"
           >
             Previous
@@ -29,7 +43,7 @@ export function AdminPagination({
         )}
         {page < totalPages && (
           <Link
-            href={`${basePath}?page=${page + 1}`}
+            href={buildHref(basePath, page + 1, extraParams)}
             className="rounded-lg border border-roots-green/15 px-3 py-1.5 text-roots-green hover:bg-roots-green/5"
           >
             Next

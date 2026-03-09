@@ -18,6 +18,7 @@ export const ROUTES = {
   checkoutConfirmation: "/checkout/confirmation",
   admin: "/admin",
   consultation: "/consultations/mounjaro",
+  consultationSelectDose: "/consultations/mounjaro/select-dose",
   collection: (slug: string) => `/collections/${slug}` as const,
   product: (slug: string) => `/products/${slug}` as const,
 } as const;
@@ -51,4 +52,6 @@ export const ADMIN_NAV = [
   { href: "/admin/orders", label: "Orders" },
   { href: "/admin/fulfillment", label: "Fulfillment" },
   { href: "/admin/products", label: "Products" },
+  { href: "/admin/emails", label: "Emails" },
+  { href: "/admin/users", label: "Users" },
 ] as const;

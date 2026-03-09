@@ -202,6 +202,31 @@ async function main() {
   }
 
   console.log("Seeded products and collection associations");
+
+  // ---- Bootstrap Admin User ----
+  const adminEmail = process.env.ADMIN_EMAIL ?? "admin@rootspharmacy.co.uk";
+  const adminUser = await prisma.user.findUnique({
+    where: { email: adminEmail },
+    include: { roles: true },
+  });
+
+  if (adminUser) {
+    const hasAdminRole = adminUser.roles.some((r) => r.role === "admin");
+    if (!hasAdminRole) {
+      await prisma.userRole.create({
+        data: { userId: adminUser.id, role: "admin" },
+      });
+      console.log(`Assigned admin role to existing user: ${adminEmail}`);
+    } else {
+      console.log(`User ${adminEmail} already has admin role`);
+    }
+  } else {
+    console.log(
+      `Admin user ${adminEmail} not found in database. ` +
+      `The user must sign up via Clerk first, then re-run seed or use the admin UI to assign the role.`
+    );
+  }
+
   console.log("Seed complete.");
 }
 

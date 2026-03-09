@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
-import type { ConsultationStatus, PaymentStatus, FulfillmentStatus } from "@/generated/prisma/client";
+import type { ConsultationStatus, PaymentStatus, FulfillmentStatus, OrderType } from "@/generated/prisma/client";
+import type { Prisma } from "@/generated/prisma/client";
 
 const PAGE_SIZE = 25;
 
@@ -118,11 +119,27 @@ export async function getConsultationDetail(id: string) {
 }
 
 // ---- Orders List ----
-export async function getOrdersList(page = 1) {
+export async function getOrdersList(page = 1, search?: string) {
   const skip = (page - 1) * PAGE_SIZE;
+
+  let where: Prisma.OrderWhereInput = {};
+
+  if (search && search.trim()) {
+    const term = search.trim();
+    where = {
+      OR: [
+        { orderNumber: { contains: term, mode: "insensitive" } },
+        { user: { email: { contains: term, mode: "insensitive" } } },
+        { user: { customerProfile: { firstName: { contains: term, mode: "insensitive" } } } },
+        { user: { customerProfile: { lastName: { contains: term, mode: "insensitive" } } } },
+        { shipments: { some: { trackingNumber: { contains: term, mode: "insensitive" } } } },
+      ],
+    };
+  }
 
   const [orders, total] = await Promise.all([
     db.order.findMany({
+      where,
       include: {
         user: {
           include: {
@@ -136,7 +153,7 @@ export async function getOrdersList(page = 1) {
       skip,
       take: PAGE_SIZE,
     }),
-    db.order.count(),
+    db.order.count({ where }),
   ]);
 
   return { orders, total, pageSize: PAGE_SIZE, page };
@@ -171,15 +188,26 @@ export async function getOrderDetail(id: string) {
 }
 
 // ---- Fulfillment Queue ----
-export async function getFulfillmentQueue(page = 1) {
+export async function getFulfillmentQueue(
+  page = 1,
+  filters?: { status?: string; type?: string },
+) {
   const skip = (page - 1) * PAGE_SIZE;
+
+  // Default: show the standard fulfillment statuses unless a specific one is requested
+  const fulfillmentStatuses: FulfillmentStatus[] = filters?.status
+    ? [filters.status as FulfillmentStatus]
+    : ["ready_to_pack", "packed", "labels_created"];
+
+  const where: Prisma.OrderWhereInput = {
+    paymentStatus: "captured",
+    fulfillmentStatus: { in: fulfillmentStatuses },
+    ...(filters?.type ? { orderType: filters.type as OrderType } : {}),
+  };
 
   const [orders, total] = await Promise.all([
     db.order.findMany({
-      where: {
-        paymentStatus: "captured",
-        fulfillmentStatus: { in: ["ready_to_pack", "packed", "labels_created"] },
-      },
+      where,
       include: {
         user: {
           include: {
@@ -199,15 +227,31 @@ export async function getFulfillmentQueue(page = 1) {
       skip,
       take: PAGE_SIZE,
     }),
-    db.order.count({
-      where: {
-        paymentStatus: "captured",
-        fulfillmentStatus: { in: ["ready_to_pack", "packed", "labels_created"] },
-      },
-    }),
+    db.order.count({ where }),
   ]);
 
   return { orders, total, pageSize: PAGE_SIZE, page };
+}
+
+// ---- Email Events ----
+export async function getEmailEvents(page = 1) {
+  const skip = (page - 1) * PAGE_SIZE;
+
+  const [events, total] = await Promise.all([
+    db.emailEvent.findMany({
+      include: {
+        user: {
+          select: { email: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: PAGE_SIZE,
+    }),
+    db.emailEvent.count(),
+  ]);
+
+  return { events, total, pageSize: PAGE_SIZE, page };
 }
 
 // ---- Audit Log for Entity ----

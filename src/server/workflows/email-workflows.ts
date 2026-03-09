@@ -178,6 +178,41 @@ export const sendOrderShippedEmail = inngest.createFunction(
   }
 );
 
+export const sendPaymentCapturedEmail = inngest.createFunction(
+  { id: "send-payment-captured-email" },
+  { event: "payment/captured" },
+  async ({ event }) => {
+    const { userId, orderId, amountMinor, orderNumber } = event.data;
+
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      include: { customerProfile: { select: { firstName: true } } },
+    });
+    if (!user) return;
+
+    const name = user.customerProfile?.firstName ?? "there";
+    const amount = `£${(amountMinor / 100).toFixed(2)}`;
+    const html = templates.paymentCaptured(name, amount, orderNumber);
+
+    const { messageId } = await sendEmail({
+      to: user.email,
+      subject: `Payment Confirmed for Order #${orderNumber} — ROOTS Pharmacy`,
+      html,
+    });
+
+    await db.emailEvent.create({
+      data: {
+        userId,
+        orderId,
+        emailType: "payment_captured",
+        providerMessageId: messageId,
+        sentAt: messageId ? new Date() : null,
+        status: messageId ? "sent" : "failed",
+      },
+    });
+  }
+);
+
 /**
  * Cron: Check for payment authorizations expiring within 24 hours.
  * Runs daily. Voids expired auths, marks payment as expired, emails customer.

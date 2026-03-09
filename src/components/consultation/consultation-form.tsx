@@ -49,6 +49,16 @@ interface FormState {
   isPregnantOrBreastfeeding: boolean | null;
   hasMedicalConditionsList: boolean | null;
   medicalConditionsListText: string;
+  hasEpilepsy: boolean;
+  hasHighCholesterol: boolean;
+  hasDiabetes: boolean;
+  hasGalactoseIntolerance: boolean;
+  hasLappLactaseDeficiency: boolean;
+  hasGlucoseGalactoseMalabsorption: boolean;
+  hasLiverKidneyProblems: boolean;
+  hasIbd: boolean;
+  hasThyroidProblems: boolean;
+  hasDepression: boolean;
   hasPancreatitisHistory: boolean | null;
   pancreatitisDetails: string;
   hasEatingDisorderHistory: boolean | null;
@@ -99,6 +109,16 @@ const initialState: FormState = {
   isPregnantOrBreastfeeding: null,
   hasMedicalConditionsList: null,
   medicalConditionsListText: "",
+  hasEpilepsy: false,
+  hasHighCholesterol: false,
+  hasDiabetes: false,
+  hasGalactoseIntolerance: false,
+  hasLappLactaseDeficiency: false,
+  hasGlucoseGalactoseMalabsorption: false,
+  hasLiverKidneyProblems: false,
+  hasIbd: false,
+  hasThyroidProblems: false,
+  hasDepression: false,
   hasPancreatitisHistory: null,
   pancreatitisDetails: "",
   hasEatingDisorderHistory: null,
@@ -162,6 +182,19 @@ const MEDICAL_CONDITIONS_LIST = [
   "Thyroid problems",
   "Depression or mood disorder",
 ] as const;
+
+const MEDICAL_CONDITIONS_CHECKBOXES: { field: keyof FormState; label: string }[] = [
+  { field: "hasEpilepsy", label: "Epilepsy" },
+  { field: "hasHighCholesterol", label: "High cholesterol" },
+  { field: "hasDiabetes", label: "Diabetes" },
+  { field: "hasGalactoseIntolerance", label: "Galactose intolerance" },
+  { field: "hasLappLactaseDeficiency", label: "Lapp lactase deficiency" },
+  { field: "hasGlucoseGalactoseMalabsorption", label: "Glucose-galactose malabsorption" },
+  { field: "hasLiverKidneyProblems", label: "Liver or kidney problems" },
+  { field: "hasIbd", label: "IBD/colitis/Crohn's" },
+  { field: "hasThyroidProblems", label: "Thyroid problems" },
+  { field: "hasDepression", label: "Depression or mood disorder" },
+];
 
 // ---------------------------------------------------------------------------
 // Process steps (Step 1)
@@ -260,6 +293,32 @@ export default function ConsultationForm() {
     return "bg-red-100 text-red-800";
   }, [bmi]);
 
+  const hasAnyConditionChecked = useMemo((): boolean => {
+    return (
+      state.hasEpilepsy ||
+      state.hasHighCholesterol ||
+      state.hasDiabetes ||
+      state.hasGalactoseIntolerance ||
+      state.hasLappLactaseDeficiency ||
+      state.hasGlucoseGalactoseMalabsorption ||
+      state.hasLiverKidneyProblems ||
+      state.hasIbd ||
+      state.hasThyroidProblems ||
+      state.hasDepression
+    );
+  }, [
+    state.hasEpilepsy,
+    state.hasHighCholesterol,
+    state.hasDiabetes,
+    state.hasGalactoseIntolerance,
+    state.hasLappLactaseDeficiency,
+    state.hasGlucoseGalactoseMalabsorption,
+    state.hasLiverKidneyProblems,
+    state.hasIbd,
+    state.hasThyroidProblems,
+    state.hasDepression,
+  ]);
+
   // ---------------------------------------------------------------------------
   // Step validation
   // ---------------------------------------------------------------------------
@@ -276,8 +335,7 @@ export default function ConsultationForm() {
     if (heightInCm < 100 || heightInCm > 250) return false;
     if (weightInKg < 30 || weightInKg > 300) return false;
     if (state.isPregnantOrBreastfeeding === null) return false;
-    if (state.hasMedicalConditionsList === null) return false;
-    if (state.hasMedicalConditionsList && !state.medicalConditionsListText.trim()) return false;
+    if (hasAnyConditionChecked && !state.medicalConditionsListText.trim()) return false;
     if (state.hasPancreatitisHistory === null) return false;
     if (state.hasPancreatitisHistory && !state.pancreatitisDetails.trim()) return false;
     if (state.hasEatingDisorderHistory === null) return false;
@@ -294,7 +352,7 @@ export default function ConsultationForm() {
     heightInCm,
     weightInKg,
     state.isPregnantOrBreastfeeding,
-    state.hasMedicalConditionsList,
+    hasAnyConditionChecked,
     state.medicalConditionsListText,
     state.hasPancreatitisHistory,
     state.pancreatitisDetails,
@@ -342,8 +400,18 @@ export default function ConsultationForm() {
         heightCm: Math.round(heightInCm * 10) / 10,
         weightKg: Math.round(weightInKg * 10) / 10,
         isPregnantOrBreastfeeding: state.isPregnantOrBreastfeeding === true,
-        hasMedicalConditionsList: state.hasMedicalConditionsList === true,
-        medicalConditionsListText: state.hasMedicalConditionsList
+        hasEpilepsy: state.hasEpilepsy,
+        hasHighCholesterol: state.hasHighCholesterol,
+        hasDiabetes: state.hasDiabetes,
+        hasGalactoseIntolerance: state.hasGalactoseIntolerance,
+        hasLappLactaseDeficiency: state.hasLappLactaseDeficiency,
+        hasGlucoseGalactoseMalabsorption: state.hasGlucoseGalactoseMalabsorption,
+        hasLiverKidneyProblems: state.hasLiverKidneyProblems,
+        hasIbd: state.hasIbd,
+        hasThyroidProblems: state.hasThyroidProblems,
+        hasDepression: state.hasDepression,
+        hasMedicalConditionsList: hasAnyConditionChecked,
+        medicalConditionsListText: hasAnyConditionChecked
           ? state.medicalConditionsListText
           : undefined,
         hasPancreatitisHistory: state.hasPancreatitisHistory === true,
@@ -372,12 +440,12 @@ export default function ConsultationForm() {
 
       if (result.success) {
         clearConsultationState();
-        router.push(`/account/consultations?submitted=${result.consultationId}`);
+        router.push(`/consultations/mounjaro/select-dose?consultation=${result.consultationId}`);
       } else {
         setSubmitError(result.error ?? "Something went wrong. Please try again.");
       }
     });
-  }, [canSubmit, isSignedIn, state, heightInCm, weightInKg, router]);
+  }, [canSubmit, isSignedIn, state, heightInCm, weightInKg, hasAnyConditionChecked, router]);
 
   // ---------------------------------------------------------------------------
   // Step 0 — Pre-Start Requirements
@@ -656,20 +724,20 @@ export default function ConsultationForm() {
               <YesNoRadio name="isPregnantOrBreastfeeding" value={state.isPregnantOrBreastfeeding} onChange={(v) => setField("isPregnantOrBreastfeeding", v)} />
             </QuestionBlock>
 
-            {/* Medical conditions list */}
-            <QuestionBlock question="Have you ever had any of the following conditions?">
-              <div className="rounded-[var(--radius-input)] border border-roots-green/10 bg-roots-cream/50 p-4">
-                <ul className="columns-1 gap-x-6 space-y-1 text-sm text-roots-navy/70 sm:columns-2">
-                  {MEDICAL_CONDITIONS_LIST.map((c) => (
-                    <li key={c} className="flex items-center gap-2">
-                      <span className="h-1 w-1 shrink-0 rounded-full bg-roots-green/40" />
-                      {c}
-                    </li>
-                  ))}
-                </ul>
+            {/* Medical conditions list — individual checkboxes */}
+            <QuestionBlock question="Do you have, or have you ever had, any of the following conditions?">
+              <div className="space-y-3">
+                {MEDICAL_CONDITIONS_CHECKBOXES.map(({ field, label }) => (
+                  <Checkbox
+                    key={field}
+                    id={`condition-${field}`}
+                    checked={state[field] as boolean}
+                    onChange={(v) => setField(field, v)}
+                    label={label}
+                  />
+                ))}
               </div>
-              <YesNoRadio name="hasMedicalConditionsList" value={state.hasMedicalConditionsList} onChange={(v) => setField("hasMedicalConditionsList", v)} />
-              {state.hasMedicalConditionsList && (
+              {hasAnyConditionChecked && (
                 <Textarea
                   value={state.medicalConditionsListText}
                   onChange={(v) => setField("medicalConditionsListText", v)}

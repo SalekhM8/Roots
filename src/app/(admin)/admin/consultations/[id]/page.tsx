@@ -135,6 +135,39 @@ export default async function ConsultationReviewPage({
                   label="Current medications"
                   value={answers.currentMedicationsText || "None reported"}
                 />
+                <div>
+                  <dt className="text-sm font-medium text-roots-navy/50">Specific conditions</dt>
+                  <dd className="mt-1">
+                    {(() => {
+                      const conditions = [
+                        { flag: answers.hasEpilepsy, label: "Epilepsy" },
+                        { flag: answers.hasHighCholesterol, label: "High cholesterol" },
+                        { flag: answers.hasDiabetes, label: "Diabetes" },
+                        { flag: answers.hasGalactoseIntolerance, label: "Galactose intolerance" },
+                        { flag: answers.hasLappLactaseDeficiency, label: "Lapp lactase deficiency" },
+                        { flag: answers.hasGlucoseGalactoseMalabsorption, label: "Glucose-galactose malabsorption" },
+                        { flag: answers.hasLiverKidneyProblems, label: "Liver or kidney problems" },
+                        { flag: answers.hasIbd, label: "IBD/colitis/Crohn's" },
+                        { flag: answers.hasThyroidProblems, label: "Thyroid problems" },
+                        { flag: answers.hasDepression, label: "Depression or mood disorder" },
+                      ];
+                      const active = conditions.filter((c) => c.flag);
+                      if (active.length === 0) {
+                        return <span className="text-sm text-roots-navy/70">None reported</span>;
+                      }
+                      return (
+                        <ul className="space-y-1">
+                          {active.map((c) => (
+                            <li key={c.label} className="flex items-center gap-2 text-sm text-roots-navy/80">
+                              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-400" />
+                              {c.label}
+                            </li>
+                          ))}
+                        </ul>
+                      );
+                    })()}
+                  </dd>
+                </div>
                 <Field
                   label="Prior GLP-1 use"
                   value={

@@ -2,9 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductDetail } from "@/server/queries/products";
+import { db } from "@/lib/db";
 import { Section, Field } from "@/components/admin/section";
 import { StatusPill } from "@/components/ui/status-pill";
 import { ProductEditForm } from "@/components/admin/product-edit-form";
+import { VariantEditForm } from "./variant-edit-form";
+import { CollectionManager } from "./collection-manager";
+import { ArchiveButton } from "./archive-button";
 import { formatPrice, formatDateTime, humanizeStatus } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -20,6 +24,14 @@ export default async function AdminProductDetailPage({ params }: AdminProductDet
   const product = await getProductDetail(id);
 
   if (!product) notFound();
+
+  // Fetch all collections for the assignment UI
+  const allCollections = await db.collection.findMany({
+    orderBy: { sortOrder: "asc" },
+    select: { id: true, name: true, slug: true },
+  });
+
+  const assignedCollectionIds = product.collectionProducts.map((cp) => cp.collection.id);
 
   return (
     <div className="p-6 md:p-10">
@@ -37,6 +49,9 @@ export default async function AdminProductDetailPage({ params }: AdminProductDet
         <StatusPill variant={product.productType === "pom" ? "warning" : "info"}>
           {humanizeStatus(product.productType)}
         </StatusPill>
+        {product.archivedAt && (
+          <StatusPill variant="neutral">Archived</StatusPill>
+        )}
       </div>
       <p className="mb-8 text-sm text-roots-navy/50">
         Slug: {product.slug} · Created {formatDateTime(product.createdAt)}
@@ -56,40 +71,34 @@ export default async function AdminProductDetailPage({ params }: AdminProductDet
             }}
           />
 
-          {/* Variants */}
-          <Section title="Variants">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-roots-green/10 text-xs font-medium uppercase tracking-wider text-roots-navy/50">
-                    <th className="pb-2 pr-4">Variant</th>
-                    <th className="pb-2 pr-4">SKU</th>
-                    <th className="pb-2 pr-4">Price</th>
-                    <th className="pb-2 pr-4">Stock</th>
-                    <th className="pb-2 pr-4">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {product.variants.map((variant) => (
-                    <tr key={variant.id} className="border-b border-roots-green/5 last:border-0">
-                      <td className="py-2 pr-4 font-medium text-roots-navy">{variant.name}</td>
-                      <td className="py-2 pr-4 text-roots-navy/50">{variant.sku}</td>
-                      <td className="py-2 pr-4 text-roots-navy">{formatPrice(variant.priceMinor)}</td>
-                      <td className="py-2 pr-4">
-                        <span className={variant.stockQuantity <= 10 ? "font-medium text-red-600" : "text-roots-navy"}>
-                          {variant.stockQuantity}
-                        </span>
-                      </td>
-                      <td className="py-2 pr-4">
-                        <StatusPill variant={variant.isActive ? "success" : "neutral"}>
-                          {variant.isActive ? "active" : "inactive"}
-                        </StatusPill>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          {/* Variants — now editable */}
+          <Section title={`Variants (${product.variants.length})`}>
+            {product.variants.length === 0 ? (
+              <p className="text-sm text-roots-navy/30">No variants.</p>
+            ) : (
+              <div className="space-y-4">
+                {product.variants.map((variant) => (
+                  <VariantEditForm
+                    key={variant.id}
+                    variantId={variant.id}
+                    initialName={variant.name}
+                    initialSku={variant.sku}
+                    initialPriceMinor={variant.priceMinor}
+                    initialStockQuantity={variant.stockQuantity}
+                    initialIsActive={variant.isActive}
+                  />
+                ))}
+              </div>
+            )}
+          </Section>
+
+          {/* Collections */}
+          <Section title="Collections">
+            <CollectionManager
+              productId={product.id}
+              allCollections={allCollections}
+              assignedCollectionIds={assignedCollectionIds}
+            />
           </Section>
         </div>
 
@@ -104,20 +113,16 @@ export default async function AdminProductDetailPage({ params }: AdminProductDet
               {product.defaultImageUrl && (
                 <Field label="Image URL" value={product.defaultImageUrl} />
               )}
+              {product.archivedAt && (
+                <Field label="Archived" value={formatDateTime(product.archivedAt)} />
+              )}
             </div>
           </Section>
 
-          {product.collectionProducts.length > 0 && (
-            <Section title="Collections">
-              <div className="space-y-1">
-                {product.collectionProducts.map((cp) => (
-                  <p key={cp.collection.id} className="text-sm text-roots-navy">
-                    {cp.collection.name}
-                  </p>
-                ))}
-              </div>
-            </Section>
-          )}
+          {/* Archive / Unarchive */}
+          <Section title="Actions">
+            <ArchiveButton productId={product.id} isArchived={!!product.archivedAt} />
+          </Section>
         </div>
       </div>
     </div>

@@ -103,3 +103,162 @@ export async function updateVariantAction(
 
   return { success: true };
 }
+
+// ---- Archive / Unarchive ----
+
+const archiveSchema = z.object({
+  productId: z.string().uuid(),
+});
+
+export async function archiveProductAction(
+  input: z.infer<typeof archiveSchema>
+): Promise<ActionResult> {
+  const user = await requireAnyRole("admin");
+  const rl = checkRateLimit("admin", user.id);
+  if (!rl.allowed) return { success: false, error: "Too many requests." };
+
+  const parsed = archiveSchema.safeParse(input);
+  if (!parsed.success) return { success: false, error: "Invalid input." };
+
+  const { productId } = parsed.data;
+
+  const product = await db.product.findUnique({
+    where: { id: productId },
+    select: { archivedAt: true },
+  });
+  if (!product) return { success: false, error: "Product not found." };
+  if (product.archivedAt) return { success: false, error: "Product is already archived." };
+
+  await db.product.update({
+    where: { id: productId },
+    data: { archivedAt: new Date(), isActive: false, isVisible: false },
+  });
+
+  await writeAuditLog({
+    actorUserId: user.id,
+    actorRole: "admin",
+    entityType: "Product",
+    entityId: productId,
+    action: "product.archived",
+  });
+
+  return { success: true };
+}
+
+export async function unarchiveProductAction(
+  input: z.infer<typeof archiveSchema>
+): Promise<ActionResult> {
+  const user = await requireAnyRole("admin");
+  const rl = checkRateLimit("admin", user.id);
+  if (!rl.allowed) return { success: false, error: "Too many requests." };
+
+  const parsed = archiveSchema.safeParse(input);
+  if (!parsed.success) return { success: false, error: "Invalid input." };
+
+  const { productId } = parsed.data;
+
+  const product = await db.product.findUnique({
+    where: { id: productId },
+    select: { archivedAt: true },
+  });
+  if (!product) return { success: false, error: "Product not found." };
+  if (!product.archivedAt) return { success: false, error: "Product is not archived." };
+
+  await db.product.update({
+    where: { id: productId },
+    data: { archivedAt: null, isActive: true },
+  });
+
+  await writeAuditLog({
+    actorUserId: user.id,
+    actorRole: "admin",
+    entityType: "Product",
+    entityId: productId,
+    action: "product.unarchived",
+  });
+
+  return { success: true };
+}
+
+// ---- Collection Assignment ----
+
+const collectionSchema = z.object({
+  productId: z.string().uuid(),
+  collectionId: z.string().uuid(),
+});
+
+export async function assignCollectionAction(
+  input: z.infer<typeof collectionSchema>
+): Promise<ActionResult> {
+  const user = await requireAnyRole("admin");
+  const rl = checkRateLimit("admin", user.id);
+  if (!rl.allowed) return { success: false, error: "Too many requests." };
+
+  const parsed = collectionSchema.safeParse(input);
+  if (!parsed.success) return { success: false, error: "Invalid input." };
+
+  const { productId, collectionId } = parsed.data;
+
+  const existing = await db.collectionProduct.findUnique({
+    where: { collectionId_productId: { collectionId, productId } },
+  });
+  if (existing) return { success: false, error: "Product is already in this collection." };
+
+  const maxSort = await db.collectionProduct.findFirst({
+    where: { collectionId },
+    orderBy: { sortOrder: "desc" },
+    select: { sortOrder: true },
+  });
+
+  await db.collectionProduct.create({
+    data: {
+      collectionId,
+      productId,
+      sortOrder: (maxSort?.sortOrder ?? 0) + 1,
+    },
+  });
+
+  await writeAuditLog({
+    actorUserId: user.id,
+    actorRole: "admin",
+    entityType: "CollectionProduct",
+    entityId: productId,
+    action: "collection.product_assigned",
+    newState: { productId, collectionId } as unknown as Prisma.InputJsonValue,
+  });
+
+  return { success: true };
+}
+
+export async function removeCollectionAction(
+  input: z.infer<typeof collectionSchema>
+): Promise<ActionResult> {
+  const user = await requireAnyRole("admin");
+  const rl = checkRateLimit("admin", user.id);
+  if (!rl.allowed) return { success: false, error: "Too many requests." };
+
+  const parsed = collectionSchema.safeParse(input);
+  if (!parsed.success) return { success: false, error: "Invalid input." };
+
+  const { productId, collectionId } = parsed.data;
+
+  const existing = await db.collectionProduct.findUnique({
+    where: { collectionId_productId: { collectionId, productId } },
+  });
+  if (!existing) return { success: false, error: "Product is not in this collection." };
+
+  await db.collectionProduct.delete({
+    where: { id: existing.id },
+  });
+
+  await writeAuditLog({
+    actorUserId: user.id,
+    actorRole: "admin",
+    entityType: "CollectionProduct",
+    entityId: productId,
+    action: "collection.product_removed",
+    previousState: { productId, collectionId } as unknown as Prisma.InputJsonValue,
+  });
+
+  return { success: true };
+}

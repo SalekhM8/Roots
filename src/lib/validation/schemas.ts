@@ -45,6 +45,18 @@ export const consultationAnswersSchema = z.object({
   hasPriorGlp1Use: z.boolean(),
   priorGlp1Details: z.string().max(2000).optional(),
 
+  // Individual medical conditions (Step 3)
+  hasEpilepsy: z.boolean().default(false),
+  hasHighCholesterol: z.boolean().default(false),
+  hasDiabetes: z.boolean().default(false),
+  hasGalactoseIntolerance: z.boolean().default(false),
+  hasLappLactaseDeficiency: z.boolean().default(false),
+  hasGlucoseGalactoseMalabsorption: z.boolean().default(false),
+  hasLiverKidneyProblems: z.boolean().default(false),
+  hasIbd: z.boolean().default(false),
+  hasThyroidProblems: z.boolean().default(false),
+  hasDepression: z.boolean().default(false),
+
   // Step 3 — Lifestyle and Medical
   heightCm: z.number().min(100, "Height must be at least 100cm").max(250, "Height cannot exceed 250cm"),
   weightKg: z.number().min(30, "Weight must be at least 30kg").max(300, "Weight cannot exceed 300kg"),

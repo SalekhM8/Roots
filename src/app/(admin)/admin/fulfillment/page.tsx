@@ -6,7 +6,9 @@ import {
 } from "@/server/queries/admin";
 import { StatusPill } from "@/components/ui/status-pill";
 import { AdminPagination } from "@/components/admin/pagination";
+import { FulfillmentFilters } from "@/components/admin/fulfillment-filters";
 import { FulfillmentActions } from "@/components/admin/fulfillment-actions";
+import { BulkLabels } from "@/components/admin/bulk-labels";
 import { formatDate, parsePage, humanizeStatus, getDisplayName } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -14,25 +16,43 @@ export const metadata: Metadata = {
 };
 
 interface FulfillmentPageProps {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; status?: string; type?: string }>;
 }
 
 export default async function FulfillmentQueuePage({
   searchParams,
 }: FulfillmentPageProps) {
-  const { page: pageStr } = await searchParams;
+  const { page: pageStr, status, type } = await searchParams;
   const page = parsePage(pageStr);
-  const { orders, total, pageSize } = await getFulfillmentQueue(page);
+  const filters = { status, type };
+  const { orders, total, pageSize } = await getFulfillmentQueue(page, filters);
   const totalPages = Math.ceil(total / pageSize);
+
+  // Build extra params for pagination links
+  const extraParams: Record<string, string> = {};
+  if (status) extraParams.status = status;
+  if (type) extraParams.type = type;
 
   return (
     <div className="p-6 md:p-10">
       <h1 className="mb-2 text-2xl font-medium text-roots-green">
         Fulfillment
       </h1>
-      <p className="mb-8 text-sm text-roots-navy/50">
-        {total} orders awaiting fulfillment
+      <p className="mb-6 text-sm text-roots-navy/50">
+        {total} order{total !== 1 ? "s" : ""} in fulfillment queue
       </p>
+
+      <FulfillmentFilters />
+
+      <BulkLabels
+        eligibleOrders={orders
+          .filter(
+            (o) =>
+              o.fulfillmentStatus === "ready_to_pack" ||
+              o.fulfillmentStatus === "packed",
+          )
+          .map((o) => ({ id: o.id, orderNumber: o.orderNumber }))}
+      />
 
       <div className="overflow-x-auto rounded-[var(--radius-card)] border border-roots-green/10 bg-white">
         <table className="w-full text-left text-sm">
@@ -41,6 +61,7 @@ export default async function FulfillmentQueuePage({
               <th className="px-4 py-3">Order #</th>
               <th className="px-4 py-3">Date</th>
               <th className="px-4 py-3">Customer</th>
+              <th className="px-4 py-3">Type</th>
               <th className="px-4 py-3">Items</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Tracking</th>
@@ -52,9 +73,9 @@ export default async function FulfillmentQueuePage({
               <tr>
                 <td
                   className="px-4 py-12 text-center text-roots-navy/30"
-                  colSpan={7}
+                  colSpan={8}
                 >
-                  No orders in fulfillment queue
+                  No orders match the current filters
                 </td>
               </tr>
             ) : (
@@ -83,6 +104,9 @@ export default async function FulfillmentQueuePage({
                       {formatDate(order.createdAt)}
                     </td>
                     <td className="px-4 py-3 text-roots-navy/70">{name}</td>
+                    <td className="px-4 py-3 text-roots-navy/70 capitalize">
+                      {order.orderType}
+                    </td>
                     <td className="px-4 py-3 text-roots-navy/70">
                       {totalItems}
                     </td>
@@ -96,7 +120,7 @@ export default async function FulfillmentQueuePage({
                       </StatusPill>
                     </td>
                     <td className="px-4 py-3 text-roots-navy/70">
-                      {shipment?.trackingNumber ?? "—"}
+                      {shipment?.trackingNumber ?? "\u2014"}
                     </td>
                     <td className="px-4 py-3">
                       <FulfillmentActions
@@ -112,7 +136,12 @@ export default async function FulfillmentQueuePage({
         </table>
       </div>
 
-      <AdminPagination basePath="/admin/fulfillment" page={page} totalPages={totalPages} />
+      <AdminPagination
+        basePath="/admin/fulfillment"
+        page={page}
+        totalPages={totalPages}
+        extraParams={Object.keys(extraParams).length > 0 ? extraParams : undefined}
+      />
     </div>
   );
 }

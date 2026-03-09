@@ -111,6 +111,17 @@ export function orderShipped(name: string, orderNumber: string, trackingUrl?: st
   );
 }
 
+export function paymentCaptured(name: string, amount: string, orderNumber: string): string {
+  return layout(
+    "Payment Confirmed",
+    `<h2 style="margin:0 0 16px;color:${BRAND.green};">Payment Confirmed</h2>
+    <p>Hi ${name},</p>
+    <p>Your payment of <strong>${amount}</strong> has been confirmed for order <strong>#${orderNumber}</strong>.</p>
+    <p>We're preparing your order for dispatch. You'll receive another email once it ships.</p>
+    ${cta("View My Orders", `${BRAND.siteUrl}/account/orders`)}`
+  );
+}
+
 export function paymentExpired(name: string, orderNumber: string): string {
   return layout(
     "Payment Authorization Expired",

@@ -135,6 +135,20 @@ export async function approveConsultation(
         orderNumber: order?.orderNumber ?? "",
       },
     }),
+    // Emit payment captured event for POM approval capture
+    ...(order && payment
+      ? [
+          inngest.send({
+            name: "payment/captured",
+            data: {
+              userId: consultation.userId,
+              orderId: order.id,
+              amountMinor: payment.amountMinor,
+              orderNumber: order.orderNumber,
+            },
+          }),
+        ]
+      : []),
   ]);
 
   return { success: true };
