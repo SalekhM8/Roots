@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#003049"/>
+      <stop offset="100%" stop-color="#00243a"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <!-- Moon glow -->
+  <circle cx="400" cy="320" r="200" fill="#fdf0d5" opacity="0.03"/>
+  <circle cx="400" cy="320" r="140" fill="#fdf0d5" opacity="0.04"/>
+  <!-- Moon crescent -->
+  <g transform="translate(400,300)">
+    <circle cx="0" cy="0" r="80" fill="#fdf0d5" opacity="0.15"/>
+    <circle cx="30" cy="-25" r="70" fill="#003049"/>
+  </g>
+  <!-- Stars -->
+  <g fill="#fdf0d5" opacity="0.3">
+    <circle cx="250" cy="200" r="3"/>
+    <circle cx="550" cy="250" r="2.5"/>
+    <circle cx="300" cy="150" r="2"/>
+    <circle cx="500" cy="180" r="3.5"/>
+    <circle cx="200" cy="350" r="2"/>
+    <circle cx="600" cy="350" r="2.5"/>
+    <circle cx="350" cy="120" r="2"/>
+    <circle cx="480" cy="140" r="1.5"/>
+  </g>
+  <!-- Bottle -->
+  <g transform="translate(400,500)">
+    <rect x="-55" y="-80" width="110" height="180" rx="14" fill="#fdf0d5" opacity="0.12"/>
+    <rect x="-28" y="-110" width="56" height="35" rx="6" fill="#fdf0d5" opacity="0.1"/>
+    <rect x="-32" y="-135" width="64" height="28" rx="8" fill="#fdf0d5" opacity="0.15"/>
+    <!-- Zzz -->
+    <text x="0" y="-10" text-anchor="middle" font-family="system-ui, sans-serif" font-size="36" font-weight="700" fill="#fdf0d5" opacity="0.5">Zz</text>
+    <text x="0" y="30" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="400" fill="#fdf0d5" opacity="0.4" letter-spacing="2">SLEEP</text>
+  </g>
+  <!-- Label -->
+  <text x="400" y="720" text-anchor="middle" font-family="system-ui, sans-serif" font-size="24" font-weight="500" fill="#fdf0d5" opacity="0.35" letter-spacing="3">60 CAPSULES</text>
+</svg>

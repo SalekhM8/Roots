@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdf0d5"/>
+      <stop offset="100%" stop-color="#f3e8c8"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <!-- Decorative circles -->
+  <circle cx="650" cy="200" r="180" fill="#045c4b" opacity="0.04"/>
+  <circle cx="200" cy="600" r="220" fill="#045c4b" opacity="0.03"/>
+  <!-- Bottle -->
+  <g transform="translate(400,380)">
+    <!-- Bottle body -->
+    <rect x="-70" y="-120" width="140" height="260" rx="16" fill="#045c4b"/>
+    <!-- Bottle neck -->
+    <rect x="-35" y="-160" width="70" height="50" rx="8" fill="#045c4b"/>
+    <!-- Cap -->
+    <rect x="-40" y="-195" width="80" height="40" rx="10" fill="#0b6a57"/>
+    <!-- Label area -->
+    <rect x="-55" y="-60" width="110" height="120" rx="8" fill="#fdf0d5" opacity="0.15"/>
+    <!-- Mg symbol -->
+    <text x="0" y="-5" text-anchor="middle" font-family="system-ui, sans-serif" font-size="42" font-weight="600" fill="#fdf0d5" opacity="0.9">Mg</text>
+    <!-- Subtitle -->
+    <text x="0" y="35" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="400" fill="#fdf0d5" opacity="0.6" letter-spacing="1">GLYCINATE</text>
+  </g>
+  <!-- Scattered capsules -->
+  <g opacity="0.15">
+    <rect x="560" y="480" width="50" height="22" rx="11" fill="#045c4b" transform="rotate(-20 585 491)"/>
+    <rect x="180" y="280" width="50" height="22" rx="11" fill="#045c4b" transform="rotate(15 205 291)"/>
+    <rect x="600" y="320" width="50" height="22" rx="11" fill="#045c4b" transform="rotate(-45 625 331)"/>
+  </g>
+  <!-- Label -->
+  <text x="400" y="700" text-anchor="middle" font-family="system-ui, sans-serif" font-size="24" font-weight="500" fill="#045c4b" opacity="0.4" letter-spacing="3">60 CAPSULES</text>
+</svg>

@@ -51,7 +51,7 @@ async function main() {
   // ---- Products ----
   const mounjaro = await prisma.product.upsert({
     where: { slug: "mounjaro" },
-    update: {},
+    update: { defaultImageUrl: "/images/products/mounjaro.svg" },
     create: {
       name: "Mounjaro Weight Loss Programme",
       slug: "mounjaro",
@@ -59,6 +59,7 @@ async function main() {
       longDescription: "Mounjaro (tirzepatide) is a once-weekly injectable prescription medicine for weight management. Our programme includes a full clinical consultation reviewed by a qualified prescriber, personalised dosing, and ongoing pharmacy support.",
       productType: "pom",
       requiresConsultation: true,
+      defaultImageUrl: "/images/products/mounjaro.svg",
     },
   });
 
@@ -90,13 +91,14 @@ async function main() {
 
   const magnesium = await prisma.product.upsert({
     where: { slug: "magnesium-glycinate" },
-    update: {},
+    update: { defaultImageUrl: "/images/products/magnesium-glycinate.svg" },
     create: {
       name: "Magnesium Glycinate",
       slug: "magnesium-glycinate",
       shortDescription: "Premium magnesium for muscle recovery, sleep quality, and nervous system support.",
       longDescription: "Our Magnesium Glycinate uses the highly bioavailable glycinate form, gentle on the stomach and efficiently absorbed. Supports over 300 enzymatic reactions in the body.",
       productType: "supplement",
+      defaultImageUrl: "/images/products/magnesium-glycinate.svg",
     },
   });
   await prisma.productVariant.upsert({
@@ -107,13 +109,14 @@ async function main() {
 
   const electrolytes = await prisma.product.upsert({
     where: { slug: "electrolytes" },
-    update: {},
+    update: { defaultImageUrl: "/images/products/electrolytes.svg" },
     create: {
       name: "Daily Electrolytes",
       slug: "electrolytes",
       shortDescription: "Balanced electrolyte blend for hydration, energy, and recovery.",
       longDescription: "A precise blend of sodium, potassium, magnesium, and zinc designed to support optimal hydration. Particularly beneficial during weight management programmes.",
       productType: "supplement",
+      defaultImageUrl: "/images/products/electrolytes.svg",
     },
   });
   await prisma.productVariant.upsert({
@@ -124,13 +127,14 @@ async function main() {
 
   const sleepSupport = await prisma.product.upsert({
     where: { slug: "sleep-support" },
-    update: {},
+    update: { defaultImageUrl: "/images/products/sleep-support.svg" },
     create: {
       name: "Sleep Support",
       slug: "sleep-support",
       shortDescription: "Natural sleep formula for deeper, more restorative rest.",
       longDescription: "A carefully formulated blend of magnesium, L-theanine, and botanical extracts to promote relaxation and support healthy sleep patterns without next-day drowsiness.",
       productType: "supplement",
+      defaultImageUrl: "/images/products/sleep-support.svg",
     },
   });
   await prisma.productVariant.upsert({
@@ -141,13 +145,14 @@ async function main() {
 
   const probiotic = await prisma.product.upsert({
     where: { slug: "probiotic-womens" },
-    update: {},
+    update: { defaultImageUrl: "/images/products/probiotic-womens.svg" },
     create: {
       name: "Probiotic — Women's Health",
       slug: "probiotic-womens",
       shortDescription: "Targeted probiotic blend formulated specifically for women's gut and intimate health.",
       longDescription: "A multi-strain probiotic formula featuring Lactobacillus strains clinically studied for women's health, supporting digestive comfort, immune function, and intimate flora balance.",
       productType: "supplement",
+      defaultImageUrl: "/images/products/probiotic-womens.svg",
     },
   });
   await prisma.productVariant.upsert({
