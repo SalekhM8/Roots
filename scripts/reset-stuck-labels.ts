@@ -50,7 +50,7 @@ async function main() {
         where: { id: order.id },
         data: {
           fulfillmentStatus: "packed",
-          shippingStatus: "pending",
+          shippingStatus: "not_created",
         },
       });
     });
