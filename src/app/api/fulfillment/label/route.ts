@@ -48,10 +48,10 @@ export async function GET(req: NextRequest) {
   }
 
   const labelResponse = await fetch(
-    `https://api.parcel.royalmail.com/api/v1/orders/${shipment.clickDropOrderId}/label`,
+    `https://api.parcel.royalmail.com/api/v1/Orders/${shipment.clickDropOrderId}/label`,
     {
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: apiKey,
         Accept: "application/pdf",
       },
     }
@@ -60,10 +60,10 @@ export async function GET(req: NextRequest) {
   if (!labelResponse.ok) {
     // Try fetching order details for a label URL
     const detailsResponse = await fetch(
-      `https://api.parcel.royalmail.com/api/v1/orders/${shipment.clickDropOrderId}`,
+      `https://api.parcel.royalmail.com/api/v1/Orders/${shipment.clickDropOrderId}`,
       {
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: apiKey,
           "Content-Type": "application/json",
         },
       }

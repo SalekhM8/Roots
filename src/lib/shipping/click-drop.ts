@@ -39,7 +39,7 @@ async function clickDropFetch(
   return fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: apiKey,
       "Content-Type": "application/json",
       ...options.headers,
     },
@@ -65,25 +65,27 @@ export async function createClickDropOrder(
       postcode: params.recipientAddress.postcode,
       countryCode: params.recipientAddress.countryCode,
     },
-    package: {
-      weightInGrams: params.weightGrams,
-      packageFormatIdentifier: "letter",
-    },
+    packages: [
+      {
+        weightInGrams: params.weightGrams,
+        packageFormatIdentifier: "letter",
+        contents: params.items.map((item) => ({
+          name: item.description,
+          SKU: "",
+          quantity: item.quantity,
+          unitValue: item.value,
+          unitWeightInGrams: Math.round(params.weightGrams / params.items.length),
+        })),
+      },
+    ],
     orderDate: new Date().toISOString(),
     subtotal: itemsTotal,
     shippingCostPaid: 0,
     total: itemsTotal,
     currencyCode: "GBP",
-    items: params.items.map((item) => ({
-      description: item.description,
-      quantity: item.quantity,
-      value: item.value,
-      weight: params.weightGrams,
-      sku: "",
-    })),
   };
 
-  const response = await clickDropFetch("/orders", {
+  const response = await clickDropFetch("/Orders", {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -119,7 +121,7 @@ export async function createClickDropOrder(
 async function getClickDropOrderDetails(
   orderId: string
 ): Promise<{ trackingNumber?: string; status?: string; labelUrl?: string }> {
-  const response = await clickDropFetch(`/orders/${orderId}`);
+  const response = await clickDropFetch(`/Orders/${orderId}`);
 
   if (!response.ok) {
     throw new Error(`Click & Drop API error: ${response.status}`);
@@ -141,14 +143,14 @@ export async function getClickDropLabel(
   orderId: string
 ): Promise<string | null> {
   // Try the direct label endpoint first
-  const labelResponse = await clickDropFetch(`/orders/${orderId}/label`, {
+  const labelResponse = await clickDropFetch(`/Orders/${orderId}/label`, {
     headers: { Accept: "application/pdf" },
   });
 
   if (labelResponse.ok) {
     // If the response is a PDF, we need to construct the URL
     // The label endpoint returns the PDF directly
-    return `${API_BASE}/orders/${orderId}/label`;
+    return `${API_BASE}/Orders/${orderId}/label`;
   }
 
   // Fallback: check order details for a label URL
@@ -166,7 +168,7 @@ export async function getClickDropLabel(
 export async function getClickDropTracking(
   orderId: string
 ): Promise<{ trackingNumber?: string; status?: string }> {
-  const response = await clickDropFetch(`/orders/${orderId}`);
+  const response = await clickDropFetch(`/Orders/${orderId}`);
 
   if (!response.ok) {
     throw new Error(`Click & Drop API error: ${response.status}`);
