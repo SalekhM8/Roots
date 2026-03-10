@@ -43,7 +43,6 @@ function HeroBackground({ isTransitioning }: { isTransitioning: boolean }) {
         className="h-full w-full"
         preserveAspectRatio="xMidYMid slice"
       >
-        {/* Soft radial glow behind centre text */}
         <defs>
           <radialGradient id="glow" cx="50%" cy="45%" r="40%">
             <stop offset="0%" stopColor="#fdf0d5" stopOpacity="0.08" />
@@ -52,131 +51,83 @@ function HeroBackground({ isTransitioning }: { isTransitioning: boolean }) {
         </defs>
         <rect width="1440" height="700" fill="url(#glow)" />
 
-        {/* --- Vivid cream icons on green background — nature + pharmacy --- */}
         <g stroke="#fdf0d5" fill="none" strokeLinecap="round" strokeLinejoin="round">
 
-          {/* Botanical leaf — top left */}
-          <g transform="translate(100, 70) rotate(-12)" opacity="0.16" strokeWidth="1.5">
-            <path d="M30 60C30 60 2 48 2 24C2 4 20 0 30 0C40 0 58 4 58 24C58 48 30 60 30 60Z" />
-            <path d="M30 60V14" />
-            <path d="M30 42C22 36 14 37 8 40" />
-            <path d="M30 30C38 24 46 25 52 28" />
-            <path d="M30 20C24 16 18 17 14 19" />
+          {/* Leaf — top left */}
+          <g transform="translate(80, 60) scale(2.8)" opacity="0.16" strokeWidth="0.7">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
           </g>
 
-          {/* Capsule pill — top right */}
-          <g transform="translate(1240, 100) rotate(30)" opacity="0.14" strokeWidth="1.5">
-            <rect x="0" y="0" width="24" height="56" rx="12" />
-            <line x1="0" y1="28" x2="24" y2="28" />
-            <ellipse cx="12" cy="14" rx="4" ry="6" opacity="0.4" />
+          {/* Pill — top right */}
+          <g transform="translate(1220, 80) scale(2.8) rotate(30)" opacity="0.15" strokeWidth="0.7">
+            <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
+            <path d="m8.5 8.5 7 7" />
           </g>
 
-          {/* Heart with pulse — bottom left */}
-          <g transform="translate(60, 490)" opacity="0.15" strokeWidth="1.5">
-            <path d="M28 52L4 28C-4 20-4 8 4 2C12-4 22 0 28 10C34 0 44-4 52 2C60 8 60 20 52 28L28 52Z" />
-            <path d="M12 28H20L24 20L28 36L32 24H40" />
+          {/* Heart Pulse — bottom left */}
+          <g transform="translate(50, 480) scale(2.8)" opacity="0.16" strokeWidth="0.7">
+            <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" />
+            <path d="M3.22 13H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27" />
           </g>
 
-          {/* Shield with cross — right middle */}
-          <g transform="translate(1290, 350)" opacity="0.14" strokeWidth="1.5">
-            <path d="M28 2L52 14V32C52 46 42 56 28 62C14 56 4 46 4 32V14L28 2Z" />
-            <line x1="28" y1="20" x2="28" y2="44" />
-            <line x1="16" y1="32" x2="40" y2="32" />
+          {/* Shield Plus — right middle */}
+          <g transform="translate(1280, 320) scale(2.8)" opacity="0.15" strokeWidth="0.7">
+            <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+            <path d="M9 12h6" />
+            <path d="M12 9v6" />
           </g>
 
-          {/* Droplet — top centre-left */}
-          <g transform="translate(360, 45)" opacity="0.13" strokeWidth="1.5">
-            <path d="M20 2C20 2 2 24 2 34C2 44 10 50 20 50S38 44 38 34C38 24 20 2 20 2Z" />
-            <path d="M12 34C12 28 20 16 20 16" opacity="0.5" />
+          {/* Droplets — top centre-left */}
+          <g transform="translate(340, 35) scale(2.5)" opacity="0.14" strokeWidth="0.7">
+            <path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z" />
+            <path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97" />
           </g>
 
-          {/* Mortar & pestle — bottom right */}
-          <g transform="translate(1120, 510)" opacity="0.16" strokeWidth="1.5">
-            <path d="M4 28C4 40 16 50 32 50S60 40 60 28H4Z" />
-            <line x1="4" y1="28" x2="60" y2="28" />
-            <line x1="32" y1="28" x2="48" y2="6" />
-            <circle cx="50" cy="4" r="4" />
-            <path d="M16 38C20 42 28 44 36 42" opacity="0.4" />
+          {/* Pharmacy Cross — bottom right */}
+          <g transform="translate(1100, 500) scale(2.8)" opacity="0.16" strokeWidth="0.7">
+            <path d="M4 9a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h4a1 1 0 0 1 1 1v4a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-4a1 1 0 0 1 1-1h4a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-4a1 1 0 0 1-1-1V4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4a1 1 0 0 1-1 1z" />
           </g>
 
-          {/* DNA double helix — left middle */}
-          <g transform="translate(45, 270)" opacity="0.13" strokeWidth="1.3">
-            <path d="M4 0C4 0 28 14 28 30S4 60 4 60" />
-            <path d="M28 0C28 0 4 14 4 30S28 60 28 60" />
-            <line x1="7" y1="10" x2="25" y2="10" />
-            <line x1="4" y1="20" x2="28" y2="20" />
-            <line x1="4" y1="30" x2="28" y2="30" />
-            <line x1="4" y1="40" x2="28" y2="40" />
-            <line x1="7" y1="50" x2="25" y2="50" />
+          {/* DNA — left middle */}
+          <g transform="translate(35, 260) scale(2.5)" opacity="0.13" strokeWidth="0.7">
+            <path d="M2 15c6.667-6 13.333 0 20-6" />
+            <path d="M9 3.236s6.667-1.57 13.333 0" />
+            <path d="M16 21.764s-6.667 1.57-13.333 0" />
+            <path d="M2 3c6.667 6 13.333 0 20 6" />
           </g>
 
-          {/* Botanical branch — top centre-right */}
-          <g transform="translate(980, 50)" opacity="0.12" strokeWidth="1.3">
-            <path d="M24 56V8" />
-            <path d="M24 16C16 10 8 12 4 16" />
-            <path d="M24 16C32 10 40 12 44 16" />
-            <path d="M24 28C18 22 10 24 6 28" />
-            <path d="M24 28C30 22 38 24 42 28" />
-            <path d="M24 40C18 34 12 36 8 40" />
-            <path d="M24 40C30 34 36 36 40 40" />
-            <circle cx="24" cy="6" r="3" />
+          {/* Flower — top centre-right */}
+          <g transform="translate(960, 40) scale(2.5)" opacity="0.13" strokeWidth="0.7">
+            <path d="M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M9 8h1m5 0a3 3 0 1 1-3 3m3-3h-1m-2 3v-1" />
+            <circle cx="12" cy="8" r="2" />
+            <path d="M12 10v12" />
+            <path d="M12 22c4.2 0 7-1.667 7-5" />
+            <path d="M12 22c-4.2 0-7-1.667-7-5" />
           </g>
 
-          {/* Molecule / atom — bottom centre */}
-          <g transform="translate(650, 560)" opacity="0.12" strokeWidth="1.3">
-            <circle cx="24" cy="24" r="6" />
-            <circle cx="6" cy="10" r="4" />
-            <circle cx="42" cy="10" r="4" />
-            <circle cx="6" cy="40" r="4" />
-            <circle cx="42" cy="40" r="4" />
-            <line x1="20" y1="20" x2="9" y2="13" />
-            <line x1="28" y1="20" x2="39" y2="13" />
-            <line x1="20" y1="28" x2="9" y2="37" />
-            <line x1="28" y1="28" x2="39" y2="37" />
+          {/* Sparkles — bottom centre */}
+          <g transform="translate(640, 550) scale(2.5)" opacity="0.12" strokeWidth="0.7">
+            <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+            <path d="M20 3v4" />
+            <path d="M22 5h-4" />
+            <path d="M4 17v2" />
+            <path d="M5 18H3" />
           </g>
 
           {/* Leaf cluster — right lower */}
-          <g transform="translate(1350, 520)" opacity="0.12" strokeWidth="1.3">
-            <ellipse cx="16" cy="20" rx="14" ry="20" transform="rotate(-15 16 20)" />
-            <path d="M16 40V4" />
-            <path d="M16 20C10 16 6 18 4 20" />
+          <g transform="translate(1340, 510) scale(2.5)" opacity="0.13" strokeWidth="0.7">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
           </g>
 
-          {/* Plus signs — scattered, geometric */}
-          <g opacity="0.14" strokeWidth="1.5">
-            <line x1="920" y1="76" x2="920" y2="100" />
-            <line x1="908" y1="88" x2="932" y2="88" />
-          </g>
-          <g opacity="0.12" strokeWidth="1.5">
-            <line x1="480" y1="550" x2="480" y2="574" />
-            <line x1="468" y1="562" x2="492" y2="562" />
-          </g>
-          <g opacity="0.14" strokeWidth="1.5">
-            <line x1="1060" y1="190" x2="1060" y2="214" />
-            <line x1="1048" y1="202" x2="1072" y2="202" />
-          </g>
-          <g opacity="0.10" strokeWidth="1.5">
-            <line x1="300" y1="420" x2="300" y2="444" />
-            <line x1="288" y1="432" x2="312" y2="432" />
-          </g>
-
-          {/* Capsule — bottom centre-left */}
-          <g transform="translate(400, 580) rotate(-20)" opacity="0.10" strokeWidth="1.3">
-            <rect x="0" y="0" width="16" height="36" rx="8" />
-            <line x1="0" y1="18" x2="16" y2="18" />
-          </g>
-
-          {/* Geometric circles — refined dots */}
+          {/* Small accent circles */}
           <circle cx="700" cy="620" r="5" opacity="0.12" strokeWidth="1.3" />
           <circle cx="240" cy="190" r="4" opacity="0.10" strokeWidth="1.3" />
           <circle cx="1110" cy="70" r="6" opacity="0.12" strokeWidth="1.3" />
           <circle cx="810" cy="90" r="3.5" opacity="0.10" strokeWidth="1.3" />
           <circle cx="580" cy="480" r="5" opacity="0.10" strokeWidth="1.3" />
           <circle cx="160" cy="440" r="3" opacity="0.10" strokeWidth="1.3" />
-
-          {/* Gentle flowing arcs */}
-          <path d="M-20 420Q200 360 440 430" opacity="0.08" strokeWidth="1.2" />
-          <path d="M1000 620Q1200 560 1460 640" opacity="0.08" strokeWidth="1.2" />
         </g>
       </svg>
     </div>

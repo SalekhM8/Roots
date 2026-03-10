@@ -25,35 +25,33 @@ export default function CollectionBand() {
               key={collection.name}
               className="relative flex min-h-[320px] flex-col justify-end overflow-hidden rounded-[var(--radius-hero)] border border-roots-line-soft p-8 md:p-10"
             >
-              {/* Vivid background pattern — cream on green */}
+              {/* Background pattern — cream Lucide icons on green */}
               <div className="pointer-events-none absolute inset-0" aria-hidden="true">
                 <svg viewBox="0 0 400 300" fill="none" className="h-full w-full" stroke="#fdf0d5" strokeLinecap="round" strokeLinejoin="round">
-                  {/* Plus sign — top right */}
-                  <g opacity="0.15" strokeWidth="1.5">
-                    <line x1="340" y1="36" x2="340" y2="60" />
-                    <line x1="328" y1="48" x2="352" y2="48" />
+                  {/* Leaf — top right */}
+                  <g transform="translate(320, 30) scale(2)" opacity="0.15" strokeWidth="0.8">
+                    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
                   </g>
-                  {/* Botanical leaf — right middle */}
-                  <g transform="translate(310, 170) rotate(-10)" opacity="0.14" strokeWidth="1.4">
-                    <path d="M20 40C20 40 2 32 2 16C2 2 14 0 20 0C26 0 38 2 38 16C38 32 20 40 20 40Z" />
-                    <path d="M20 40V6" />
-                    <path d="M20 26C15 22 10 23 7 26" />
-                    <path d="M20 16C25 12 30 13 33 16" />
+                  {/* Heart Pulse — bottom left */}
+                  <g transform="translate(30, 210) scale(2)" opacity="0.14" strokeWidth="0.8">
+                    <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" />
+                    <path d="M3.22 13H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27" />
                   </g>
-                  {/* Droplet — top left */}
-                  <g transform="translate(40, 30)" opacity="0.12" strokeWidth="1.4">
-                    <path d="M14 2C14 2 2 16 2 22C2 30 7 34 14 34S26 30 26 22C26 16 14 2 14 2Z" />
+                  {/* Pill — top left */}
+                  <g transform="translate(30, 20) scale(1.8) rotate(20)" opacity="0.13" strokeWidth="0.8">
+                    <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
+                    <path d="m8.5 8.5 7 7" />
                   </g>
-                  {/* Capsule — bottom left */}
-                  <g transform="translate(60, 220) rotate(-25)" opacity="0.12" strokeWidth="1.4">
-                    <rect x="0" y="0" width="16" height="36" rx="8" />
-                    <line x1="0" y1="18" x2="16" y2="18" />
+                  {/* Shield Plus — right middle */}
+                  <g transform="translate(330, 150) scale(1.8)" opacity="0.13" strokeWidth="0.8">
+                    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+                    <path d="M9 12h6" />
+                    <path d="M12 9v6" />
                   </g>
-                  {/* Circles */}
+                  {/* Accent circles */}
                   <circle cx="380" cy="130" r="4" opacity="0.12" strokeWidth="1.3" />
                   <circle cx="200" cy="40" r="3" opacity="0.10" strokeWidth="1.3" />
-                  {/* Flowing arc */}
-                  <path d="M-10 260Q120 210 260 270" opacity="0.08" strokeWidth="1.2" />
                 </svg>
               </div>
 
