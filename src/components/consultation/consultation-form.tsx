@@ -227,6 +227,11 @@ export default function ConsultationForm() {
     }
   }, []);
 
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [state.step]);
+
   // Debounce sessionStorage writes to avoid blocking main thread on every keystroke
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => {
