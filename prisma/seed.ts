@@ -211,14 +211,17 @@ async function main() {
   });
 
   if (adminUser) {
-    const hasAdminRole = adminUser.roles.some((r) => r.role === "admin");
-    if (!hasAdminRole) {
-      await prisma.userRole.create({
-        data: { userId: adminUser.id, role: "admin" },
-      });
-      console.log(`Assigned admin role to existing user: ${adminEmail}`);
-    } else {
-      console.log(`User ${adminEmail} already has admin role`);
+    const rolesToAssign: Array<"admin" | "prescriber"> = ["admin", "prescriber"];
+    for (const role of rolesToAssign) {
+      const hasIt = adminUser.roles.some((r) => r.role === role);
+      if (!hasIt) {
+        await prisma.userRole.create({
+          data: { userId: adminUser.id, role },
+        });
+        console.log(`Assigned ${role} role to ${adminEmail}`);
+      } else {
+        console.log(`User ${adminEmail} already has ${role} role`);
+      }
     }
   } else {
     console.log(
