@@ -39,7 +39,7 @@ async function clickDropFetch(
   return fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
-      Authorization: apiKey,
+      Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       ...options.headers,
     },
@@ -48,7 +48,7 @@ async function clickDropFetch(
 
 /**
  * Create an order in Click & Drop for label generation.
- * After creating the order, fetches the label PDF URL.
+ * API expects: POST /orders with body { items: [ ...orders ] }
  */
 export async function createClickDropOrder(
   params: CreateOrderParams
@@ -56,36 +56,42 @@ export async function createClickDropOrder(
   const itemsTotal = params.items.reduce((s, i) => s + i.value * i.quantity, 0);
 
   const body = {
-    orderReference: params.orderReference,
-    recipient: {
-      fullName: params.recipientAddress.name,
-      addressLine1: params.recipientAddress.line1,
-      addressLine2: params.recipientAddress.line2 ?? "",
-      city: params.recipientAddress.city,
-      postcode: params.recipientAddress.postcode,
-      countryCode: params.recipientAddress.countryCode,
-    },
-    packages: [
+    items: [
       {
-        weightInGrams: params.weightGrams,
-        packageFormatIdentifier: "letter",
-        contents: params.items.map((item) => ({
-          name: item.description,
-          SKU: "",
-          quantity: item.quantity,
-          unitValue: item.value,
-          unitWeightInGrams: Math.round(params.weightGrams / params.items.length),
-        })),
+        orderReference: params.orderReference,
+        recipient: {
+          address: {
+            fullName: params.recipientAddress.name,
+            addressLine1: params.recipientAddress.line1,
+            addressLine2: params.recipientAddress.line2 ?? "",
+            city: params.recipientAddress.city,
+            postcode: params.recipientAddress.postcode,
+            countryCode: params.recipientAddress.countryCode,
+          },
+        },
+        packages: [
+          {
+            weightInGrams: params.weightGrams,
+            packageFormatIdentifier: "letter",
+            contents: params.items.map((item) => ({
+              name: item.description,
+              SKU: "",
+              quantity: item.quantity,
+              unitValue: item.value,
+              unitWeightInGrams: Math.round(params.weightGrams / params.items.length),
+            })),
+          },
+        ],
+        orderDate: new Date().toISOString(),
+        subtotal: itemsTotal,
+        shippingCostCharged: 0,
+        total: itemsTotal,
+        currencyCode: "GBP",
       },
     ],
-    orderDate: new Date().toISOString(),
-    subtotal: itemsTotal,
-    shippingCostPaid: 0,
-    total: itemsTotal,
-    currencyCode: "GBP",
   };
 
-  const response = await clickDropFetch("/Orders", {
+  const response = await clickDropFetch("/orders", {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -96,70 +102,58 @@ export async function createClickDropOrder(
   }
 
   const data = await response.json();
-  const orderId = data.orderIdentifier ?? data.orderId ?? "";
 
-  // Try to fetch the label URL from the order details
-  let labelUrl: string | undefined;
-  let trackingNumber: string | undefined = data.trackingNumber;
-
-  if (orderId) {
-    try {
-      const details = await getClickDropOrderDetails(orderId);
-      labelUrl = details.labelUrl;
-      trackingNumber = trackingNumber ?? details.trackingNumber;
-    } catch {
-      // Label may not be ready immediately — that's OK
-    }
+  // Response: { createdOrders: [{ orderIdentifier, trackingNumber, ... }], failedOrders: [...] }
+  const created = data.createdOrders?.[0];
+  if (!created) {
+    const failed = data.failedOrders?.[0];
+    const errMsg = failed?.errors?.map((e: { errorMessage: string }) => e.errorMessage).join(", ") ?? "Unknown error";
+    throw new Error(`Click & Drop order creation failed: ${errMsg}`);
   }
 
-  return { orderId, trackingNumber, labelUrl };
+  const orderId = String(created.orderIdentifier);
+  const trackingNumber: string | undefined = created.trackingNumber;
+
+  return { orderId, trackingNumber };
 }
 
 /**
- * Get full order details from Click & Drop including label URL.
+ * Get order info from Click & Drop.
  */
 async function getClickDropOrderDetails(
   orderId: string
-): Promise<{ trackingNumber?: string; status?: string; labelUrl?: string }> {
-  const response = await clickDropFetch(`/Orders/${orderId}`);
+): Promise<{ trackingNumber?: string; status?: string }> {
+  const response = await clickDropFetch(`/orders/${orderId}`);
 
   if (!response.ok) {
     throw new Error(`Click & Drop API error: ${response.status}`);
   }
 
+  // GET /orders/{id} returns an array
   const data = await response.json();
+  const order = Array.isArray(data) ? data[0] : data;
   return {
-    trackingNumber: data.trackingNumber,
-    status: data.status,
-    labelUrl: data.label?.url ?? data.labelUrl ?? data.printLabelUrl,
+    trackingNumber: order?.trackingNumber,
+    status: order?.orderStatus,
   };
 }
 
 /**
- * Get the label PDF URL for an order. This is a separate endpoint
- * from order creation — Click & Drop generates labels asynchronously.
+ * Get the label PDF for an order.
+ * Returns the PDF as an ArrayBuffer, or null if not ready.
  */
-export async function getClickDropLabel(
+export async function getClickDropLabelPdf(
   orderId: string
-): Promise<string | null> {
-  // Try the direct label endpoint first
-  const labelResponse = await clickDropFetch(`/Orders/${orderId}/label`, {
+): Promise<ArrayBuffer | null> {
+  const response = await clickDropFetch(`/orders/${orderId}/label`, {
     headers: { Accept: "application/pdf" },
   });
 
-  if (labelResponse.ok) {
-    // If the response is a PDF, we need to construct the URL
-    // The label endpoint returns the PDF directly
-    return `${API_BASE}/Orders/${orderId}/label`;
-  }
-
-  // Fallback: check order details for a label URL
-  try {
-    const details = await getClickDropOrderDetails(orderId);
-    return details.labelUrl ?? null;
-  } catch {
+  if (!response.ok) {
     return null;
   }
+
+  return response.arrayBuffer();
 }
 
 /**
@@ -168,15 +162,5 @@ export async function getClickDropLabel(
 export async function getClickDropTracking(
   orderId: string
 ): Promise<{ trackingNumber?: string; status?: string }> {
-  const response = await clickDropFetch(`/Orders/${orderId}`);
-
-  if (!response.ok) {
-    throw new Error(`Click & Drop API error: ${response.status}`);
-  }
-
-  const data = await response.json();
-  return {
-    trackingNumber: data.trackingNumber,
-    status: data.status,
-  };
+  return getClickDropOrderDetails(orderId);
 }
