@@ -23,8 +23,8 @@ export default function ContactPage() {
             <div>
               <h2 className="mb-2 text-xl font-medium text-roots-green">Email</h2>
               <p className="text-roots-navy/80">
-                <a href="mailto:support@rootspharmacy.co.uk" className="underline">
-                  support@rootspharmacy.co.uk
+                <a href="mailto:admin@rootspharmacy.co.uk" className="underline">
+                  admin@rootspharmacy.co.uk
                 </a>
               </p>
               <p className="mt-1 text-sm text-roots-navy/60">

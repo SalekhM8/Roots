@@ -29,7 +29,7 @@ export default function PrivacyPage() {
             </p>
             <h2 className="pt-4 text-xl font-medium text-roots-green">Your Rights</h2>
             <p>
-              You have the right to access, correct, or request deletion of your personal data. Contact us at support@rootspharmacy.co.uk to exercise these rights.
+              You have the right to access, correct, or request deletion of your personal data. Contact us at admin@rootspharmacy.co.uk to exercise these rights.
             </p>
           </div>
         </div>

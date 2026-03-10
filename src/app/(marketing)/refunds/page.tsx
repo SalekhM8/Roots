@@ -18,7 +18,7 @@ export default function RefundsPage() {
             </p>
             <h2 className="pt-4 text-xl font-medium text-roots-green">Supplements</h2>
             <p>
-              Supplements may be returned within 14 days of delivery if unopened and in their original packaging. To arrange a return, please contact us at support@rootspharmacy.co.uk with your order number.
+              Supplements may be returned within 14 days of delivery if unopened and in their original packaging. To arrange a return, please contact us at admin@rootspharmacy.co.uk with your order number.
             </p>
             <h2 className="pt-4 text-xl font-medium text-roots-green">Damaged or Incorrect Items</h2>
             <p>
