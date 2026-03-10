@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Sans, Fraunces } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { CartCountProvider } from "@/components/cart/cart-count-provider";
+import { PendingCartReplay } from "@/components/cart/pending-cart-replay";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -41,7 +42,10 @@ export default function RootLayout({
     >
       <html lang="en" className={`${dmSans.variable} ${fraunces.variable}`}>
         <body className="min-h-screen bg-roots-cream font-sans text-roots-navy antialiased">
-          <CartCountProvider>{children}</CartCountProvider>
+          <CartCountProvider>
+            <PendingCartReplay />
+            {children}
+          </CartCountProvider>
         </body>
       </html>
     </ClerkProvider>

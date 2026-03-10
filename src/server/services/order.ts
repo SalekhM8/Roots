@@ -173,23 +173,25 @@ export async function createOrder(
     return created;
   });
 
-  // Mark cart as converted + audit log in parallel
+  // Mark cart as converted + audit log + save address in parallel
   await Promise.all([
     markCartConverted(cart.id),
     writeAuditLog({
-    actorUserId: userId,
-    actorRole: "customer",
-    entityType: "Order",
-    entityId: order.id,
-    action: "order.created",
-    newState: {
-      orderNumber,
-      orderType,
-      totalMinor,
-      captureMethod,
-      itemCount: cart.items.length,
-    },
-  }),
+      actorUserId: userId,
+      actorRole: "customer",
+      entityType: "Order",
+      entityId: order.id,
+      action: "order.created",
+      newState: {
+        orderNumber,
+        orderType,
+        totalMinor,
+        captureMethod,
+        itemCount: cart.items.length,
+      },
+    }),
+    // Auto-save shipping address for future checkouts
+    saveAddressIfNew(userId, shippingAddress),
   ]);
 
   return {
@@ -197,4 +199,45 @@ export async function createOrder(
     orderId: order.id,
     clientSecret: paymentIntent.client_secret ?? undefined,
   };
+}
+
+/**
+ * Save a shipping address for future checkouts if the user doesn't
+ * already have one with the same postcode + line1.
+ */
+async function saveAddressIfNew(userId: string, address: AddressInput) {
+  try {
+    const existing = await db.address.findFirst({
+      where: {
+        userId,
+        postcode: address.postcode,
+        line1: address.line1,
+      },
+      select: { id: true },
+    });
+
+    if (existing) return;
+
+    // Check if user has any addresses — if not, make this the default
+    const count = await db.address.count({ where: { userId } });
+    const isFirst = count === 0;
+
+    await db.address.create({
+      data: {
+        userId,
+        firstName: address.firstName,
+        lastName: address.lastName,
+        line1: address.line1,
+        line2: address.line2 ?? "",
+        city: address.city,
+        postcode: address.postcode,
+        countryCode: address.countryCode,
+        phone: address.phone ?? "",
+        isDefaultShipping: isFirst,
+        isDefaultBilling: isFirst,
+      },
+    });
+  } catch {
+    // Non-critical — don't fail the order if address save fails
+  }
 }
