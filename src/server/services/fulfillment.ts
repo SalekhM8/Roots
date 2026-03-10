@@ -74,12 +74,18 @@ export async function markPacked(
 /**
  * Attach tracking info and mark as shipped.
  */
+function buildTrackingUrl(trackingNumber: string): string {
+  return `https://www.royalmail.com/track-your-item#/tracking-results/${encodeURIComponent(trackingNumber)}`;
+}
+
 export async function markShipped(
   orderId: string,
   actorUserId: string,
   trackingNumber: string,
   trackingUrl?: string
 ): Promise<FulfillmentResult> {
+  // Auto-generate Royal Mail tracking URL if not provided
+  trackingUrl = trackingUrl || buildTrackingUrl(trackingNumber);
   const order = await db.order.findUnique({
     where: { id: orderId },
     select: { fulfillmentStatus: true, userId: true, orderNumber: true },
