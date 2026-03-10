@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { getCartWithItems } from "@/server/queries/cart";
 import { getCustomerAddresses } from "@/server/queries/account";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
-import { ROUTES } from "@/lib/constants";
+import { ROUTES, SHIPPING_FEE_MINOR } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Checkout",
@@ -26,7 +26,8 @@ export default async function CheckoutPage() {
     (sum, item) => sum + item.unitPriceMinor * item.quantity,
     0
   );
-  const totalMinor = subtotalMinor;
+  const shippingMinor = SHIPPING_FEE_MINOR;
+  const totalMinor = subtotalMinor + shippingMinor;
   const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
   const hasPomItems = cart.items.some(
     (i) => i.productVariant.product.productType === "pom"
@@ -40,6 +41,7 @@ export default async function CheckoutPage() {
 
       <CheckoutForm
         subtotalMinor={subtotalMinor}
+        shippingMinor={shippingMinor}
         totalMinor={totalMinor}
         itemCount={itemCount}
         hasPomItems={hasPomItems}

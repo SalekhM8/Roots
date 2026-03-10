@@ -35,6 +35,7 @@ export interface SavedAddress {
 
 interface CheckoutFormProps {
   subtotalMinor: number;
+  shippingMinor: number;
   totalMinor: number;
   itemCount: number;
   hasPomItems: boolean;
@@ -229,6 +230,7 @@ export function CheckoutForm(props: CheckoutFormProps) {
         <div>
           <CartSummary
             subtotalMinor={props.subtotalMinor}
+            shippingMinor={props.shippingMinor}
             totalMinor={props.totalMinor}
             itemCount={props.itemCount}
           />
@@ -264,6 +266,7 @@ export function CheckoutForm(props: CheckoutFormProps) {
 
 function PaymentStep({
   subtotalMinor,
+  shippingMinor,
   totalMinor,
   itemCount,
   hasPomItems,
@@ -344,6 +347,7 @@ function PaymentStep({
       <div>
         <CartSummary
           subtotalMinor={subtotalMinor}
+          shippingMinor={shippingMinor}
           totalMinor={totalMinor}
           itemCount={itemCount}
         />

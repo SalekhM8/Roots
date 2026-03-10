@@ -7,6 +7,7 @@ import { markCartConverted } from "./cart";
 import type { CartWithItems } from "@/server/queries/cart";
 import type { AddressInput } from "@/lib/validation/schemas";
 import { randomUUID } from "crypto";
+import { SHIPPING_FEE_MINOR } from "@/lib/constants";
 
 export interface CreateOrderResult {
   success: boolean;
@@ -92,7 +93,7 @@ export async function createOrder(
     (sum, item) => sum + item.unitPriceMinor * item.quantity,
     0
   );
-  const shippingMinor = 0; // Free shipping for v1
+  const shippingMinor = SHIPPING_FEE_MINOR;
   const taxMinor = 0; // VAT handled by pharmacy (POM exempt, supplements included in price)
   const totalMinor = subtotalMinor + shippingMinor + taxMinor;
 

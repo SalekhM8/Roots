@@ -1,3 +1,6 @@
+/** Standard delivery fee in pence — Royal Mail Tracked 48 */
+export const SHIPPING_FEE_MINOR = 395;
+
 export const ROUTES = {
   home: "/",
   about: "/about",

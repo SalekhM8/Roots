@@ -118,6 +118,7 @@ export default async function FulfillmentQueuePage({
                     <td className="px-4 py-3 text-roots-navy/70">
                       <div className="flex flex-col gap-1">
                         <span>{shipment?.trackingNumber ?? "\u2014"}</span>
+                        {/* Print Label disabled until OBA account is set up
                         {shipment?.clickDropOrderId && (
                           <a
                             href={`/api/fulfillment/label?orderId=${order.id}`}
@@ -127,7 +128,7 @@ export default async function FulfillmentQueuePage({
                           >
                             Print Label
                           </a>
-                        )}
+                        )} */}
                       </div>
                     </td>
                     <td className="px-4 py-3">
