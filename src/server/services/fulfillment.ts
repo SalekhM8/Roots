@@ -237,6 +237,7 @@ export async function bulkGenerateLabels(
             data: {
               clickDropOrderId: clickDropResult.orderId,
               trackingNumber: clickDropResult.trackingNumber,
+              labelUrl: clickDropResult.labelUrl,
               status: "label_generated",
               labelGeneratedAt: new Date(),
             },
@@ -247,6 +248,7 @@ export async function bulkGenerateLabels(
               orderId: order.id,
               clickDropOrderId: clickDropResult.orderId,
               trackingNumber: clickDropResult.trackingNumber,
+              labelUrl: clickDropResult.labelUrl,
               status: "label_generated",
               labelGeneratedAt: new Date(),
             },

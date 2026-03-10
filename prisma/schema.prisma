@@ -535,6 +535,7 @@ model Shipment {
   trackingNumber   String?        @map("tracking_number")
   trackingUrl      String?        @map("tracking_url")
   clickDropOrderId String?        @map("click_drop_order_id")
+  labelUrl         String?        @map("label_url")
   status           ShippingStatus @default(not_created)
   labelGeneratedAt DateTime?      @map("label_generated_at")
   collectedAt      DateTime?      @map("collected_at")

@@ -219,7 +219,7 @@ export async function getFulfillmentQueue(
         items: { select: { quantity: true } },
         fulfillmentJob: true,
         shipments: {
-          select: { trackingNumber: true, status: true },
+          select: { trackingNumber: true, status: true, labelUrl: true },
           take: 1,
         },
       },

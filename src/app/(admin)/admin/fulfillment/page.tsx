@@ -120,7 +120,19 @@ export default async function FulfillmentQueuePage({
                       </StatusPill>
                     </td>
                     <td className="px-4 py-3 text-roots-navy/70">
-                      {shipment?.trackingNumber ?? "\u2014"}
+                      <div className="flex flex-col gap-1">
+                        <span>{shipment?.trackingNumber ?? "\u2014"}</span>
+                        {shipment?.labelUrl && (
+                          <a
+                            href={shipment.labelUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs font-medium text-roots-green underline"
+                          >
+                            Print Label
+                          </a>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3">
                       <FulfillmentActions

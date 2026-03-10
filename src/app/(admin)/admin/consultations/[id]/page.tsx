@@ -11,6 +11,7 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { ReviewActions } from "@/components/admin/review-actions";
 import { Section, Field } from "@/components/admin/section";
 import { formatPrice, formatDateTime, calculateAge, humanizeStatus } from "@/lib/utils";
+import { createPresignedViewUrl } from "@/lib/uploads/s3";
 
 export const metadata: Metadata = {
   title: "Review Consultation",
@@ -345,29 +346,53 @@ export default async function ConsultationReviewPage({
             {consultation.uploads.length === 0 ? (
               <p className="text-sm text-roots-navy/40">No uploads</p>
             ) : (
-              <div className="space-y-2">
-                {consultation.uploads.map((upload) => (
-                  <div
-                    key={upload.id}
-                    className="flex items-center justify-between text-sm"
-                  >
-                    <span className="text-roots-navy/70">
-                      {humanizeStatus(upload.uploadType)}
-                    </span>
-                    <StatusPill
-                      variant={
-                        upload.status === "uploaded" ||
-                        upload.status === "accepted"
-                          ? "success"
-                          : upload.status === "rejected"
-                            ? "danger"
-                            : "pending"
-                      }
-                    >
-                      {upload.status}
-                    </StatusPill>
-                  </div>
-                ))}
+              <div className="space-y-4">
+                {await Promise.all(
+                  consultation.uploads.map(async (upload) => {
+                    const viewUrl =
+                      (upload.status === "uploaded" || upload.status === "accepted") && upload.storageKey
+                        ? await createPresignedViewUrl(upload.storageKey)
+                        : null;
+
+                    return (
+                      <div key={upload.id} className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-medium text-roots-navy/70">
+                            {humanizeStatus(upload.uploadType)}
+                          </span>
+                          <StatusPill
+                            variant={
+                              upload.status === "uploaded" ||
+                              upload.status === "accepted"
+                                ? "success"
+                                : upload.status === "rejected"
+                                  ? "danger"
+                                  : "pending"
+                            }
+                          >
+                            {upload.status}
+                          </StatusPill>
+                        </div>
+                        {viewUrl && (
+                          <a
+                            href={viewUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block overflow-hidden rounded-lg border border-roots-green/10"
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={viewUrl}
+                              alt={humanizeStatus(upload.uploadType)}
+                              className="h-auto w-full object-cover"
+                              style={{ maxHeight: "200px" }}
+                            />
+                          </a>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
               </div>
             )}
           </Section>
