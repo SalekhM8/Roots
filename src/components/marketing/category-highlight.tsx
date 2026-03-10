@@ -6,9 +6,12 @@ const categories = [
     slug: "weight-loss",
     description: "Clinician-led programmes",
     icon: (
-      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8">
-        <path d="M16 4L10 14H22L16 4Z" />
-        <path d="M8 18C8 24 11.6 28 16 28S24 24 24 18H8Z" />
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8">
+        {/* Downward trending arrow with figure silhouette */}
+        <path d="M6 8C6 8 10 6 16 6C20 6 22 8 22 12C22 16 20 22 18 26" />
+        <path d="M14 26L18 26L16 30" />
+        <path d="M4 20L10 16L16 18L26 10" />
+        <path d="M22 10H26V14" />
       </svg>
     ),
   },
@@ -17,10 +20,17 @@ const categories = [
     slug: "womens-health",
     description: "Targeted support",
     icon: (
-      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8">
-        <circle cx="16" cy="12" r="8" />
-        <line x1="16" y1="20" x2="16" y2="30" />
-        <line x1="12" y1="26" x2="20" y2="26" />
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8">
+        {/* Flower / bloom */}
+        <circle cx="16" cy="13" r="4" />
+        <ellipse cx="16" cy="6" rx="3" ry="4" />
+        <ellipse cx="22" cy="10" rx="3" ry="4" transform="rotate(60 22 10)" />
+        <ellipse cx="22" cy="17" rx="3" ry="4" transform="rotate(120 22 17)" />
+        <ellipse cx="16" cy="20" rx="3" ry="4" />
+        <ellipse cx="10" cy="17" rx="3" ry="4" transform="rotate(60 10 17)" />
+        <ellipse cx="10" cy="10" rx="3" ry="4" transform="rotate(120 10 10)" />
+        <line x1="16" y1="22" x2="16" y2="30" />
+        <path d="M13 26C13 26 14 24 16 24C18 24 19 26 19 26" />
       </svg>
     ),
   },
@@ -29,8 +39,13 @@ const categories = [
     slug: "sleep-recovery",
     description: "Rest better, recover faster",
     icon: (
-      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8">
-        <path d="M26 16C26 22 21 28 14 28C8 28 4 23 4 16C10 16 14 12 14 6C20 6 26 10 26 16Z" />
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8">
+        {/* Crescent moon with stars */}
+        <path d="M24 18C24 24 19 28 13 28C7 28 3 24 3 18C3 12 7 8 13 8C8 12 8 22 13 26C17 22 20 18 24 18Z" />
+        <line x1="24" y1="6" x2="24" y2="12" />
+        <line x1="21" y1="9" x2="27" y2="9" />
+        <circle cx="28" cy="16" r="1" />
+        <circle cx="20" cy="4" r="1" />
       </svg>
     ),
   },
@@ -39,8 +54,11 @@ const categories = [
     slug: "hydration",
     description: "Electrolytes & balance",
     icon: (
-      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8">
-        <path d="M16 3C16 3 6 15 6 21C6 27 10.5 29 16 29S26 27 26 21C26 15 16 3 16 3Z" />
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8">
+        {/* Water droplet with inner ripple */}
+        <path d="M16 3C16 3 5 16 5 22C5 28 10 30 16 30S27 28 27 22C27 16 16 3 16 3Z" />
+        <path d="M11 22C11 19 16 12 16 12" opacity="0.5" />
+        <path d="M10 24C12 26 14 27 16 27" opacity="0.4" />
       </svg>
     ),
   },
@@ -49,8 +67,10 @@ const categories = [
     slug: "general-health",
     description: "Daily wellness essentials",
     icon: (
-      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8">
-        <path d="M16 3L20 11H28L22 17L24 26L16 21L8 26L10 17L4 11H12L16 3Z" />
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8">
+        {/* Shield with heart inside */}
+        <path d="M16 3L27 8V16C27 23 22 28 16 30C10 28 5 23 5 16V8L16 3Z" />
+        <path d="M16 22L11 17C9 15 9 12 11 11C13 10 15 11 16 13C17 11 19 10 21 11C23 12 23 15 21 17L16 22Z" />
       </svg>
     ),
   },
@@ -75,7 +95,7 @@ export default function CategoryHighlight() {
               className="group flex flex-col items-center justify-end rounded-[var(--radius-card)] bg-roots-cream-2 p-6 pb-8 transition-all duration-200 hover:shadow-sm"
               style={{ minHeight: "220px" }}
             >
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-roots-green/10 text-roots-green/40" aria-hidden="true">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-roots-green/15 bg-roots-green/5 text-roots-green/70 transition-colors group-hover:bg-roots-green/10 group-hover:text-roots-green" aria-hidden="true">
                 {cat.icon}
               </div>
               <span className="text-center text-base font-medium text-roots-green transition-opacity group-hover:opacity-80">

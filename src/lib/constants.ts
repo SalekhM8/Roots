@@ -18,6 +18,7 @@ export const ROUTES = {
   checkoutConfirmation: "/checkout/confirmation",
   admin: "/admin",
   consultation: "/consultations/mounjaro",
+  consultationUploadPhotos: "/consultations/mounjaro/upload-photos",
   consultationSelectDose: "/consultations/mounjaro/select-dose",
   collection: (slug: string) => `/collections/${slug}` as const,
   product: (slug: string) => `/products/${slug}` as const,

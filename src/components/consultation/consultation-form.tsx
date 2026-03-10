@@ -440,7 +440,7 @@ export default function ConsultationForm() {
 
       if (result.success) {
         clearConsultationState();
-        router.push(`/consultations/mounjaro/select-dose?consultation=${result.consultationId}`);
+        router.push(`/consultations/mounjaro/upload-photos?consultation=${result.consultationId}`);
       } else {
         setSubmitError(result.error ?? "Something went wrong. Please try again.");
       }
