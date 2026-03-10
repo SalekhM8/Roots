@@ -45,19 +45,25 @@ export async function approveConsultation(
   const order = consultation.orders[0];
   const payment = order?.payments[0];
 
-  // Capture payment if there is an authorized payment
-  if (payment) {
-    try {
-      await capturePaymentIntent(
-        payment.stripePaymentIntentId,
-        `capture-${payment.id}-${randomUUID()}`
-      );
-    } catch {
-      return {
-        success: false,
-        error: "Failed to capture payment. The authorization may have expired.",
-      };
-    }
+  // Block approval if no order or no authorized payment exists
+  if (!order || !payment) {
+    return {
+      success: false,
+      error: "Cannot approve: no order with authorised payment found. The patient may not have completed checkout yet.",
+    };
+  }
+
+  // Capture the authorized payment
+  try {
+    await capturePaymentIntent(
+      payment.stripePaymentIntentId,
+      `capture-${payment.id}-${randomUUID()}`
+    );
+  } catch {
+    return {
+      success: false,
+      error: "Failed to capture payment. The authorisation may have expired.",
+    };
   }
 
   const now = new Date();
@@ -95,26 +101,24 @@ export async function approveConsultation(
       data: { status: "approved", approvedAt: now },
     });
 
-    // Update order + payment if present
-    if (order && payment) {
-      await tx.payment.update({
-        where: { id: payment.id },
-        data: { status: "captured", capturedAt: now },
-      });
+    // Update order + payment (guaranteed to exist — checked above)
+    await tx.payment.update({
+      where: { id: payment.id },
+      data: { status: "captured", capturedAt: now },
+    });
 
-      await tx.order.update({
-        where: { id: order.id },
-        data: {
-          paymentStatus: "captured",
-          fulfillmentStatus: "ready_to_pack",
-        },
-      });
+    await tx.order.update({
+      where: { id: order.id },
+      data: {
+        paymentStatus: "captured",
+        fulfillmentStatus: "ready_to_pack",
+      },
+    });
 
-      // Create fulfillment job
-      await tx.fulfillmentJob.create({
-        data: { orderId: order.id },
-      });
-    }
+    // Create fulfillment job
+    await tx.fulfillmentJob.create({
+      data: { orderId: order.id },
+    });
   });
 
   await Promise.all([
@@ -132,23 +136,19 @@ export async function approveConsultation(
       data: {
         userId: consultation.userId,
         consultationId: input.consultationId,
-        orderNumber: order?.orderNumber ?? "",
+        orderNumber: order.orderNumber,
       },
     }),
     // Emit payment captured event for POM approval capture
-    ...(order && payment
-      ? [
-          inngest.send({
-            name: "payment/captured",
-            data: {
-              userId: consultation.userId,
-              orderId: order.id,
-              amountMinor: payment.amountMinor,
-              orderNumber: order.orderNumber,
-            },
-          }),
-        ]
-      : []),
+    inngest.send({
+      name: "payment/captured",
+      data: {
+        userId: consultation.userId,
+        orderId: order.id,
+        amountMinor: payment.amountMinor,
+        orderNumber: order.orderNumber,
+      },
+    }),
   ]);
 
   return { success: true };

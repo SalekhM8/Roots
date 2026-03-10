@@ -46,11 +46,7 @@ export default async function FulfillmentQueuePage({
 
       <BulkLabels
         eligibleOrders={orders
-          .filter(
-            (o) =>
-              o.fulfillmentStatus === "ready_to_pack" ||
-              o.fulfillmentStatus === "packed",
-          )
+          .filter((o) => o.fulfillmentStatus === "packed")
           .map((o) => ({ id: o.id, orderNumber: o.orderNumber }))}
       />
 

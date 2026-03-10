@@ -174,7 +174,7 @@ export async function bulkGenerateLabels(
   const orders = await db.order.findMany({
     where: {
       id: { in: orderIds },
-      fulfillmentStatus: { in: ["ready_to_pack", "packed"] },
+      fulfillmentStatus: "packed",
       paymentStatus: "captured",
     },
     include: {
@@ -257,8 +257,8 @@ export async function bulkGenerateLabels(
 
         await tx.fulfillmentJob.upsert({
           where: { orderId: order.id },
-          update: { status: "exported_for_labels" },
-          create: { orderId: order.id, status: "exported_for_labels" },
+          update: { status: "labels_created" },
+          create: { orderId: order.id, status: "labels_created" },
         });
 
         await tx.order.update({
@@ -307,7 +307,7 @@ export async function bulkGenerateLabels(
         orderId: id,
         orderNumber: "N/A",
         success: false,
-        error: "Order not found or not in ready_to_pack/packed status.",
+        error: "Order not found or not in packed status. Mark as packed first.",
       });
     }
   }

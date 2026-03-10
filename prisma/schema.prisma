@@ -90,7 +90,7 @@ enum UploadStatus {
 enum FulfillmentJobStatus {
   ready_to_pack
   packed
-  exported_for_labels
+  labels_created
   shipped
 }
 

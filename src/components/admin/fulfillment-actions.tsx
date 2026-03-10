@@ -62,7 +62,7 @@ export function FulfillmentActions({
     );
   }
 
-  if (status === "packed" || status === "labels_created") {
+  if (status === "packed" || status === "labels_created" || status === "exported_for_labels") {
     if (!showTrackingForm) {
       return (
         <Button
