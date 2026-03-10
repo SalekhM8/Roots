@@ -23,22 +23,29 @@ export async function markPacked(
   orderId: string,
   packedByUserId: string
 ): Promise<FulfillmentResult> {
-  const job = await db.fulfillmentJob.findUnique({
-    where: { orderId },
+  const order = await db.order.findUnique({
+    where: { id: orderId },
+    select: { fulfillmentStatus: true },
   });
 
-  if (!job) {
-    return { success: false, error: "Fulfillment job not found." };
+  if (!order) {
+    return { success: false, error: "Order not found." };
   }
 
-  if (job.status !== "ready_to_pack") {
+  if (order.fulfillmentStatus !== "ready_to_pack") {
     return { success: false, error: "Order is not in ready_to_pack state." };
   }
 
   await db.$transaction(async (tx) => {
-    await tx.fulfillmentJob.update({
-      where: { id: job.id },
-      data: {
+    await tx.fulfillmentJob.upsert({
+      where: { orderId },
+      update: {
+        status: "packed",
+        packedByUserId,
+        packedAt: new Date(),
+      },
+      create: {
+        orderId,
         status: "packed",
         packedByUserId,
         packedAt: new Date(),
@@ -118,9 +125,10 @@ export async function markShipped(
       });
     }
 
-    await tx.fulfillmentJob.update({
+    await tx.fulfillmentJob.upsert({
       where: { orderId },
-      data: { status: "shipped" },
+      update: { status: "shipped" },
+      create: { orderId, status: "shipped" },
     });
 
     await tx.order.update({
@@ -245,9 +253,10 @@ export async function bulkGenerateLabels(
           });
         }
 
-        await tx.fulfillmentJob.update({
+        await tx.fulfillmentJob.upsert({
           where: { orderId: order.id },
-          data: { status: "exported_for_labels" },
+          update: { status: "exported_for_labels" },
+          create: { orderId: order.id, status: "exported_for_labels" },
         });
 
         await tx.order.update({

@@ -123,6 +123,13 @@ async function handlePaymentIntentSucceeded(
         ...(isCaptured ? { fulfillmentStatus: "ready_to_pack" } : {}),
       },
     });
+
+    // Create fulfillment job for supplement orders (auto-captured)
+    if (isCaptured) {
+      await tx.fulfillmentJob.create({
+        data: { orderId: payment.order.id },
+      });
+    }
   });
 
   await writeAuditLog({
