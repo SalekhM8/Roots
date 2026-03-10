@@ -48,6 +48,7 @@ async function clickDropFetch(
 
 /**
  * Create an order in Click & Drop for label generation.
+ * After creating the order, fetches the label PDF URL.
  */
 export async function createClickDropOrder(
   params: CreateOrderParams
@@ -93,11 +94,70 @@ export async function createClickDropOrder(
   }
 
   const data = await response.json();
+  const orderId = data.orderIdentifier ?? data.orderId ?? "";
+
+  // Try to fetch the label URL from the order details
+  let labelUrl: string | undefined;
+  let trackingNumber: string | undefined = data.trackingNumber;
+
+  if (orderId) {
+    try {
+      const details = await getClickDropOrderDetails(orderId);
+      labelUrl = details.labelUrl;
+      trackingNumber = trackingNumber ?? details.trackingNumber;
+    } catch {
+      // Label may not be ready immediately — that's OK
+    }
+  }
+
+  return { orderId, trackingNumber, labelUrl };
+}
+
+/**
+ * Get full order details from Click & Drop including label URL.
+ */
+async function getClickDropOrderDetails(
+  orderId: string
+): Promise<{ trackingNumber?: string; status?: string; labelUrl?: string }> {
+  const response = await clickDropFetch(`/orders/${orderId}`);
+
+  if (!response.ok) {
+    throw new Error(`Click & Drop API error: ${response.status}`);
+  }
+
+  const data = await response.json();
   return {
-    orderId: data.orderIdentifier ?? data.orderId ?? "",
     trackingNumber: data.trackingNumber,
-    labelUrl: data.labelUrl,
+    status: data.status,
+    labelUrl: data.label?.url ?? data.labelUrl ?? data.printLabelUrl,
   };
+}
+
+/**
+ * Get the label PDF URL for an order. This is a separate endpoint
+ * from order creation — Click & Drop generates labels asynchronously.
+ */
+export async function getClickDropLabel(
+  orderId: string
+): Promise<string | null> {
+  // Try the direct label endpoint first
+  const labelResponse = await clickDropFetch(`/orders/${orderId}/label`, {
+    headers: { Accept: "application/pdf" },
+  });
+
+  if (labelResponse.ok) {
+    // If the response is a PDF, we need to construct the URL
+    // The label endpoint returns the PDF directly
+    return `${API_BASE}/orders/${orderId}/label`;
+  }
+
+  // Fallback: check order details for a label URL
+  try {
+    const details = await getClickDropOrderDetails(orderId);
+    return details.labelUrl ?? null;
+  } catch {
+    return null;
+  }
 }
 
 /**

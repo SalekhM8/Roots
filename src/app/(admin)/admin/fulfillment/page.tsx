@@ -118,9 +118,9 @@ export default async function FulfillmentQueuePage({
                     <td className="px-4 py-3 text-roots-navy/70">
                       <div className="flex flex-col gap-1">
                         <span>{shipment?.trackingNumber ?? "\u2014"}</span>
-                        {shipment?.labelUrl && (
+                        {shipment?.clickDropOrderId && (
                           <a
-                            href={shipment.labelUrl}
+                            href={`/api/fulfillment/label?orderId=${order.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-xs font-medium text-roots-green underline"
