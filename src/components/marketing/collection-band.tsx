@@ -8,9 +8,9 @@ const collections = [
     cta: "Start Consultation",
   },
   {
-    name: "Wellness Supplements",
-    description: "Premium supplements to support your health journey",
-    href: "/collections/supplements",
+    name: "Health & Pharmacy",
+    description: "Trusted brands for digestive health, stress relief, vitamins, and more",
+    href: "/collections/vitamins-supplements",
     cta: "Browse Range",
   },
 ];

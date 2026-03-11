@@ -69,6 +69,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
                 price={price}
                 type={product.productType === "pom" ? "pom" : "supplement"}
                 imageUrl={product.defaultImageUrl ?? undefined}
+                hasMultipleVariants={product._count.variants > 1}
               />
             );
           })}

@@ -30,16 +30,21 @@ export const ROUTES = {
 export const NAV_LINKS = [
   { href: ROUTES.home, label: "Home" },
   { href: ROUTES.collection("weight-loss"), label: "Weight Loss" },
-  { href: ROUTES.collection("supplements"), label: "Supplements" },
-  { href: ROUTES.collection("womens-health"), label: "Women's Health" },
+  { href: ROUTES.collection("vitamins-supplements"), label: "Vitamins & Supplements" },
+  { href: ROUTES.collection("digestive-health"), label: "Digestive Health" },
+  { href: ROUTES.collection("stress-sleep"), label: "Stress & Sleep" },
   { href: ROUTES.about, label: "About" },
   { href: ROUTES.contact, label: "Contact" },
 ] as const;
 
 export const SHOP_LINKS = [
   { href: ROUTES.collection("weight-loss"), label: "Weight Loss" },
-  { href: ROUTES.collection("supplements"), label: "Supplements" },
-  { href: ROUTES.collection("womens-health"), label: "Women's Health" },
+  { href: ROUTES.collection("vitamins-supplements"), label: "Vitamins & Supplements" },
+  { href: ROUTES.collection("digestive-health"), label: "Digestive Health" },
+  { href: ROUTES.collection("stress-sleep"), label: "Stress & Sleep" },
+  { href: ROUTES.collection("joint-support"), label: "Joint Support" },
+  { href: ROUTES.collection("skin-care"), label: "Skin Care" },
+  { href: ROUTES.collection("first-aid"), label: "First Aid" },
 ] as const;
 
 export const SUPPORT_LINKS = [

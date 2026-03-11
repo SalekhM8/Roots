@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { LinkButton } from "@/components/ui/link-button";
 import { PaginationDots } from "@/components/ui/pagination-dots";
-import { ChevronLeftIcon, ChevronRightIcon, ImagePlaceholderIcon } from "@/components/icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/icons";
 
 interface ShowcaseProduct {
   name: string;
@@ -11,6 +11,7 @@ interface ShowcaseProduct {
   price: string;
   description: string;
   href: string;
+  imageUrl: string;
 }
 
 const products: ShowcaseProduct[] = [
@@ -21,22 +22,34 @@ const products: ShowcaseProduct[] = [
     description:
       "A clinician-led weight management programme using tirzepatide. Includes full medical consultation, prescriber review, and ongoing support.",
     href: "/products/mounjaro",
+    imageUrl: "/images/products/mounjaro.svg",
   },
   {
-    name: "Magnesium Glycinate",
-    type: "Supplement",
-    price: "£24.99",
+    name: "Centrum Advance",
+    type: "Multivitamin",
+    price: "From £4.99",
     description:
-      "Premium magnesium for muscle recovery, sleep quality, and nervous system support. Highly bioavailable glycinate form.",
-    href: "/products/magnesium-glycinate",
+      "A daily multivitamin designed to support overall health and wellbeing. Provides a broad range of vitamins and minerals for everyday nutritional needs.",
+    href: "/products/centrum-advance",
+    imageUrl: "/images/products/centrum-advance-30.png",
   },
   {
-    name: "Daily Electrolytes",
-    type: "Supplement",
-    price: "£19.99",
+    name: "Gaviscon Double Action",
+    type: "Digestive Relief",
+    price: "From £4.49",
     description:
-      "Balanced electrolyte blend to support hydration, energy, and recovery. Essential during weight management programmes.",
-    href: "/products/electrolytes",
+      "Quick relief from heartburn and indigestion. Works in two ways — neutralises excess stomach acid and forms a protective barrier against reflux.",
+    href: "/products/gaviscon-double-action",
+    imageUrl: "/images/products/gaviscon-double-action-24.jpg",
+  },
+  {
+    name: "Kalms Day",
+    type: "Stress Relief",
+    price: "From £6.99",
+    description:
+      "A traditional herbal medicine with valerian root to relieve symptoms of stress and mild anxiety. Supports a calmer, more balanced feeling during the day.",
+    href: "/products/kalms-day",
+    imageUrl: "/images/products/kalms-day-96.png",
   },
 ];
 
@@ -46,21 +59,18 @@ export default function ProductShowcase() {
 
   return (
     <section className="relative bg-roots-cream py-16 md:py-20 overflow-hidden">
-      {/* Background pattern — green Lucide icons on cream */}
+      {/* Background pattern */}
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         <svg viewBox="0 0 1440 600" fill="none" className="h-full w-full" preserveAspectRatio="xMidYMid slice" stroke="#045c4b" strokeLinecap="round" strokeLinejoin="round">
-          {/* Shield Plus — top right */}
           <g transform="translate(1300, 40) scale(2.5)" opacity="0.06" strokeWidth="0.7">
             <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
             <path d="M9 12h6" />
             <path d="M12 9v6" />
           </g>
-          {/* Pill — top left */}
           <g transform="translate(60, 60) scale(2.5) rotate(20)" opacity="0.06" strokeWidth="0.7">
             <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
             <path d="m8.5 8.5 7 7" />
           </g>
-          {/* Flower — bottom right */}
           <g transform="translate(1280, 420) scale(2.5)" opacity="0.06" strokeWidth="0.7">
             <path d="M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M9 8h1m5 0a3 3 0 1 1-3 3m3-3h-1m-2 3v-1" />
             <circle cx="12" cy="8" r="2" />
@@ -68,12 +78,10 @@ export default function ProductShowcase() {
             <path d="M12 22c4.2 0 7-1.667 7-5" />
             <path d="M12 22c-4.2 0-7-1.667-7-5" />
           </g>
-          {/* Leaf — bottom left */}
           <g transform="translate(80, 440) scale(2.5)" opacity="0.06" strokeWidth="0.7">
             <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
             <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
           </g>
-          {/* Accent circles */}
           <circle cx="500" cy="100" r="4" opacity="0.05" strokeWidth="1.3" />
           <circle cx="900" cy="500" r="5" opacity="0.05" strokeWidth="1.3" />
           <circle cx="300" cy="350" r="3" opacity="0.05" strokeWidth="1.3" />
@@ -83,7 +91,7 @@ export default function ProductShowcase() {
         {/* Header row */}
         <div className="mb-10 flex items-center justify-between">
           <h2 className="text-[28px] font-medium text-roots-green md:text-[36px] lg:text-[42px]">
-            The core products
+            Popular products
           </h2>
           <div className="flex gap-2">
             <button
@@ -107,11 +115,14 @@ export default function ProductShowcase() {
 
         {/* Product showcase card */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Image placeholder */}
-          <div className="flex min-h-[400px] items-center justify-center rounded-[var(--radius-hero)] bg-roots-cream-2">
-            <div className="flex h-48 w-48 items-center justify-center rounded-2xl border border-roots-green/10">
-              <ImagePlaceholderIcon size={80} className="text-roots-green/20" />
-            </div>
+          {/* Image */}
+          <div className="flex min-h-[400px] items-center justify-center rounded-[var(--radius-hero)] bg-roots-cream-2 p-8">
+            <img
+              src={product.imageUrl}
+              alt={product.name}
+              className="max-h-[360px] w-auto max-w-full rounded-xl object-contain"
+              loading="lazy"
+            />
           </div>
 
           {/* Details */}

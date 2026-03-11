@@ -51,7 +51,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           {/* Image area */}
           <div
-            className={`flex aspect-square items-center justify-center rounded-[var(--radius-hero)] ${
+            className={`flex aspect-square items-center justify-center rounded-[var(--radius-hero)] p-8 ${
               isPom ? "bg-roots-green-2/30" : "bg-roots-cream-2"
             }`}
           >
@@ -59,7 +59,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <img
                 src={product.defaultImageUrl}
                 alt={product.name}
-                className="h-full w-full rounded-[var(--radius-hero)] object-cover"
+                className="max-h-full max-w-full rounded-xl object-contain"
               />
             ) : (
               <div className="flex h-32 w-32 items-center justify-center rounded-2xl border border-current/10">
@@ -87,8 +87,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </p>
             )}
 
-            <p className="mb-8 text-lg leading-relaxed opacity-80">
-              {product.longDescription}
+            <p className="mb-8 whitespace-pre-line text-lg leading-relaxed opacity-80">
+              {product.shortDescription}
             </p>
 
             {isPom ? (
@@ -110,11 +110,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             {/* Collapsible info sections */}
             <div className="mt-12">
-              <CollapsibleSection title="Overview" defaultOpen>
-                <p>{product.shortDescription}</p>
-              </CollapsibleSection>
-              <CollapsibleSection title="Details">
-                <p>{product.longDescription}</p>
+              <CollapsibleSection title="Full Details" defaultOpen>
+                <p className="whitespace-pre-line">{product.longDescription}</p>
               </CollapsibleSection>
             </div>
           </div>

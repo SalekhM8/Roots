@@ -75,6 +75,9 @@ export async function getCollectionBySlug(slug: string) {
                 orderBy: { priceMinor: "asc" },
                 take: 1,
               },
+              _count: {
+                select: { variants: { where: { isActive: true } } },
+              },
             },
           },
         },

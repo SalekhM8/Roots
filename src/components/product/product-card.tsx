@@ -7,10 +7,12 @@ interface ProductCardProps {
   price: string;
   type: "pom" | "supplement";
   imageUrl?: string;
+  hasMultipleVariants?: boolean;
 }
 
-export function ProductCard({ name, slug, price, type, imageUrl }: ProductCardProps) {
+export function ProductCard({ name, slug, price, type, imageUrl, hasMultipleVariants }: ProductCardProps) {
   const isPom = type === "pom";
+  const showFromPrefix = isPom || hasMultipleVariants;
 
   return (
     <Link
@@ -18,12 +20,12 @@ export function ProductCard({ name, slug, price, type, imageUrl }: ProductCardPr
       className="group flex flex-col overflow-hidden rounded-[var(--radius-card)] bg-roots-cream-2 transition-shadow duration-200 hover:shadow-md"
     >
       {/* Image area */}
-      <div className="relative flex aspect-square items-center justify-center bg-roots-cream-2">
+      <div className="relative flex aspect-square items-center justify-center bg-roots-cream-2 p-4">
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={name}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            className="h-full w-full rounded-lg object-contain transition-transform duration-300 group-hover:scale-[1.02]"
             loading="lazy"
           />
         ) : (
@@ -44,7 +46,7 @@ export function ProductCard({ name, slug, price, type, imageUrl }: ProductCardPr
           {name}
         </h3>
         <p className="mt-auto text-base font-medium text-roots-green/80">
-          {isPom ? "From " : ""}
+          {showFromPrefix ? "From " : ""}
           {price}
         </p>
       </div>
