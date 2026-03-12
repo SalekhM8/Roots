@@ -24,6 +24,7 @@ export async function createPaymentIntent(params: {
       amount: params.amountMinor,
       currency: params.currency ?? "gbp",
       capture_method: params.captureMethod,
+      payment_method_types: ["card"],
       metadata: params.metadata,
     },
     { idempotencyKey: params.idempotencyKey }
