@@ -129,6 +129,7 @@ export async function getOrdersList(page = 1, search?: string) {
     where = {
       OR: [
         { orderNumber: { contains: term, mode: "insensitive" } },
+        { guestEmail: { contains: term, mode: "insensitive" } },
         { user: { email: { contains: term, mode: "insensitive" } } },
         { user: { customerProfile: { firstName: { contains: term, mode: "insensitive" } } } },
         { user: { customerProfile: { lastName: { contains: term, mode: "insensitive" } } } },

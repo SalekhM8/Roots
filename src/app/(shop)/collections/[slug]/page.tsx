@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductCard } from "@/components/product/product-card";
+import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { getCollectionBySlug } from "@/server/queries/products";
 import { formatPrice } from "@/lib/utils";
 
@@ -8,12 +10,33 @@ interface CollectionPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: CollectionPageProps) {
+export async function generateMetadata({ params }: CollectionPageProps): Promise<Metadata> {
   const { slug } = await params;
   const collection = await getCollectionBySlug(slug);
+  if (!collection) return { title: "Collection" };
+
+  const title = `${collection.name} — Buy Online`;
+  const description =
+    collection.description ??
+    `Browse our ${collection.name.toLowerCase()} range. Fast UK delivery from a GPhC registered pharmacy.`;
+
   return {
-    title: collection?.name ?? "Collection",
-    description: collection?.description,
+    title,
+    description,
+    openGraph: {
+      title: `${title} | Roots Pharmacy`,
+      description,
+      url: `https://rootspharmacy.co.uk/collections/${slug}`,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+    alternates: {
+      canonical: `https://rootspharmacy.co.uk/collections/${slug}`,
+    },
   };
 }
 
@@ -29,6 +52,13 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
 
   return (
     <div className="bg-roots-cream">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", href: "/" },
+          { name: collection.name },
+        ]}
+      />
+
       {/* Breadcrumb */}
       <div className="page-container py-6">
         <nav className="flex items-center gap-2 text-sm text-roots-green/60" aria-label="Breadcrumb">

@@ -76,7 +76,7 @@ export default async function FulfillmentQueuePage({
               </tr>
             ) : (
               orders.map((order) => {
-                const name = getDisplayName(order.user);
+                const name = getDisplayName(order.user, order.guestEmail);
                 const totalItems = order.items.reduce(
                   (sum, i) => sum + i.quantity,
                   0

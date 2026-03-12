@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { requireUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { ROUTES } from "@/lib/constants";
 import { ChecklistIcon } from "@/components/icons";
 
 export const metadata: Metadata = {
   title: "Order Confirmed",
+  robots: { index: false, follow: false },
 };
 
 interface ConfirmationPageProps {
@@ -16,7 +17,7 @@ interface ConfirmationPageProps {
 export default async function ConfirmationPage({
   searchParams,
 }: ConfirmationPageProps) {
-  const user = await requireUser();
+  const user = await getCurrentUser();
   const { order_id: orderId } = await searchParams;
 
   if (!orderId) {
@@ -30,12 +31,17 @@ export default async function ConfirmationPage({
     );
   }
 
+  // Find order — match by userId for authenticated users, or allow guest orders (userId is null)
   const order = await db.order.findFirst({
-    where: { id: orderId, userId: user.id },
+    where: {
+      id: orderId,
+      ...(user ? { userId: user.id } : { userId: null }),
+    },
     select: {
       id: true,
       orderNumber: true,
       orderType: true,
+      guestEmail: true,
       payments: { select: { status: true } },
     },
   });
@@ -52,6 +58,7 @@ export default async function ConfirmationPage({
   }
 
   const isPom = order.orderType === "pom" || order.orderType === "mixed";
+  const isGuest = !user;
 
   return (
     <div className="page-container py-16 md:py-20">
@@ -77,17 +84,30 @@ export default async function ConfirmationPage({
         ) : (
           <p className="mb-8 text-roots-navy/60">
             Your payment has been processed. We are preparing your order for
-            dispatch. You will receive a confirmation email shortly.
+            dispatch.{" "}
+            {order.guestEmail
+              ? `A confirmation email will be sent to ${order.guestEmail}.`
+              : "You will receive a confirmation email shortly."}
           </p>
         )}
 
         <div className="flex flex-col items-center gap-3">
-          <Link
-            href={ROUTES.accountOrders}
-            className="text-sm font-medium text-roots-green underline"
-          >
-            View my orders
-          </Link>
+          {!isGuest && (
+            <Link
+              href={ROUTES.accountOrders}
+              className="text-sm font-medium text-roots-green underline"
+            >
+              View my orders
+            </Link>
+          )}
+          {isGuest && (
+            <p className="text-sm text-roots-navy/50">
+              <Link href={ROUTES.signUp} className="text-roots-green underline">
+                Create an account
+              </Link>{" "}
+              to track your orders and save your details for next time.
+            </p>
+          )}
           <Link
             href={ROUTES.home}
             className="text-sm text-roots-navy/50 underline"

@@ -258,6 +258,7 @@ export const checkExpiringAuthorizations = inngest.createFunction(
         });
 
         const user = payment.order.user;
+        if (!user) continue; // Guest orders use automatic capture, no auth expiry
         const name = user.customerProfile?.firstName ?? "there";
         const html = templates.paymentExpired(name, payment.order.orderNumber);
 

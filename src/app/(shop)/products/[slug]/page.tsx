@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CollapsibleSection } from "@/components/product/collapsible-section";
@@ -5,20 +6,46 @@ import { LinkButton } from "@/components/ui/link-button";
 import { AddToCartButton } from "@/components/checkout/add-to-cart-button";
 import { VariantSelector } from "@/components/product/variant-selector";
 import { ImagePlaceholderIcon } from "@/components/icons";
+import { ProductJsonLd, BreadcrumbJsonLd, FaqJsonLd } from "@/components/seo/json-ld";
 import { ROUTES } from "@/lib/constants";
 import { getProductBySlug } from "@/server/queries/products";
 import { formatPrice } from "@/lib/utils";
+import { PRODUCT_FAQS } from "@/data/product-faqs";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: ProductPageProps) {
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
+  if (!product) return { title: "Product" };
+
+  const imageUrl = product.defaultImageUrl
+    ? product.defaultImageUrl.startsWith("http")
+      ? product.defaultImageUrl
+      : `https://rootspharmacy.co.uk${product.defaultImageUrl}`
+    : undefined;
+
   return {
-    title: product?.name ?? "Product",
-    description: product?.shortDescription,
+    title: product.name,
+    description: product.shortDescription,
+    openGraph: {
+      title: `${product.name} | Roots Pharmacy`,
+      description: product.shortDescription,
+      url: `https://rootspharmacy.co.uk/products/${slug}`,
+      type: "website",
+      ...(imageUrl && { images: [{ url: imageUrl, alt: product.name }] }),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description: product.shortDescription,
+      ...(imageUrl && { images: [imageUrl] }),
+    },
+    alternates: {
+      canonical: `https://rootspharmacy.co.uk/products/${slug}`,
+    },
   };
 }
 
@@ -32,8 +59,29 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const lowestVariant = product.variants[0];
   const hasMultipleVariants = product.variants.length > 1;
 
+  const lowestPrice = lowestVariant?.priceMinor ?? 0;
+  const totalStock = product.variants.reduce((sum, v) => sum + v.stockQuantity, 0);
+  const faqs = PRODUCT_FAQS[product.slug] ?? [];
+
   return (
     <div className={isPom ? "bg-roots-green text-roots-cream" : "bg-roots-cream text-roots-green"}>
+      <ProductJsonLd
+        name={product.name}
+        description={product.shortDescription}
+        slug={product.slug}
+        imageUrl={product.defaultImageUrl}
+        priceMinor={lowestPrice}
+        inStock={totalStock > 0}
+        sku={lowestVariant?.id}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", href: "/" },
+          { name: product.name },
+        ]}
+      />
+      {faqs.length > 0 && <FaqJsonLd faqs={faqs} />}
+
       {/* Breadcrumb */}
       <div className="page-container py-6">
         <nav
@@ -103,9 +151,22 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   priceMinor: v.priceMinor,
                   stockQuantity: v.stockQuantity,
                 }))}
+                productName={product.name}
+                productSlug={product.slug}
+                imageUrl={product.defaultImageUrl ?? undefined}
               />
             ) : lowestVariant ? (
-              <AddToCartButton variantId={lowestVariant.id} className="w-fit" />
+              <AddToCartButton
+                variantId={lowestVariant.id}
+                className="w-fit"
+                productInfo={{
+                  productName: product.name,
+                  variantName: lowestVariant.name,
+                  priceMinor: lowestVariant.priceMinor,
+                  productSlug: product.slug,
+                  imageUrl: product.defaultImageUrl ?? undefined,
+                }}
+              />
             ) : null}
 
             {/* Collapsible info sections */}
@@ -113,6 +174,19 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <CollapsibleSection title="Full Details" defaultOpen>
                 <p className="whitespace-pre-line">{product.longDescription}</p>
               </CollapsibleSection>
+
+              {faqs.length > 0 && (
+                <CollapsibleSection title="Frequently Asked Questions">
+                  <div className="space-y-4">
+                    {faqs.map((faq, i) => (
+                      <div key={i}>
+                        <h3 className="font-medium">{faq.question}</h3>
+                        <p className="mt-1 opacity-80">{faq.answer}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CollapsibleSection>
+              )}
             </div>
           </div>
         </div>

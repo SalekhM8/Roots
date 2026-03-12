@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Sans, Fraunces } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { CartCountProvider } from "@/components/cart/cart-count-provider";
@@ -19,14 +19,71 @@ const fraunces = Fraunces({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#045c4b",
+};
+
 export const metadata: Metadata = {
   title: {
-    default: "Roots Pharmacy | Premium Weight Loss & Wellness",
+    default: "Roots Pharmacy | Mounjaro Weight Loss & Wellness Supplements UK",
     template: "%s | Roots Pharmacy",
   },
   description:
-    "UK-based pharmacy offering clinician-led Mounjaro weight loss programmes and premium wellness supplements. GPhC registered.",
+    "GPhC registered UK online pharmacy. Buy Mounjaro weight loss injections with clinician-led consultations. Premium vitamins, supplements & pharmacy essentials delivered to your door.",
   metadataBase: new URL("https://rootspharmacy.co.uk"),
+  keywords: [
+    "Mounjaro UK",
+    "buy Mounjaro online",
+    "weight loss pharmacy UK",
+    "online pharmacy UK",
+    "tirzepatide UK",
+    "GPhC registered pharmacy",
+    "wellness supplements UK",
+    "vitamins online UK",
+    "Roots Pharmacy",
+  ],
+  authors: [{ name: "Roots Pharmacy" }],
+  creator: "Roots Pharmacy",
+  publisher: "Roots Pharmacy",
+  robots: {
+    index: true,
+    follow: true,
+    "max-image-preview": "large",
+    "max-snippet": -1,
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_GB",
+    url: "https://rootspharmacy.co.uk",
+    siteName: "Roots Pharmacy",
+    title: "Roots Pharmacy | Mounjaro Weight Loss & Wellness Supplements UK",
+    description:
+      "GPhC registered UK online pharmacy. Buy Mounjaro weight loss injections with clinician-led consultations. Premium vitamins, supplements & pharmacy essentials.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Roots Pharmacy — Premium Weight Loss & Wellness",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Roots Pharmacy | Mounjaro Weight Loss & Wellness UK",
+    description:
+      "GPhC registered UK online pharmacy. Clinician-led Mounjaro consultations & premium wellness supplements.",
+    images: ["/og-image.png"],
+  },
+  alternates: {
+    canonical: "https://rootspharmacy.co.uk",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({

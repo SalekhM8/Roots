@@ -17,6 +17,7 @@ export default async function CartPage() {
   const user = await getCurrentUser();
 
   if (!user) {
+    // Guest users manage cart client-side — redirect them to guest checkout
     return (
       <div className="page-container py-16 md:py-20">
         <h1 className="mb-6 text-[32px] font-medium text-roots-green md:text-[42px]">
@@ -24,10 +25,17 @@ export default async function CartPage() {
         </h1>
         <EmptyState
           icon={<CartIcon size={48} />}
-          message="Sign in to view your cart"
-          actionLabel="Sign in"
-          actionHref={ROUTES.signIn}
+          message="Your guest cart lives in your browser"
+          actionLabel="Proceed to Guest Checkout"
+          actionHref="/checkout/guest"
         />
+        <p className="mt-4 text-center text-sm text-roots-green/60">
+          Or{" "}
+          <Link href={ROUTES.signIn} className="underline">
+            sign in
+          </Link>{" "}
+          to use your saved cart and addresses.
+        </p>
       </div>
     );
   }
@@ -45,7 +53,7 @@ export default async function CartPage() {
           icon={<CartIcon size={48} />}
           message="Your cart is empty"
           actionLabel="Browse products"
-          actionHref={ROUTES.collection("supplements")}
+          actionHref={ROUTES.collection("vitamins-supplements")}
         />
       </div>
     );
@@ -95,7 +103,7 @@ export default async function CartPage() {
           </LinkButton>
 
           <Link
-            href={ROUTES.collection("supplements")}
+            href={ROUTES.collection("vitamins-supplements")}
             className="mt-3 block text-center text-sm text-roots-green/70 underline"
           >
             Continue shopping

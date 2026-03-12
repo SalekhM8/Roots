@@ -198,9 +198,9 @@ export default async function AdminOrderDetailPage({
           {/* Customer */}
           <Section title="Customer">
             <p className="text-sm font-medium text-roots-navy">
-              {getDisplayName(order.user)}
+              {getDisplayName(order.user, order.guestEmail)}
             </p>
-            <p className="text-sm text-roots-navy/60">{order.user.email}</p>
+            <p className="text-sm text-roots-navy/60">{order.user?.email ?? order.guestEmail ?? "—"}</p>
           </Section>
 
           {/* Shipping Address */}

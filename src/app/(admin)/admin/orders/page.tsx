@@ -61,7 +61,7 @@ export default async function AdminOrdersPage({
               </tr>
             ) : (
               orders.map((order) => {
-                const name = getDisplayName(order.user);
+                const name = getDisplayName(order.user, order.guestEmail);
                 return (
                   <tr
                     key={order.id}

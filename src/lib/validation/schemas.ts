@@ -113,9 +113,24 @@ export const checkoutSchema = z.object({
   useSameForBilling: z.boolean().default(true),
 });
 
+// ---- Guest Checkout ----
+export const guestCartItemSchema = z.object({
+  variantId: z.string().uuid(),
+  quantity: z.number().int().min(1).max(10),
+});
+
+export const guestCheckoutSchema = z.object({
+  email: z.string().email("Enter a valid email address"),
+  phone: z.string().max(20).optional(),
+  shippingAddress: addressSchema,
+  useSameForBilling: z.boolean().default(true),
+  items: z.array(guestCartItemSchema).min(1, "Cart cannot be empty"),
+});
+
 export type AddressInput = z.infer<typeof addressSchema>;
 export type ProfileInput = z.infer<typeof profileSchema>;
 export type ConsultationAnswersInput = z.infer<typeof consultationAnswersSchema>;
 export type AddToCartInput = z.infer<typeof addToCartSchema>;
 export type UpdateCartItemInput = z.infer<typeof updateCartItemSchema>;
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
+export type GuestCheckoutInput = z.infer<typeof guestCheckoutSchema>;

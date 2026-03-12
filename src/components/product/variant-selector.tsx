@@ -13,9 +13,12 @@ interface Variant {
 
 interface VariantSelectorProps {
   variants: Variant[];
+  productName?: string;
+  productSlug?: string;
+  imageUrl?: string;
 }
 
-export function VariantSelector({ variants }: VariantSelectorProps) {
+export function VariantSelector({ variants, productName, productSlug, imageUrl }: VariantSelectorProps) {
   const [selectedId, setSelectedId] = useState(variants[0]?.id ?? "");
 
   const selected = variants.find((v) => v.id === selectedId);
@@ -46,7 +49,21 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
       {outOfStock ? (
         <p className="text-sm opacity-60">Out of stock</p>
       ) : (
-        <AddToCartButton variantId={selectedId} className="w-fit" />
+        <AddToCartButton
+          variantId={selectedId}
+          className="w-fit"
+          productInfo={
+            selected && productName && productSlug
+              ? {
+                  productName,
+                  variantName: selected.name,
+                  priceMinor: selected.priceMinor,
+                  productSlug,
+                  imageUrl,
+                }
+              : undefined
+          }
+        />
       )}
     </div>
   );

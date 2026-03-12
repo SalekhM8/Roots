@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import type { Prisma } from "@/generated/prisma/client";
 
 interface AuditLogEntry {
-  actorUserId?: string;
+  actorUserId?: string | null;
   actorRole?: string;
   entityType: string;
   entityId: string;

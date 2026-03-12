@@ -46,10 +46,14 @@ export function humanizeStatus(status: string): string {
   return status.replace(/_/g, " ");
 }
 
-export function getDisplayName(user: {
-  email: string;
-  customerProfile?: { firstName: string; lastName: string } | null;
-}): string {
+export function getDisplayName(
+  user: {
+    email: string;
+    customerProfile?: { firstName: string; lastName: string } | null;
+  } | null,
+  guestEmail?: string | null
+): string {
+  if (!user) return guestEmail ? `Guest (${guestEmail})` : "Guest";
   return user.customerProfile
     ? `${user.customerProfile.firstName} ${user.customerProfile.lastName}`
     : user.email;
