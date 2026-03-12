@@ -61,6 +61,36 @@ export async function getProductBySlug(slug: string) {
   });
 }
 
+// ---- Shopfront: All Supplement Collections (non-weight-loss) ----
+export async function getAllSupplementCollections() {
+  return db.collection.findMany({
+    where: {
+      isActive: true,
+      slug: { not: "weight-loss" },
+    },
+    include: {
+      collectionProducts: {
+        include: {
+          product: {
+            include: {
+              variants: {
+                where: { isActive: true },
+                orderBy: { priceMinor: "asc" },
+                take: 1,
+              },
+              _count: {
+                select: { variants: { where: { isActive: true } } },
+              },
+            },
+          },
+        },
+        orderBy: { sortOrder: "asc" },
+      },
+    },
+    orderBy: { sortOrder: "asc" },
+  });
+}
+
 // ---- Shopfront: Collection Products ----
 export async function getCollectionBySlug(slug: string) {
   return db.collection.findUnique({

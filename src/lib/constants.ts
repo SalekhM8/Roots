@@ -30,9 +30,7 @@ export const ROUTES = {
 export const NAV_LINKS = [
   { href: ROUTES.home, label: "Home" },
   { href: ROUTES.collection("weight-loss"), label: "Weight Loss" },
-  { href: ROUTES.collection("vitamins-supplements"), label: "Vitamins & Supplements" },
-  { href: ROUTES.collection("digestive-health"), label: "Digestive Health" },
-  { href: ROUTES.collection("stress-sleep"), label: "Stress & Sleep" },
+  { href: "/supplements", label: "Supplements" },
   { href: "/blog", label: "Blog" },
   { href: ROUTES.about, label: "About" },
   { href: ROUTES.contact, label: "Contact" },
