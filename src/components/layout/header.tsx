@@ -7,7 +7,8 @@ import { useUser, useClerk } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS, ROUTES } from "@/lib/constants";
 import { Logo } from "@/components/layout/logo";
-import { SearchIcon, UserIcon, CartIcon, MenuIcon, CloseIcon } from "@/components/icons";
+import { UserIcon, CartIcon, MenuIcon, CloseIcon } from "@/components/icons";
+import { SearchOverlay } from "@/components/layout/search-overlay";
 import { useCartCount } from "@/components/cart/cart-count-provider";
 
 export default function Header() {
@@ -64,13 +65,7 @@ export default function Header() {
 
           {/* Right icons */}
           <div className="flex items-center gap-5">
-            <button
-              type="button"
-              className="text-roots-cream transition-opacity duration-200 hover:opacity-80"
-              aria-label="Search"
-            >
-              <SearchIcon />
-            </button>
+            <SearchOverlay />
 
             {/* User icon with auth-aware behavior */}
             <div className="relative" ref={userMenuRef}>
