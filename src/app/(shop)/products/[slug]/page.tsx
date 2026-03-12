@@ -23,36 +23,25 @@ function parseDescriptionSections(longDescription: string | null) {
   };
   if (!longDescription) return result;
 
-  // Split on double newlines to get paragraphs/blocks
+  // Split on double newlines to get blocks
   const blocks = longDescription.split("\n\n");
-
-  let currentTitle: string | null = null;
-  let currentContent: string[] = [];
 
   for (const block of blocks) {
     const trimmed = block.trim();
     if (!trimmed) continue;
 
-    // Check if this block is a section heading (ends with ":")
-    if (trimmed.endsWith(":") && !trimmed.includes("\n") && trimmed.length < 80) {
-      // Save previous section if any
-      if (currentTitle) {
-        result.sections.push({ title: currentTitle, content: currentContent.join("\n\n").trim() });
-      }
-      currentTitle = trimmed.slice(0, -1); // Remove trailing colon
-      currentContent = [];
-    } else if (currentTitle) {
-      // We're inside a named section
-      currentContent.push(trimmed);
+    // Check if the first line of this block is a section heading (ends with ":")
+    const firstNewline = trimmed.indexOf("\n");
+    const firstLine = firstNewline === -1 ? trimmed : trimmed.slice(0, firstNewline).trim();
+    const rest = firstNewline === -1 ? "" : trimmed.slice(firstNewline + 1).trim();
+
+    if (firstLine.endsWith(":") && firstLine.length < 80) {
+      const title = firstLine.slice(0, -1);
+      result.sections.push({ title, content: rest });
     } else {
-      // No heading yet — this is the overview
+      // No heading — append to overview
       result.overview += (result.overview ? "\n\n" : "") + trimmed;
     }
-  }
-
-  // Push the last section
-  if (currentTitle) {
-    result.sections.push({ title: currentTitle, content: currentContent.join("\n\n").trim() });
   }
 
   return result;
