@@ -67,6 +67,18 @@ const categories = [
       </svg>
     ),
   },
+  {
+    name: "Joint Support",
+    slug: "joint-support",
+    description: "Comfort & mobility",
+    icon: (
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8">
+        {/* Bone / joint */}
+        <path d="M10 8a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.5-1 2.5-1 4v8c0 1.5 1 2.5 1 4a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.5 1-2.5 1-4v-8c0-1.5-1-2.5-1-4Z" />
+        <path d="M19 8a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.5-1 2.5-1 4v8c0 1.5 1 2.5 1 4a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.5 1-2.5 1-4v-8c0-1.5-1-2.5-1-4Z" />
+      </svg>
+    ),
+  },
 ];
 
 export default function CategoryHighlight() {
@@ -106,7 +118,7 @@ export default function CategoryHighlight() {
           Care for your health
         </p>
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {categories.map((cat) => (
             <Link
               key={cat.slug}
