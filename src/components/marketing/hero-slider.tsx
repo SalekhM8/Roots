@@ -23,7 +23,7 @@ const slides: Slide[] = [
   {
     subtitle: "Premium Wellness",
     headline: "Supplements crafted for real results",
-    cta: { label: "Shop Supplements", href: "/collections/supplements" },
+    cta: { label: "Shop Supplements", href: "/collections/vitamins-supplements" },
   },
 ];
 

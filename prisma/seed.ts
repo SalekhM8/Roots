@@ -680,6 +680,9 @@ async function main() {
     { collection: "vitamins-supplements", product: "magnesium", sort: 7 },
     { collection: "vitamins-supplements", product: "electrolytes", sort: 8 },
     { collection: "vitamins-supplements", product: "probiotic", sort: 9 },
+    { collection: "vitamins-supplements", product: "jointcareEssential", sort: 10 },
+    { collection: "vitamins-supplements", product: "jointcareTurmeric", sort: 11 },
+    { collection: "vitamins-supplements", product: "valupakGluc", sort: 12 },
 
     // Digestive Health
     { collection: "digestive-health", product: "gaviscon", sort: 1 },

@@ -51,7 +51,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           {/* Image area */}
           <div
-            className={`flex aspect-square items-center justify-center rounded-[var(--radius-hero)] p-8 ${
+            className={`aspect-square overflow-hidden rounded-[var(--radius-hero)] ${
               isPom ? "bg-roots-green-2/30" : "bg-roots-cream-2"
             }`}
           >
@@ -59,7 +59,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <img
                 src={product.defaultImageUrl}
                 alt={product.name}
-                className="max-h-full max-w-full rounded-xl object-contain"
+                className="h-full w-full object-cover"
               />
             ) : (
               <div className="flex h-32 w-32 items-center justify-center rounded-2xl border border-current/10">

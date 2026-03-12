@@ -20,12 +20,12 @@ export function ProductCard({ name, slug, price, type, imageUrl, hasMultipleVari
       className="group flex flex-col overflow-hidden rounded-[var(--radius-card)] bg-roots-cream-2 transition-shadow duration-200 hover:shadow-md"
     >
       {/* Image area */}
-      <div className="relative flex aspect-square items-center justify-center bg-roots-cream-2 p-4">
+      <div className="relative aspect-square overflow-hidden bg-roots-cream-2">
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={name}
-            className="h-full w-full rounded-lg object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             loading="lazy"
           />
         ) : (
