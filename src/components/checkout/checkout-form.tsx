@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LockIcon } from "@/components/icons";
 import { CartSummary } from "./cart-summary";
+import { CheckoutReviews } from "./checkout-reviews";
 import { createCheckoutAction } from "@/app/(shop)/checkout/actions";
 import type { CreateOrderResult } from "@/server/services/order";
 import { ROUTES } from "@/lib/constants";
@@ -227,13 +228,14 @@ export function CheckoutForm(props: CheckoutFormProps) {
           </Button>
         </div>
 
-        <div>
+        <div className="space-y-5">
           <CartSummary
             subtotalMinor={props.subtotalMinor}
             shippingMinor={props.shippingMinor}
             totalMinor={props.totalMinor}
             itemCount={props.itemCount}
           />
+          <CheckoutReviews />
         </div>
       </div>
     );
@@ -344,13 +346,14 @@ function PaymentStep({
         </p>
       </div>
 
-      <div>
+      <div className="space-y-5">
         <CartSummary
           subtotalMinor={subtotalMinor}
           shippingMinor={shippingMinor}
           totalMinor={totalMinor}
           itemCount={itemCount}
         />
+        <CheckoutReviews />
       </div>
     </div>
   );

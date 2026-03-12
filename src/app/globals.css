@@ -97,3 +97,12 @@ h3, h4, h5, h6 {
     padding-inline: 16px;
   }
 }
+
+/* Hide scrollbar but keep scrolling */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

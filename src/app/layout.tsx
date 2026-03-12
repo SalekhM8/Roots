@@ -3,6 +3,7 @@ import { DM_Sans, Fraunces } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { CartCountProvider } from "@/components/cart/cart-count-provider";
 import { PendingCartReplay } from "@/components/cart/pending-cart-replay";
+import NewsletterPopup from "@/components/marketing/newsletter-popup";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -102,6 +103,7 @@ export default function RootLayout({
           <CartCountProvider>
             <PendingCartReplay />
             {children}
+            <NewsletterPopup />
           </CartCountProvider>
         </body>
       </html>

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LockIcon, CartIcon } from "@/components/icons";
 import { CartSummary } from "./cart-summary";
+import { CheckoutReviews } from "./checkout-reviews";
 import { createGuestCheckoutAction } from "@/app/(shop)/checkout/guest/actions";
 import { useGuestCart, type GuestCartItem } from "@/hooks/use-guest-cart";
 import { formatPrice } from "@/lib/utils";
@@ -216,13 +217,14 @@ export function GuestCheckoutClient() {
           </p>
         </div>
 
-        <div>
+        <div className="space-y-5">
           <CartSummary
             subtotalMinor={subtotalMinor}
             shippingMinor={shippingMinor}
             totalMinor={totalMinor}
             itemCount={count}
           />
+          <CheckoutReviews />
         </div>
       </div>
     );
@@ -336,13 +338,14 @@ function GuestPaymentStep({
         </p>
       </div>
 
-      <div>
+      <div className="space-y-5">
         <CartSummary
           subtotalMinor={subtotalMinor}
           shippingMinor={shippingMinor}
           totalMinor={totalMinor}
           itemCount={itemCount}
         />
+        <CheckoutReviews />
       </div>
     </div>
   );
