@@ -16,6 +16,48 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
+function parseDescriptionSections(longDescription: string | null) {
+  const result: { overview: string; sections: { title: string; content: string }[] } = {
+    overview: "",
+    sections: [],
+  };
+  if (!longDescription) return result;
+
+  // Split on double newlines to get paragraphs/blocks
+  const blocks = longDescription.split("\n\n");
+
+  let currentTitle: string | null = null;
+  let currentContent: string[] = [];
+
+  for (const block of blocks) {
+    const trimmed = block.trim();
+    if (!trimmed) continue;
+
+    // Check if this block is a section heading (ends with ":")
+    if (trimmed.endsWith(":") && !trimmed.includes("\n") && trimmed.length < 80) {
+      // Save previous section if any
+      if (currentTitle) {
+        result.sections.push({ title: currentTitle, content: currentContent.join("\n\n").trim() });
+      }
+      currentTitle = trimmed.slice(0, -1); // Remove trailing colon
+      currentContent = [];
+    } else if (currentTitle) {
+      // We're inside a named section
+      currentContent.push(trimmed);
+    } else {
+      // No heading yet — this is the overview
+      result.overview += (result.overview ? "\n\n" : "") + trimmed;
+    }
+  }
+
+  // Push the last section
+  if (currentTitle) {
+    result.sections.push({ title: currentTitle, content: currentContent.join("\n\n").trim() });
+  }
+
+  return result;
+}
+
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
@@ -62,6 +104,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const lowestPrice = lowestVariant?.priceMinor ?? 0;
   const totalStock = product.variants.reduce((sum, v) => sum + v.stockQuantity, 0);
   const faqs = PRODUCT_FAQS[product.slug] ?? [];
+
+  // Parse longDescription into sections: intro paragraph + named sections
+  const descriptionSections = parseDescriptionSections(product.longDescription);
 
   return (
     <div className={isPom ? "bg-roots-green text-roots-cream" : "bg-roots-cream text-roots-green"}>
@@ -171,9 +216,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             {/* Collapsible info sections */}
             <div className="mt-12">
-              <CollapsibleSection title="Full Details" defaultOpen>
-                <p className="whitespace-pre-line">{product.longDescription}</p>
-              </CollapsibleSection>
+              {descriptionSections.overview && (
+                <CollapsibleSection title="Overview" defaultOpen>
+                  <p className="whitespace-pre-line">{descriptionSections.overview}</p>
+                </CollapsibleSection>
+              )}
+              {descriptionSections.sections.map((section, i) => (
+                <CollapsibleSection key={i} title={section.title}>
+                  <p className="whitespace-pre-line">{section.content}</p>
+                </CollapsibleSection>
+              ))}
 
               {faqs.length > 0 && (
                 <CollapsibleSection title="Frequently Asked Questions">
