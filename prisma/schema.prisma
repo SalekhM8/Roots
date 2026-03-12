@@ -574,7 +574,8 @@ model TrackingEvent {
 
 model EmailEvent {
   id                String    @id @default(uuid()) @db.Uuid
-  userId            String    @map("user_id") @db.Uuid
+  userId            String?   @map("user_id") @db.Uuid
+  recipientEmail    String?   @map("recipient_email")
   orderId           String?   @map("order_id") @db.Uuid
   consultationId    String?   @map("consultation_id") @db.Uuid
   emailType         String    @map("email_type")
@@ -584,7 +585,7 @@ model EmailEvent {
   createdAt         DateTime  @default(now()) @map("created_at")
   updatedAt         DateTime  @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
 
   @@map("email_events")
 }

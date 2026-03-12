@@ -68,7 +68,7 @@ export default async function EmailEventsPage({
                   className="border-b border-roots-green/5 last:border-0"
                 >
                   <td className="px-4 py-3 text-roots-navy/70">
-                    {event.user.email}
+                    {event.user?.email ?? event.recipientEmail ?? "—"}
                   </td>
                   <td className="px-4 py-3 text-roots-navy/70">
                     {humanizeStatus(event.emailType)}

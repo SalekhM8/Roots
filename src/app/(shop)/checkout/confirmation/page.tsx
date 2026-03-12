@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { ROUTES } from "@/lib/constants";
 import { ChecklistIcon } from "@/components/icons";
+import { ClearGuestCart } from "@/components/checkout/clear-guest-cart";
 
 export const metadata: Metadata = {
   title: "Order Confirmed",
@@ -62,6 +63,7 @@ export default async function ConfirmationPage({
 
   return (
     <div className="page-container py-16 md:py-20">
+      {isGuest && <ClearGuestCart />}
       <div className="mx-auto max-w-lg text-center">
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-roots-green/10">
           <ChecklistIcon size={40} className="text-roots-green" />

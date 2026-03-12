@@ -184,25 +184,41 @@ export const sendPaymentCapturedEmail = inngest.createFunction(
   async ({ event }) => {
     const { userId, orderId, amountMinor, orderNumber } = event.data;
 
-    const user = await db.user.findUnique({
-      where: { id: userId },
-      include: { customerProfile: { select: { firstName: true } } },
-    });
-    if (!user) return;
+    let toEmail: string;
+    let name: string;
 
-    const name = user.customerProfile?.firstName ?? "there";
+    if (userId) {
+      const user = await db.user.findUnique({
+        where: { id: userId },
+        include: { customerProfile: { select: { firstName: true } } },
+      });
+      if (!user) return;
+      toEmail = user.email;
+      name = user.customerProfile?.firstName ?? "there";
+    } else {
+      // Guest order — look up guestEmail from the order
+      const order = await db.order.findUnique({
+        where: { id: orderId },
+        select: { guestEmail: true },
+      });
+      if (!order?.guestEmail) return;
+      toEmail = order.guestEmail;
+      name = "there";
+    }
+
     const amount = `£${(amountMinor / 100).toFixed(2)}`;
     const html = templates.paymentCaptured(name, amount, orderNumber);
 
     const { messageId } = await sendEmail({
-      to: user.email,
+      to: toEmail,
       subject: `Payment Confirmed for Order #${orderNumber} — ROOTS Pharmacy`,
       html,
     });
 
     await db.emailEvent.create({
       data: {
-        userId,
+        userId: userId ?? undefined,
+        recipientEmail: toEmail,
         orderId,
         emailType: "payment_captured",
         providerMessageId: messageId,
