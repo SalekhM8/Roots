@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { SearchIcon, CloseIcon } from "@/components/icons";
-import { cn } from "@/lib/utils";
 
 interface SearchResult {
   products: {
@@ -39,26 +38,25 @@ export function SearchOverlay() {
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // Focus input when opened
   useEffect(() => {
     if (open) {
-      setTimeout(() => inputRef.current?.focus(), 100);
+      document.body.style.overflow = "hidden";
+      setTimeout(() => inputRef.current?.focus(), 50);
     } else {
+      document.body.style.overflow = "";
       setQuery("");
       setResults(null);
     }
+    return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  // Keyboard shortcut: Cmd+K / Ctrl+K
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         setOpen((prev) => !prev);
       }
-      if (e.key === "Escape" && open) {
-        setOpen(false);
-      }
+      if (e.key === "Escape" && open) setOpen(false);
     }
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
@@ -72,9 +70,7 @@ export function SearchOverlay() {
     setLoading(true);
     try {
       const res = await fetch(`/api/search?q=${encodeURIComponent(term)}`);
-      if (res.ok) {
-        setResults(await res.json());
-      }
+      if (res.ok) setResults(await res.json());
     } finally {
       setLoading(false);
     }
@@ -95,12 +91,10 @@ export function SearchOverlay() {
     (results.products.length > 0 ||
       results.collections.length > 0 ||
       results.posts.length > 0);
-
   const noResults = results && !hasResults && query.trim().length >= 2;
 
   return (
     <>
-      {/* Trigger button */}
       <button
         type="button"
         onClick={() => setOpen(true)}
@@ -110,222 +104,207 @@ export function SearchOverlay() {
         <SearchIcon />
       </button>
 
-      {/* Overlay */}
       {open && (
-        <div className="fixed inset-0 z-[60] flex items-start justify-center pt-[10vh]">
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-[60]">
+          {/* Full-screen dark green panel */}
           <div
-            className="absolute inset-0 bg-roots-navy/60 backdrop-blur-sm"
-            onClick={close}
-            aria-hidden="true"
-          />
-
-          {/* Search panel */}
-          <div
-            className="relative z-10 w-full max-w-2xl mx-4"
-            style={{ animation: "searchSlideIn 200ms ease-out" }}
+            className="absolute inset-0 bg-roots-green"
+            style={{ animation: "searchFadeIn 200ms ease-out" }}
           >
-            {/* Input */}
-            <div className="relative">
-              <SearchIcon
-                size={20}
-                className="absolute left-5 top-1/2 -translate-y-1/2 text-roots-green/40"
-              />
-              <input
-                ref={inputRef}
-                type="text"
-                value={query}
-                onChange={(e) => handleChange(e.target.value)}
-                placeholder="Search products, collections, articles..."
-                className="h-[60px] w-full rounded-t-[16px] border-0 bg-white pl-14 pr-14 text-base text-roots-navy placeholder:text-roots-navy/40 focus:outline-none focus:ring-0"
-              />
-              <button
-                type="button"
-                onClick={close}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-roots-navy/40 hover:text-roots-navy transition-colors"
-                aria-label="Close search"
-              >
-                <CloseIcon size={18} />
-              </button>
-              {/* Keyboard hint */}
-              <span className="absolute right-12 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center gap-1 rounded border border-roots-green/10 px-1.5 py-0.5 text-[10px] text-roots-navy/30">
-                ESC
-              </span>
+            {/* SVG decorative background */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+              <svg viewBox="0 0 1440 900" fill="none" className="h-full w-full" preserveAspectRatio="xMidYMid slice" stroke="#fdf0d5" strokeLinecap="round" strokeLinejoin="round">
+                <g transform="translate(100, 100) scale(3)" opacity="0.06" strokeWidth="0.7">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
+                </g>
+                <g transform="translate(1200, 150) scale(2.5)" opacity="0.05" strokeWidth="0.7">
+                  <path d="M12.5 24.5l12-12a5.66 5.66 0 1 0-8-8l-12 12a5.66 5.66 0 1 0 8 8Z" />
+                </g>
+                <g transform="translate(200, 600) scale(2.5)" opacity="0.05" strokeWidth="0.7">
+                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+                </g>
+                <g transform="translate(1100, 650) scale(2)" opacity="0.04" strokeWidth="0.7">
+                  <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+                </g>
+                <circle cx="700" cy="400" r="180" opacity="0.03" strokeWidth="1" />
+                <circle cx="400" cy="200" r="4" opacity="0.06" strokeWidth="1.3" />
+                <circle cx="1050" cy="750" r="5" opacity="0.05" strokeWidth="1.3" />
+              </svg>
             </div>
 
-            {/* Results */}
-            {(hasResults || noResults || loading) && (
-              <div className="max-h-[60vh] overflow-y-auto rounded-b-[16px] bg-white border-t border-roots-green/10 shadow-xl">
-                {loading && !results && (
-                  <div className="px-6 py-8 text-center text-sm text-roots-navy/40">
-                    Searching...
-                  </div>
-                )}
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={close}
+              className="absolute right-6 top-6 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-roots-cream/20 text-roots-cream/60 transition-colors hover:bg-roots-cream/10 hover:text-roots-cream"
+              aria-label="Close search"
+            >
+              <CloseIcon size={20} />
+            </button>
 
-                {noResults && (
-                  <div className="px-6 py-8 text-center">
-                    <p className="text-sm text-roots-navy/50">
-                      No results for &ldquo;{query}&rdquo;
-                    </p>
-                    <p className="mt-1 text-xs text-roots-navy/30">
-                      Try a different search term
-                    </p>
-                  </div>
-                )}
+            {/* Content */}
+            <div className="relative z-10 flex h-full flex-col items-center px-6 pt-[12vh]">
+              <p className="mb-6 text-sm font-medium uppercase tracking-widest text-roots-cream/40">
+                Search
+              </p>
 
-                {/* Products */}
-                {results && results.products.length > 0 && (
-                  <div className="px-4 pt-4 pb-2">
-                    <p className="mb-2 px-2 text-[11px] font-medium uppercase tracking-wider text-roots-green/40">
-                      Products
-                    </p>
-                    {results.products.map((p) => (
-                      <Link
-                        key={p.slug}
-                        href={`/products/${p.slug}`}
-                        onClick={close}
-                        className="flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-roots-cream/50"
-                      >
-                        {p.imageUrl ? (
-                          <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg bg-roots-cream-2">
-                            <img
-                              src={p.imageUrl}
-                              alt=""
-                              className="h-full w-full object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="h-10 w-10 flex-shrink-0 rounded-lg bg-roots-cream-2" />
-                        )}
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-roots-navy">
-                            {p.name}
-                          </p>
-                          {p.price !== null && (
-                            <p className="text-xs text-roots-green">
-                              {p.type === "pom" ? "From " : ""}
-                              {formatPrice(p.price)}
-                            </p>
-                          )}
-                        </div>
-                        {p.type === "pom" && (
-                          <span className="flex-shrink-0 rounded-full bg-roots-navy px-2 py-0.5 text-[10px] font-medium text-roots-orange">
-                            Prescription
-                          </span>
-                        )}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-
-                {/* Collections */}
-                {results && results.collections.length > 0 && (
-                  <div className="px-4 pt-3 pb-2">
-                    <p className="mb-2 px-2 text-[11px] font-medium uppercase tracking-wider text-roots-green/40">
-                      Collections
-                    </p>
-                    {results.collections.map((c) => (
-                      <Link
-                        key={c.slug}
-                        href={`/collections/${c.slug}`}
-                        onClick={close}
-                        className="flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-roots-cream/50"
-                      >
-                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-roots-green/5">
-                          <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-5 w-5 text-roots-green/50"
-                          >
-                            <rect x="3" y="3" width="7" height="7" rx="1" />
-                            <rect x="14" y="3" width="7" height="7" rx="1" />
-                            <rect x="3" y="14" width="7" height="7" rx="1" />
-                            <rect x="14" y="14" width="7" height="7" rx="1" />
-                          </svg>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-roots-navy">
-                            {c.name}
-                          </p>
-                          {c.description && (
-                            <p className="truncate text-xs text-roots-navy/50">
-                              {c.description}
-                            </p>
-                          )}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-
-                {/* Blog posts */}
-                {results && results.posts.length > 0 && (
-                  <div className="px-4 pt-3 pb-4">
-                    <p className="mb-2 px-2 text-[11px] font-medium uppercase tracking-wider text-roots-green/40">
-                      Articles
-                    </p>
-                    {results.posts.map((p) => (
-                      <Link
-                        key={p.slug}
-                        href={`/blog/${p.slug}`}
-                        onClick={close}
-                        className="flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-roots-cream/50"
-                      >
-                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-roots-green/5">
-                          <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-5 w-5 text-roots-green/50"
-                          >
-                            <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" />
-                            <path d="M18 14h-8M15 18h-5M10 6h8v4h-8V6Z" />
-                          </svg>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-roots-navy">
-                            {p.title}
-                          </p>
-                          <p className="truncate text-xs text-roots-navy/50">
-                            {p.category}
-                          </p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
+              {/* Input */}
+              <div className="relative w-full max-w-xl">
+                <SearchIcon
+                  size={22}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 text-roots-cream/30"
+                />
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={query}
+                  onChange={(e) => handleChange(e.target.value)}
+                  placeholder="What are you looking for?"
+                  className="w-full border-0 border-b-2 border-roots-cream/20 bg-transparent pb-4 pl-10 pr-4 text-2xl font-medium text-roots-cream placeholder:text-roots-cream/25 focus:border-roots-cream/40 focus:outline-none focus:ring-0 md:text-3xl"
+                />
               </div>
-            )}
 
-            {/* Empty state hint when no query */}
-            {!results && !loading && query.length === 0 && (
-              <div className="rounded-b-[16px] bg-white border-t border-roots-green/10 shadow-xl px-6 py-6">
-                <p className="text-center text-sm text-roots-navy/40">
-                  Search for products, health topics, or articles
-                </p>
-                <div className="mt-4 flex flex-wrap justify-center gap-2">
-                  {["Mounjaro", "Vitamins", "Sleep", "Joint Support", "Acne"].map(
+              {/* Quick tags */}
+              {!results && !loading && query.length === 0 && (
+                <div className="mt-8 flex flex-wrap justify-center gap-2.5">
+                  {["Mounjaro", "Vitamins", "Sleep", "Digestion", "Joint Support", "Skin Care"].map(
                     (tag) => (
                       <button
                         key={tag}
                         type="button"
                         onClick={() => handleChange(tag)}
-                        className="rounded-full border border-roots-green/15 bg-roots-cream/50 px-3.5 py-1.5 text-xs font-medium text-roots-green transition-colors hover:bg-roots-green/5"
+                        className="rounded-full border border-roots-cream/15 px-5 py-2 text-sm font-medium text-roots-cream/60 transition-all duration-200 hover:border-roots-cream/30 hover:bg-roots-cream/5 hover:text-roots-cream"
                       >
                         {tag}
                       </button>
                     )
                   )}
                 </div>
-              </div>
-            )}
+              )}
+
+              {/* Loading */}
+              {loading && !results && (
+                <p className="mt-12 text-sm text-roots-cream/30">Searching...</p>
+              )}
+
+              {/* No results */}
+              {noResults && (
+                <div className="mt-12 text-center">
+                  <p className="text-lg text-roots-cream/50">
+                    No results for &ldquo;{query}&rdquo;
+                  </p>
+                  <p className="mt-2 text-sm text-roots-cream/25">
+                    Try a different search term
+                  </p>
+                </div>
+              )}
+
+              {/* Results */}
+              {hasResults && (
+                <div className="mt-10 w-full max-w-3xl overflow-y-auto pb-20" style={{ maxHeight: "60vh" }}>
+                  <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                    {/* Products column */}
+                    {results!.products.length > 0 && (
+                      <div>
+                        <p className="mb-4 text-xs font-medium uppercase tracking-widest text-roots-cream/30">
+                          Products
+                        </p>
+                        <div className="space-y-1">
+                          {results!.products.map((p) => (
+                            <Link
+                              key={p.slug}
+                              href={`/products/${p.slug}`}
+                              onClick={close}
+                              className="flex items-center gap-4 rounded-xl px-3 py-3 transition-colors duration-200 hover:bg-roots-cream/5"
+                            >
+                              {p.imageUrl ? (
+                                <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-roots-green-2/50">
+                                  <img src={p.imageUrl} alt="" className="h-full w-full object-cover" />
+                                </div>
+                              ) : (
+                                <div className="h-12 w-12 flex-shrink-0 rounded-lg bg-roots-green-2/50" />
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-base font-medium text-roots-cream">
+                                  {p.name}
+                                </p>
+                                <p className="text-sm text-roots-cream/40">
+                                  {p.price !== null
+                                    ? `${p.type === "pom" ? "From " : ""}${formatPrice(p.price)}`
+                                    : "View product"}
+                                </p>
+                              </div>
+                              {p.type === "pom" && (
+                                <span className="flex-shrink-0 rounded-full bg-roots-orange/15 px-2.5 py-1 text-[11px] font-medium text-roots-orange">
+                                  Prescription
+                                </span>
+                              )}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Collections + Articles column */}
+                    <div className="space-y-8">
+                      {results!.collections.length > 0 && (
+                        <div>
+                          <p className="mb-4 text-xs font-medium uppercase tracking-widest text-roots-cream/30">
+                            Collections
+                          </p>
+                          <div className="space-y-1">
+                            {results!.collections.map((c) => (
+                              <Link
+                                key={c.slug}
+                                href={`/collections/${c.slug}`}
+                                onClick={close}
+                                className="block rounded-xl px-3 py-3 transition-colors duration-200 hover:bg-roots-cream/5"
+                              >
+                                <p className="text-base font-medium text-roots-cream">
+                                  {c.name}
+                                </p>
+                                {c.description && (
+                                  <p className="mt-0.5 truncate text-sm text-roots-cream/35">
+                                    {c.description}
+                                  </p>
+                                )}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {results!.posts.length > 0 && (
+                        <div>
+                          <p className="mb-4 text-xs font-medium uppercase tracking-widest text-roots-cream/30">
+                            Articles
+                          </p>
+                          <div className="space-y-1">
+                            {results!.posts.map((p) => (
+                              <Link
+                                key={p.slug}
+                                href={`/blog/${p.slug}`}
+                                onClick={close}
+                                className="block rounded-xl px-3 py-3 transition-colors duration-200 hover:bg-roots-cream/5"
+                              >
+                                <p className="text-base font-medium text-roots-cream">
+                                  {p.title}
+                                </p>
+                                <p className="mt-0.5 text-sm text-roots-cream/35">
+                                  {p.category}
+                                </p>
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
