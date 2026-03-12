@@ -162,6 +162,7 @@ export function SearchOverlay() {
                   value={query}
                   onChange={(e) => handleChange(e.target.value)}
                   placeholder="What are you looking for?"
+                  style={{ outline: "none", boxShadow: "none", WebkitAppearance: "none" }}
                   className="w-full border-0 border-b-2 border-roots-cream/20 bg-transparent pb-4 pl-10 pr-4 text-2xl font-medium text-roots-cream placeholder:text-roots-cream/25 focus:border-roots-cream/40 focus:outline-none focus:ring-0 md:text-3xl"
                 />
               </div>
