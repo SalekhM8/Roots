@@ -9,7 +9,7 @@ export function TrustpilotWidget() {
 
   useEffect(() => {
     // If Trustpilot script is loaded, bootstrap the widget
-    const tp = (window as Record<string, unknown>).Trustpilot as
+    const tp = (window as unknown as Record<string, unknown>).Trustpilot as
       | { loadFromElement: (el: HTMLElement, reinit: boolean) => void }
       | undefined;
 
@@ -45,7 +45,7 @@ export function TrustpilotWidgetLight() {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const tp = (window as Record<string, unknown>).Trustpilot as
+    const tp = (window as unknown as Record<string, unknown>).Trustpilot as
       | { loadFromElement: (el: HTMLElement, reinit: boolean) => void }
       | undefined;
 
