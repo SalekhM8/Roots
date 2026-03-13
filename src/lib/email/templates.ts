@@ -280,6 +280,31 @@ export function paymentCaptured(name: string, amount: string, orderNumber: strin
   );
 }
 
+export function reviewRequest(name: string): string {
+  return layout(
+    "How Was Your Experience? — ROOTS Pharmacy",
+    `Hi ${name}, we'd love to hear about your experience with ROOTS Pharmacy.`,
+    `${heading("How Was Your Experience?")}
+    ${greeting(name)}
+    ${paragraph("We hope you're enjoying your order! As a small, independent UK pharmacy, honest reviews mean the world to us.")}
+    ${infoBox(`
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr><td align="center" style="padding:8px 0;">
+          <span style="font-size:36px;letter-spacing:6px;">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+        </td></tr>
+        <tr><td align="center">
+          <p style="margin:0;font-size:15px;color:${BRAND.navy};line-height:1.6;">
+            Your feedback helps other customers feel confident<br>choosing ROOTS for their health and wellness needs.
+          </p>
+        </td></tr>
+      </table>
+    `, "green")}
+    ${paragraph("It only takes a minute and makes a huge difference to our small team.")}
+    ${cta("Leave a Review on Trustpilot", "https://uk.trustpilot.com/evaluate/rootspharmacy.co.uk")}
+    <p style="margin:24px 0 0;font-size:13px;color:${BRAND.grey};line-height:1.6;">Not happy with your order? We'd rather hear from you directly — <a href="${BRAND.siteUrl}/contact" style="color:${BRAND.green};text-decoration:none;font-weight:500;">contact our team</a> and we'll put it right.</p>`
+  );
+}
+
 export function paymentExpired(name: string, orderNumber: string): string {
   return layout(
     "Payment Expired — ROOTS Pharmacy",

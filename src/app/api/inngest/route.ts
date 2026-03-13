@@ -7,6 +7,7 @@ import {
   sendActionRequiredEmail,
   sendOrderShippedEmail,
   sendPaymentCapturedEmail,
+  sendReviewRequestEmail,
   checkExpiringAuthorizations,
 } from "@/server/workflows/email-workflows";
 
@@ -19,6 +20,7 @@ export const { GET, POST, PUT } = serve({
     sendActionRequiredEmail,
     sendOrderShippedEmail,
     sendPaymentCapturedEmail,
+    sendReviewRequestEmail,
     checkExpiringAuthorizations,
   ],
 });

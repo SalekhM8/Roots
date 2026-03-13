@@ -230,6 +230,60 @@ export const sendPaymentCapturedEmail = inngest.createFunction(
 );
 
 /**
+ * Delayed review request: waits 7 days after order shipped, then sends
+ * a Trustpilot review request email. Only sends if no review email was
+ * already sent for this order.
+ */
+export const sendReviewRequestEmail = inngest.createFunction(
+  { id: "send-review-request-email" },
+  { event: "order/shipped" },
+  async ({ event, step }) => {
+    const { userId, orderId } = event.data;
+
+    // Wait 7 days after shipment
+    await step.sleep("wait-for-delivery", "7d");
+
+    // Check we haven't already sent a review email for this order
+    const existing = await step.run("check-existing", async () => {
+      return db.emailEvent.findFirst({
+        where: { orderId, emailType: "review_request" },
+      });
+    });
+    if (existing) return { skipped: true };
+
+    await step.run("send-review-email", async () => {
+      const user = await db.user.findUnique({
+        where: { id: userId },
+        include: { customerProfile: { select: { firstName: true } } },
+      });
+      if (!user) return;
+
+      const name = user.customerProfile?.firstName ?? "there";
+      const html = templates.reviewRequest(name);
+
+      const { messageId } = await sendEmail({
+        to: user.email,
+        subject: "How Was Your Experience? — ROOTS Pharmacy",
+        html,
+      });
+
+      await db.emailEvent.create({
+        data: {
+          userId,
+          orderId,
+          emailType: "review_request",
+          providerMessageId: messageId,
+          sentAt: messageId ? new Date() : null,
+          status: messageId ? "sent" : "failed",
+        },
+      });
+    });
+
+    return { sent: true };
+  }
+);
+
+/**
  * Cron: Check for payment authorizations expiring within 24 hours.
  * Runs daily. Voids expired auths, marks payment as expired, emails customer.
  */
