@@ -113,6 +113,10 @@ export default function RootLayout({
               gtag('config', 'AW-18012492286');
             `}
           </Script>
+          <Script
+            src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js"
+            strategy="afterInteractive"
+          />
         </head>
         <body className="min-h-screen bg-roots-cream font-sans text-roots-navy antialiased">
           <CartCountProvider>

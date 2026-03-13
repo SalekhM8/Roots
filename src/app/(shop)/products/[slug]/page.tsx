@@ -7,6 +7,7 @@ import { AddToCartButton } from "@/components/checkout/add-to-cart-button";
 import { VariantSelector } from "@/components/product/variant-selector";
 import { ImagePlaceholderIcon } from "@/components/icons";
 import { ProductJsonLd, BreadcrumbJsonLd, FaqJsonLd } from "@/components/seo/json-ld";
+import { TrustpilotWidget, TrustpilotWidgetLight } from "@/components/product/trustpilot-widget";
 import { ROUTES } from "@/lib/constants";
 import { getProductBySlug } from "@/server/queries/products";
 import { formatPrice } from "@/lib/utils";
@@ -202,6 +203,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 }}
               />
             ) : null}
+
+            {/* Trustpilot reviews */}
+            <div className="mt-10">
+              {isPom ? <TrustpilotWidget /> : <TrustpilotWidgetLight />}
+            </div>
 
             {/* Collapsible info sections */}
             <div className="mt-12">
