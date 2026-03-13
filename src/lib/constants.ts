@@ -7,6 +7,7 @@ export const ROUTES = {
   contact: "/contact",
   delivery: "/delivery",
   refunds: "/refunds",
+  returnPolicy: "/return-policy",
   privacy: "/privacy",
   terms: "/terms",
   signIn: "/sign-in",
@@ -49,6 +50,7 @@ export const SHOP_LINKS = [
 export const SUPPORT_LINKS = [
   { href: ROUTES.delivery, label: "Delivery Information" },
   { href: ROUTES.refunds, label: "Returns & Refunds" },
+  { href: ROUTES.returnPolicy, label: "Return Policy" },
   { href: ROUTES.contact, label: "Contact Us" },
   { href: ROUTES.privacy, label: "Privacy Policy" },
   { href: ROUTES.terms, label: "Terms & Conditions" },
