@@ -18,6 +18,9 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: "https://rootspharmacy.co.uk/sitemap.xml",
+    sitemap: [
+      "https://rootspharmacy.co.uk/sitemap.xml",
+      "https://rootspharmacy.co.uk/google-feed.xml",
+    ],
   };
 }
