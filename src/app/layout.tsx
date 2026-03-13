@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { DM_Sans, Fraunces } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { CartCountProvider } from "@/components/cart/cart-count-provider";
@@ -99,6 +100,20 @@ export default function RootLayout({
       afterSignOutUrl="/"
     >
       <html lang="en" className={`${dmSans.variable} ${fraunces.variable}`}>
+        <head>
+          <Script
+            src="https://www.googletagmanager.com/gtag/js?id=AW-18012492286"
+            strategy="afterInteractive"
+          />
+          <Script id="google-ads" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'AW-18012492286');
+            `}
+          </Script>
+        </head>
         <body className="min-h-screen bg-roots-cream font-sans text-roots-navy antialiased">
           <CartCountProvider>
             <PendingCartReplay />
