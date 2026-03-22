@@ -54,6 +54,11 @@ async function main() {
       update: { name: "Women's Health", description: "Targeted supplements formulated for women's specific health needs.", sortOrder: 8 },
       create: { name: "Women's Health", slug: "womens-health", description: "Targeted supplements formulated for women's specific health needs.", sortOrder: 8 },
     }),
+    prisma.collection.upsert({
+      where: { slug: "bundles" },
+      update: { name: "Bundles", description: "Curated product kits at a discounted price — save more when you buy together.", sortOrder: 0 },
+      create: { name: "Bundles", slug: "bundles", description: "Curated product kits at a discounted price — save more when you buy together.", sortOrder: 0 },
+    }),
   ]);
 
   // Deactivate old collections that have been replaced
@@ -193,8 +198,8 @@ async function main() {
   });
   await prisma.productVariant.upsert({
     where: { sku: "IMO-INST-12" },
-    update: {},
-    create: { productId: imodiumInstants.id, name: "12 Tablets", slugFragment: "12-tablets", sku: "IMO-INST-12", priceMinor: 499, stockQuantity: 100, weightGrams: 30 },
+    update: { priceMinor: 479 },
+    create: { productId: imodiumInstants.id, name: "12 Tablets", slugFragment: "12-tablets", sku: "IMO-INST-12", priceMinor: 479, stockQuantity: 100, weightGrams: 30 },
   });
 
   // === Imodium Instant Melts 18 Tablets ===
@@ -212,8 +217,8 @@ async function main() {
   });
   await prisma.productVariant.upsert({
     where: { sku: "IMO-MELT-18" },
-    update: {},
-    create: { productId: imodiumMelts.id, name: "18 Tablets", slugFragment: "18-tablets", sku: "IMO-MELT-18", priceMinor: 899, stockQuantity: 100, weightGrams: 40 },
+    update: { priceMinor: 879 },
+    create: { productId: imodiumMelts.id, name: "18 Tablets", slugFragment: "18-tablets", sku: "IMO-MELT-18", priceMinor: 879, stockQuantity: 100, weightGrams: 40 },
   });
 
   // === Gaviscon Double Action Mint (3 variants) ===
@@ -230,13 +235,13 @@ async function main() {
     },
   });
   for (const v of [
-    { name: "12 Tablets", slug: "12-tablets", sku: "GAV-DA-12", price: 449, weight: 40 },
-    { name: "24 Tablets", slug: "24-tablets", sku: "GAV-DA-24", price: 599, weight: 70 },
-    { name: "48 Tablets", slug: "48-tablets", sku: "GAV-DA-48", price: 999, weight: 130 },
+    { name: "12 Tablets", slug: "12-tablets", sku: "GAV-DA-12", price: 439, weight: 40 },
+    { name: "24 Tablets", slug: "24-tablets", sku: "GAV-DA-24", price: 549, weight: 70 },
+    { name: "48 Tablets", slug: "48-tablets", sku: "GAV-DA-48", price: 949, weight: 130 },
   ]) {
     await prisma.productVariant.upsert({
       where: { sku: v.sku },
-      update: {},
+      update: { priceMinor: v.price },
       create: { productId: gaviscon.id, name: v.name, slugFragment: v.slug, sku: v.sku, priceMinor: v.price, stockQuantity: 100, weightGrams: v.weight },
     });
   }
@@ -255,12 +260,12 @@ async function main() {
     },
   });
   for (const v of [
-    { name: "6 Sachets", slug: "6-sachets", sku: "DIO-RBC-6", price: 499, weight: 60 },
+    { name: "6 Sachets", slug: "6-sachets", sku: "DIO-RBC-6", price: 479, weight: 60 },
     { name: "20 Sachets", slug: "20-sachets", sku: "DIO-RBC-20", price: 1499, weight: 180 },
   ]) {
     await prisma.productVariant.upsert({
       where: { sku: v.sku },
-      update: {},
+      update: { priceMinor: v.price },
       create: { productId: dioralyteRelief.id, name: v.name, slugFragment: v.slug, sku: v.sku, priceMinor: v.price, stockQuantity: 100, weightGrams: v.weight },
     });
   }
@@ -280,8 +285,8 @@ async function main() {
   });
   await prisma.productVariant.upsert({
     where: { sku: "DIO-NAT-20" },
-    update: {},
-    create: { productId: dioralyteNatural.id, name: "20 Sachets", slugFragment: "20-sachets", sku: "DIO-NAT-20", priceMinor: 1549, stockQuantity: 100, weightGrams: 180 },
+    update: { priceMinor: 1499 },
+    create: { productId: dioralyteNatural.id, name: "20 Sachets", slugFragment: "20-sachets", sku: "DIO-NAT-20", priceMinor: 1499, stockQuantity: 100, weightGrams: 180 },
   });
 
   // === Kalms Day (2 variants) ===
@@ -298,12 +303,12 @@ async function main() {
     },
   });
   for (const v of [
-    { name: "96 Tablets", slug: "96-tablets", sku: "KALM-D-96", price: 699, weight: 80 },
+    { name: "96 Tablets", slug: "96-tablets", sku: "KALM-D-96", price: 679, weight: 80 },
     { name: "168 Tablets", slug: "168-tablets", sku: "KALM-D-168", price: 799, weight: 130 },
   ]) {
     await prisma.productVariant.upsert({
       where: { sku: v.sku },
-      update: {},
+      update: { priceMinor: v.price },
       create: { productId: kalmsDay.id, name: v.name, slugFragment: v.slug, sku: v.sku, priceMinor: v.price, stockQuantity: 100, weightGrams: v.weight },
     });
   }
@@ -323,8 +328,8 @@ async function main() {
   });
   await prisma.productVariant.upsert({
     where: { sku: "KALM-N-56" },
-    update: {},
-    create: { productId: kalmsNight.id, name: "56 Tablets", slugFragment: "56-tablets", sku: "KALM-N-56", priceMinor: 599, stockQuantity: 100, weightGrams: 60 },
+    update: { priceMinor: 579 },
+    create: { productId: kalmsNight.id, name: "56 Tablets", slugFragment: "56-tablets", sku: "KALM-N-56", priceMinor: 579, stockQuantity: 100, weightGrams: 60 },
   });
 
   // === Nytol Herbal 30 Tablets ===
@@ -342,8 +347,8 @@ async function main() {
   });
   await prisma.productVariant.upsert({
     where: { sku: "NYT-HRB-30" },
-    update: {},
-    create: { productId: nytolHerbal.id, name: "30 Tablets", slugFragment: "30-tablets", sku: "NYT-HRB-30", priceMinor: 599, stockQuantity: 100, weightGrams: 50 },
+    update: { priceMinor: 579 },
+    create: { productId: nytolHerbal.id, name: "30 Tablets", slugFragment: "30-tablets", sku: "NYT-HRB-30", priceMinor: 579, stockQuantity: 100, weightGrams: 50 },
   });
 
   // === Centrum Advance (2 variants) ===
@@ -360,12 +365,12 @@ async function main() {
     },
   });
   for (const v of [
-    { name: "30 Tablets", slug: "30-tablets", sku: "CEN-ADV-30", price: 499, weight: 50 },
-    { name: "60 Tablets", slug: "60-tablets", sku: "CEN-ADV-60", price: 799, weight: 90 },
+    { name: "30 Tablets", slug: "30-tablets", sku: "CEN-ADV-30", price: 479, weight: 50 },
+    { name: "60 Tablets", slug: "60-tablets", sku: "CEN-ADV-60", price: 779, weight: 90 },
   ]) {
     await prisma.productVariant.upsert({
       where: { sku: v.sku },
-      update: {},
+      update: { priceMinor: v.price },
       create: { productId: centrumAdvance.id, name: v.name, slugFragment: v.slug, sku: v.sku, priceMinor: v.price, stockQuantity: 100, weightGrams: v.weight },
     });
   }
@@ -404,8 +409,8 @@ async function main() {
   });
   await prisma.productVariant.upsert({
     where: { sku: "BER-ORG-30" },
-    update: {},
-    create: { productId: beroccaOrange.id, name: "30 Tablets", slugFragment: "30-tablets", sku: "BER-ORG-30", priceMinor: 1599, stockQuantity: 100, weightGrams: 120 },
+    update: { priceMinor: 1499 },
+    create: { productId: beroccaOrange.id, name: "30 Tablets", slugFragment: "30-tablets", sku: "BER-ORG-30", priceMinor: 1499, stockQuantity: 100, weightGrams: 120 },
   });
 
   // === Berocca Mango 15 Tablets ===
@@ -461,8 +466,8 @@ async function main() {
   });
   await prisma.productVariant.upsert({
     where: { sku: "VAL-GLC-90" },
-    update: {},
-    create: { productId: valupakGluc.id, name: "90 Tablets", slugFragment: "90-tablets", sku: "VAL-GLC-90", priceMinor: 549, stockQuantity: 100, weightGrams: 100 },
+    update: { priceMinor: 529 },
+    create: { productId: valupakGluc.id, name: "90 Tablets", slugFragment: "90-tablets", sku: "VAL-GLC-90", priceMinor: 529, stockQuantity: 100, weightGrams: 100 },
   });
 
   // === Osteocare Original ===
@@ -480,8 +485,8 @@ async function main() {
   });
   await prisma.productVariant.upsert({
     where: { sku: "OST-ORI-30" },
-    update: {},
-    create: { productId: osteocare.id, name: "30 Tablets", slugFragment: "30-tablets", sku: "OST-ORI-30", priceMinor: 449, stockQuantity: 100, weightGrams: 60 },
+    update: { priceMinor: 429 },
+    create: { productId: osteocare.id, name: "30 Tablets", slugFragment: "30-tablets", sku: "OST-ORI-30", priceMinor: 429, stockQuantity: 100, weightGrams: 60 },
   });
 
   // === Seven Seas JointCare Essential ===
@@ -499,8 +504,8 @@ async function main() {
   });
   await prisma.productVariant.upsert({
     where: { sku: "SS-JCE-30" },
-    update: {},
-    create: { productId: jointcareEssential.id, name: "30 Day Pack", slugFragment: "30-day-pack", sku: "SS-JCE-30", priceMinor: 899, stockQuantity: 100, weightGrams: 80 },
+    update: { priceMinor: 879 },
+    create: { productId: jointcareEssential.id, name: "30 Day Pack", slugFragment: "30-day-pack", sku: "SS-JCE-30", priceMinor: 879, stockQuantity: 100, weightGrams: 80 },
   });
 
   // === Seven Seas JointCare + Turmeric Duo Pack ===
@@ -536,12 +541,12 @@ async function main() {
     },
   });
   for (const v of [
-    { name: "30g", slug: "30g", sku: "ACN-5-30G", price: 1199, weight: 50 },
-    { name: "60g", slug: "60g", sku: "ACN-5-60G", price: 999, weight: 85 },
+    { name: "30g", slug: "30g", sku: "ACN-5-30G", price: 1099, weight: 50 },
+    { name: "60g", slug: "60g", sku: "ACN-5-60G", price: 1299, weight: 85 },
   ]) {
     await prisma.productVariant.upsert({
       where: { sku: v.sku },
-      update: {},
+      update: { priceMinor: v.price },
       create: { productId: acnecide.id, name: v.name, slugFragment: v.slug, sku: v.sku, priceMinor: v.price, stockQuantity: 100, weightGrams: v.weight },
     });
   }
@@ -561,8 +566,8 @@ async function main() {
   });
   await prisma.productVariant.upsert({
     where: { sku: "FRD-GEL-10" },
-    update: {},
-    create: { productId: freederm.id, name: "10g", slugFragment: "10g", sku: "FRD-GEL-10", priceMinor: 499, stockQuantity: 100, weightGrams: 25 },
+    update: { priceMinor: 479 },
+    create: { productId: freederm.id, name: "10g", slugFragment: "10g", sku: "FRD-GEL-10", priceMinor: 479, stockQuantity: 100, weightGrams: 25 },
   });
 
   // === Savlon Antiseptic Cream (2 variants) ===
@@ -579,12 +584,13 @@ async function main() {
     },
   });
   for (const v of [
-    { name: "30g", slug: "30g", sku: "SAV-AC-30G", price: 299, weight: 45 },
-    { name: "100g", slug: "100g", sku: "SAV-AC-100G", price: 449, weight: 120 },
+    { name: "30g", slug: "30g", sku: "SAV-AC-30G", price: 239, weight: 45 },
+    { name: "60g", slug: "60g", sku: "SAV-AC-60G", price: 289, weight: 80 },
+    { name: "100g", slug: "100g", sku: "SAV-AC-100G", price: 429, weight: 120 },
   ]) {
     await prisma.productVariant.upsert({
       where: { sku: v.sku },
-      update: {},
+      update: { priceMinor: v.price },
       create: { productId: savlon.id, name: v.name, slugFragment: v.slug, sku: v.sku, priceMinor: v.price, stockQuantity: 100, weightGrams: v.weight },
     });
   }
@@ -604,8 +610,8 @@ async function main() {
   });
   await prisma.productVariant.upsert({
     where: { sku: "RSC-BC-50G" },
-    update: {},
-    create: { productId: rescueBlackcurrant.id, name: "50g", slugFragment: "50g", sku: "RSC-BC-50G", priceMinor: 649, stockQuantity: 100, weightGrams: 60 },
+    update: { priceMinor: 629 },
+    create: { productId: rescueBlackcurrant.id, name: "50g", slugFragment: "50g", sku: "RSC-BC-50G", priceMinor: 629, stockQuantity: 100, weightGrams: 60 },
   });
 
   // === Rescue Pastilles Orange & Elderflower ===
@@ -623,8 +629,155 @@ async function main() {
   });
   await prisma.productVariant.upsert({
     where: { sku: "RSC-OE-50G" },
+    update: { priceMinor: 729 },
+    create: { productId: rescueOrange.id, name: "50g", slugFragment: "50g", sku: "RSC-OE-50G", priceMinor: 729, stockQuantity: 100, weightGrams: 60 },
+  });
+
+  // === Seven Seas Cod Liver Oil (2 variants) ===
+  const codLiverOil = await prisma.product.upsert({
+    where: { slug: "seven-seas-cod-liver-oil" },
+    update: { defaultImageUrl: "/images/products/seven-seas-cod-liver-oil.png" },
+    create: {
+      name: "Seven Seas Cod Liver Oil",
+      slug: "seven-seas-cod-liver-oil",
+      shortDescription: "Traditional omega-3 supplement with vitamins A and D for overall health.",
+      longDescription: "Seven Seas Cod Liver Oil is a traditional supplement providing omega-3 fatty acids along with vitamins A and D to support everyday health.\n\nWhat this helps with:\n• Heart health\n• Immune support\n• Bone health\n• Overall wellbeing\n\nHow it works:\nCod liver oil naturally contains omega-3 fatty acids EPA and DHA, plus vitamins A and D, which support normal heart function, immune system, and bone maintenance.\n\nHow to use:\nTake daily exactly as directed on the packaging.\n\nSide effects:\n• Food supplements are generally well tolerated when used as directed.",
+      productType: "supplement",
+      defaultImageUrl: "/images/products/seven-seas-cod-liver-oil.png",
+    },
+  });
+  for (const v of [
+    { name: "100ml", slug: "100ml", sku: "SS-CLO-100", price: 479, weight: 130 },
+    { name: "450ml", slug: "450ml", sku: "SS-CLO-450", price: 1099, weight: 500 },
+  ]) {
+    await prisma.productVariant.upsert({
+      where: { sku: v.sku },
+      update: { priceMinor: v.price },
+      create: { productId: codLiverOil.id, name: v.name, slugFragment: v.slug, sku: v.sku, priceMinor: v.price, stockQuantity: 100, weightGrams: v.weight },
+    });
+  }
+
+  // === Sudocrem Antiseptic Healing Cream (2 variants) ===
+  const sudocrem = await prisma.product.upsert({
+    where: { slug: "sudocrem" },
+    update: { defaultImageUrl: "/images/products/sudocrem.png" },
+    create: {
+      name: "Sudocrem Antiseptic Healing Cream",
+      slug: "sudocrem",
+      shortDescription: "Versatile antiseptic healing cream for nappy rash, minor wounds, eczema, and skin irritation.",
+      longDescription: "Sudocrem Antiseptic Healing Cream is a versatile, clinically proven cream suitable for a range of skin conditions.\n\nWhat this helps with:\n• Nappy rash\n• Minor cuts and grazes\n• Eczema\n• Minor burns and sunburn\n• Acne\n\nHow it works:\nThe formula contains a water-repellent base that forms a protective barrier over the skin, helping to reduce the risk of infection and support healing. It also contains a mild local anaesthetic to soothe discomfort.\n\nHow to use:\nApply a thin layer to the affected area as needed. See packaging for full directions.\n\nSide effects:\n• Rarely may cause mild skin irritation.",
+      productType: "other",
+      defaultImageUrl: "/images/products/sudocrem.png",
+    },
+  });
+  for (const v of [
+    { name: "60g", slug: "60g", sku: "SDC-60G", price: 289, weight: 80 },
+    { name: "125g", slug: "125g", sku: "SDC-125G", price: 429, weight: 150 },
+  ]) {
+    await prisma.productVariant.upsert({
+      where: { sku: v.sku },
+      update: { priceMinor: v.price },
+      create: { productId: sudocrem.id, name: v.name, slugFragment: v.slug, sku: v.sku, priceMinor: v.price, stockQuantity: 100, weightGrams: v.weight },
+    });
+  }
+
+  // ================================================================
+  // BUNDLE PRODUCTS
+  // ================================================================
+
+  // === Stomach Relief Kit (Gaviscon 12 £4.49 + Dioralyte 6 £4.99 + Imodium Instants £3.99 = £13.47 → Kit £13.99) ===
+  const stomachReliefKit = await prisma.product.upsert({
+    where: { slug: "stomach-relief-kit" },
+    update: { defaultImageUrl: "/images/products/stomach-relief-kit.png" },
+    create: {
+      name: "Stomach Relief Kit",
+      slug: "stomach-relief-kit",
+      shortDescription: "Everything you need for digestive relief — includes Gaviscon Double Action, Dioralyte sachets, and Imodium Instants.",
+      longDescription: "What's Inside:\nGaviscon Double Action 12 Tablets — fast relief from heartburn and indigestion\nDioralyte Relief Blackcurrant 6 Sachets — rehydration for when you need it most\nImodium Instants 6 Capsules — rapid diarrhoea relief\n\nWhy Buy the Kit:\nSave compared to buying each product individually. This bundle covers the most common stomach issues so you're always prepared.",
+      productType: "other",
+      defaultImageUrl: "/images/products/stomach-relief-kit.png",
+    },
+  });
+  await prisma.productVariant.upsert({
+    where: { sku: "BDL-STOMACH-1" },
     update: {},
-    create: { productId: rescueOrange.id, name: "50g", slugFragment: "50g", sku: "RSC-OE-50G", priceMinor: 749, stockQuantity: 100, weightGrams: 60 },
+    create: { productId: stomachReliefKit.id, name: "Kit", slugFragment: "kit", sku: "BDL-STOMACH-1", priceMinor: 1399, stockQuantity: 50, weightGrams: 200 },
+  });
+
+  // === Cold & Flu Recovery Kit (Berocca 10 £3.99 + Dioralyte 6 £4.99 → £8.98 → Kit £10.49 inc. extras value) ===
+  const coldFluKit = await prisma.product.upsert({
+    where: { slug: "cold-flu-recovery-kit" },
+    update: { defaultImageUrl: "/images/products/cold-flu-recovery-kit.png" },
+    create: {
+      name: "Cold & Flu Recovery Kit",
+      slug: "cold-flu-recovery-kit",
+      shortDescription: "Bounce back faster — energy-boosting Berocca and rehydrating Dioralyte in one convenient bundle.",
+      longDescription: "What's Inside:\nBerocca Energy Orange 10 Tablets — high-dose B vitamins and vitamin C to support immune function and energy\nDioralyte Relief Blackcurrant 6 Sachets — oral rehydration to replace lost fluids and electrolytes\n\nWhy Buy the Kit:\nCold and flu drain your energy and dehydrate you. This kit tackles both so you recover quicker. Save compared to buying separately.",
+      productType: "other",
+      defaultImageUrl: "/images/products/cold-flu-recovery-kit.png",
+    },
+  });
+  await prisma.productVariant.upsert({
+    where: { sku: "BDL-COLDFLU-1" },
+    update: {},
+    create: { productId: coldFluKit.id, name: "Kit", slugFragment: "kit", sku: "BDL-COLDFLU-1", priceMinor: 1049, stockQuantity: 50, weightGrams: 150 },
+  });
+
+  // === Sleep & Stress Reset (Kalms Night £5.49 + Rescue Pastilles £7.49 → £12.98 → Kit £10.49) ===
+  const sleepStressKit = await prisma.product.upsert({
+    where: { slug: "sleep-stress-reset-kit" },
+    update: { defaultImageUrl: "/images/products/sleep-stress-reset-kit.png" },
+    create: {
+      name: "Sleep & Stress Reset",
+      slug: "sleep-stress-reset-kit",
+      shortDescription: "Wind down and sleep better — Kalms Night for restful sleep plus Rescue Pastilles for daytime calm.",
+      longDescription: "What's Inside:\nKalms Night 21 Tablets — traditional herbal remedy for natural, restful sleep\nRescue Pastilles Blackcurrant 50g — Bach flower remedy for everyday emotional balance\n\nWhy Buy the Kit:\nStress and poor sleep feed each other. This kit breaks the cycle — Rescue Pastilles for calmer days, Kalms Night for better nights. Save over 19% vs buying separately.",
+      productType: "other",
+      defaultImageUrl: "/images/products/sleep-stress-reset-kit.png",
+    },
+  });
+  await prisma.productVariant.upsert({
+    where: { sku: "BDL-SLEEPSTRESS-1" },
+    update: {},
+    create: { productId: sleepStressKit.id, name: "Kit", slugFragment: "kit", sku: "BDL-SLEEPSTRESS-1", priceMinor: 1049, stockQuantity: 50, weightGrams: 140 },
+  });
+
+  // === Skin Rescue Kit (Acnecide 30g £11.99 + Freederm 25g £5.99 → £17.98 → Kit £16.49) ===
+  const skinRescueKit = await prisma.product.upsert({
+    where: { slug: "skin-rescue-kit" },
+    update: { defaultImageUrl: "/images/products/skin-rescue-kit.png" },
+    create: {
+      name: "Skin Rescue Kit",
+      slug: "skin-rescue-kit",
+      shortDescription: "Target breakouts from two angles — Acnecide for active spots plus Freederm for gentle ongoing care.",
+      longDescription: "What's Inside:\nAcnecide 5% Gel 30g — benzoyl peroxide treatment that kills spot-causing bacteria\nFreederm Gel 25g — nicotinamide-based gel for sensitive, acne-prone skin\n\nWhy Buy the Kit:\nAcnecide tackles active breakouts while Freederm provides gentle daily care to prevent new ones. Two proven approaches in one discounted bundle. Save over 8% vs buying separately.",
+      productType: "other",
+      defaultImageUrl: "/images/products/skin-rescue-kit.png",
+    },
+  });
+  await prisma.productVariant.upsert({
+    where: { sku: "BDL-SKIN-1" },
+    update: {},
+    create: { productId: skinRescueKit.id, name: "Kit", slugFragment: "kit", sku: "BDL-SKIN-1", priceMinor: 1649, stockQuantity: 50, weightGrams: 100 },
+  });
+
+  // === Daily Health Stack (Centrum 30 £4.99 + Vitamin D3 £1.29 + JointCare Essential £12.99 → £19.27 → Kit £17.99) ===
+  const dailyHealthKit = await prisma.product.upsert({
+    where: { slug: "daily-health-stack" },
+    update: { defaultImageUrl: "/images/products/daily-health-stack.png" },
+    create: {
+      name: "Daily Health Stack",
+      slug: "daily-health-stack",
+      shortDescription: "Your daily health essentials — a complete multivitamin, vitamin D, and joint support in one bundle.",
+      longDescription: "What's Inside:\nCentrum Advance 30 Tablets — comprehensive A-Z multivitamin for everyday nutrition\nValupak Vitamin D3 1000IU 30 Tablets — supports bones, teeth, immune function, and muscle health\nSeven Seas JointCare Essential 30 Capsules — glucosamine and omega-3 for joint comfort\n\nWhy Buy the Kit:\nCover your nutritional bases in one go. Centrum fills micronutrient gaps, Vitamin D supports immunity (especially important in the UK), and JointCare keeps joints supple. Save over 6% vs buying separately.",
+      productType: "other",
+      defaultImageUrl: "/images/products/daily-health-stack.png",
+    },
+  });
+  await prisma.productVariant.upsert({
+    where: { sku: "BDL-DAILYHEALTH-1" },
+    update: {},
+    create: { productId: dailyHealthKit.id, name: "Kit", slugFragment: "kit", sku: "BDL-DAILYHEALTH-1", priceMinor: 1799, stockQuantity: 50, weightGrams: 200 },
   });
 
   // ================================================================
@@ -659,6 +812,13 @@ async function main() {
     savlon: savlon.id,
     rescueBlackcurrant: rescueBlackcurrant.id,
     rescueOrange: rescueOrange.id,
+    codLiverOil: codLiverOil.id,
+    sudocrem: sudocrem.id,
+    stomachReliefKit: stomachReliefKit.id,
+    coldFluKit: coldFluKit.id,
+    sleepStressKit: sleepStressKit.id,
+    skinRescueKit: skinRescueKit.id,
+    dailyHealthKit: dailyHealthKit.id,
   };
 
   const collectionMap: Record<string, string> = {};
@@ -683,6 +843,7 @@ async function main() {
     { collection: "vitamins-supplements", product: "jointcareEssential", sort: 10 },
     { collection: "vitamins-supplements", product: "jointcareTurmeric", sort: 11 },
     { collection: "vitamins-supplements", product: "valupakGluc", sort: 12 },
+    { collection: "vitamins-supplements", product: "codLiverOil", sort: 13 },
 
     // Digestive Health
     { collection: "digestive-health", product: "gaviscon", sort: 1 },
@@ -707,12 +868,21 @@ async function main() {
     // Skin Care
     { collection: "skin-care", product: "acnecide", sort: 1 },
     { collection: "skin-care", product: "freederm", sort: 2 },
+    { collection: "skin-care", product: "sudocrem", sort: 3 },
 
     // First Aid
     { collection: "first-aid", product: "savlon", sort: 1 },
+    { collection: "first-aid", product: "sudocrem", sort: 2 },
 
     // Women's Health
     { collection: "womens-health", product: "probiotic", sort: 1 },
+
+    // Bundles
+    { collection: "bundles", product: "stomachReliefKit", sort: 1 },
+    { collection: "bundles", product: "coldFluKit", sort: 2 },
+    { collection: "bundles", product: "sleepStressKit", sort: 3 },
+    { collection: "bundles", product: "skinRescueKit", sort: 4 },
+    { collection: "bundles", product: "dailyHealthKit", sort: 5 },
   ];
 
   for (const assoc of associations) {

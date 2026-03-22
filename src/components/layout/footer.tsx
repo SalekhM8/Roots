@@ -93,8 +93,17 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Lumina Pharma disclosure */}
+        <div className="mt-12 border-t border-roots-line-soft pt-8">
+          <p className="text-center text-xs leading-relaxed text-roots-cream/50">
+            Prescription services provided in partnership with Lumina Pharma Ltd
+            (Company No. 16803872), a GPhC-registered pharmacy. All prescriptions
+            are reviewed and approved by qualified prescribers.
+          </p>
+        </div>
+
         {/* Bottom bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-roots-line-soft pt-8 text-xs text-roots-cream/60 sm:flex-row">
+        <div className="mt-6 flex flex-col items-center justify-between gap-4 border-t border-roots-line-soft pt-6 text-xs text-roots-cream/60 sm:flex-row">
           <p>&copy; {new Date().getFullYear()} Roots Pharmacy. All rights reserved.</p>
           <div className="flex items-center gap-5">
             {/* Social links — placeholders until real URLs provided */}

@@ -91,6 +91,22 @@ export async function getAllSupplementCollections() {
   });
 }
 
+// ---- Shopfront: Products by Slugs (for recommendations) ----
+export async function getProductsBySlugs(slugs: string[]) {
+  if (slugs.length === 0) return [];
+
+  return db.product.findMany({
+    where: { slug: { in: slugs }, isActive: true, isVisible: true },
+    include: {
+      variants: {
+        where: { isActive: true },
+        orderBy: { priceMinor: "asc" },
+        take: 1,
+      },
+    },
+  });
+}
+
 // ---- Shopfront: Collection Products ----
 export async function getCollectionBySlug(slug: string) {
   return db.collection.findUnique({

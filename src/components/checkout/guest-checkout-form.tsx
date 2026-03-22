@@ -16,7 +16,7 @@ import { CheckoutReviews } from "./checkout-reviews";
 import { createGuestCheckoutAction } from "@/app/(shop)/checkout/guest/actions";
 import { useGuestCart, type GuestCartItem } from "@/hooks/use-guest-cart";
 import { formatPrice } from "@/lib/utils";
-import { SHIPPING_FEE_MINOR } from "@/lib/constants";
+import { calculateShipping } from "@/lib/constants";
 import { EmptyState } from "@/components/ui/empty-state";
 import Link from "next/link";
 import type { AddressInput } from "@/lib/validation/schemas";
@@ -61,7 +61,7 @@ export function GuestCheckoutClient() {
     );
   }
 
-  const shippingMinor = SHIPPING_FEE_MINOR;
+  const shippingMinor = calculateShipping(subtotalMinor);
   const totalMinor = subtotalMinor + shippingMinor;
 
   function updateAddress(field: keyof AddressInput, value: string) {

@@ -5,7 +5,7 @@ import { writeAuditLog } from "@/lib/security/audit";
 import { generateOrderNumber } from "@/lib/validation/schemas";
 import type { AddressInput } from "@/lib/validation/schemas";
 import { randomUUID } from "crypto";
-import { SHIPPING_FEE_MINOR } from "@/lib/constants";
+import { calculateShipping } from "@/lib/constants";
 
 export interface GuestOrderItem {
   variantId: string;
@@ -93,7 +93,7 @@ export async function createGuestOrder(
   });
 
   const subtotalMinor = orderItems.reduce((sum, i) => sum + i.lineTotalMinor, 0);
-  const shippingMinor = SHIPPING_FEE_MINOR;
+  const shippingMinor = calculateShipping(subtotalMinor);
   const totalMinor = subtotalMinor + shippingMinor;
 
   if (totalMinor <= 0) {

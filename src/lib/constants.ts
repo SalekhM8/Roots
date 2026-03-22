@@ -1,6 +1,14 @@
 /** Standard delivery fee in pence — Royal Mail Tracked 48 */
 export const SHIPPING_FEE_MINOR = 395;
 
+/** Free delivery threshold in pence — orders over £20 ship free */
+export const FREE_SHIPPING_THRESHOLD_MINOR = 2000;
+
+/** Calculate shipping fee based on subtotal. Free over £20. */
+export function calculateShipping(subtotalMinor: number): number {
+  return subtotalMinor >= FREE_SHIPPING_THRESHOLD_MINOR ? 0 : SHIPPING_FEE_MINOR;
+}
+
 export const ROUTES = {
   home: "/",
   about: "/about",
@@ -39,6 +47,7 @@ export const NAV_LINKS = [
 
 export const SHOP_LINKS = [
   { href: ROUTES.collection("weight-loss"), label: "Weight Loss" },
+  { href: ROUTES.collection("bundles"), label: "Bundles" },
   { href: ROUTES.collection("vitamins-supplements"), label: "Vitamins & Supplements" },
   { href: ROUTES.collection("digestive-health"), label: "Digestive Health" },
   { href: ROUTES.collection("stress-sleep"), label: "Stress & Sleep" },

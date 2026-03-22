@@ -12,9 +12,9 @@ export default function DeliveryPage() {
         <div className="mx-auto max-w-3xl">
           <h1 className="mb-8 text-[32px] font-medium text-roots-green md:text-[42px]">Delivery Information</h1>
           <div className="space-y-6 text-base leading-relaxed text-roots-navy/80">
-            <h2 className="pt-4 text-xl font-medium text-roots-green">Shipping Service</h2>
+            <h2 className="pt-4 text-xl font-medium text-roots-green">Shipping Costs</h2>
             <p>
-              All orders are dispatched via Royal Mail Tracked 24 or Tracked 48 service. You will receive a tracking number and link once your order has been dispatched.
+              Standard delivery is £3.95 via Royal Mail Tracked 48. <strong>Orders over £20 qualify for free delivery.</strong> You will receive a tracking number and link once your order has been dispatched.
             </p>
             <h2 className="pt-4 text-xl font-medium text-roots-green">Delivery Times</h2>
             <p>

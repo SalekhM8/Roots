@@ -7,7 +7,7 @@ import { CartSummary } from "@/components/checkout/cart-summary";
 import { LinkButton } from "@/components/ui/link-button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CartIcon } from "@/components/icons";
-import { ROUTES } from "@/lib/constants";
+import { ROUTES, calculateShipping } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Shopping Cart",
@@ -63,7 +63,8 @@ export default async function CartPage() {
     (sum, item) => sum + item.unitPriceMinor * item.quantity,
     0
   );
-  const totalMinor = subtotalMinor;
+  const shippingMinor = calculateShipping(subtotalMinor);
+  const totalMinor = subtotalMinor + shippingMinor;
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const hasPomItems = items.some(
@@ -90,6 +91,7 @@ export default async function CartPage() {
         <div>
           <CartSummary
             subtotalMinor={subtotalMinor}
+            shippingMinor={shippingMinor}
             totalMinor={totalMinor}
             itemCount={itemCount}
           />

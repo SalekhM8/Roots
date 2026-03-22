@@ -12,6 +12,7 @@ import { ROUTES } from "@/lib/constants";
 import { getProductBySlug } from "@/server/queries/products";
 import { formatPrice } from "@/lib/utils";
 import { PRODUCT_FAQS } from "@/data/product-faqs";
+import { ProductRecommendations } from "@/components/product/product-recommendations";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -238,6 +239,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
         </div>
       </div>
+
+      <ProductRecommendations currentSlug={slug} isPom={isPom} />
     </div>
   );
 }
