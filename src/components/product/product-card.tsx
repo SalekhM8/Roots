@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ImagePlaceholderIcon } from "@/components/icons";
+import { BundleImage, isBundle } from "@/components/product/bundle-image";
 
 interface ProductCardProps {
   name: string;
@@ -13,6 +14,7 @@ interface ProductCardProps {
 export function ProductCard({ name, slug, price, type, imageUrl, hasMultipleVariants }: ProductCardProps) {
   const isPom = type === "pom";
   const showFromPrefix = isPom || hasMultipleVariants;
+  const isBundleProduct = isBundle(slug);
 
   return (
     <Link
@@ -21,7 +23,9 @@ export function ProductCard({ name, slug, price, type, imageUrl, hasMultipleVari
     >
       {/* Image area */}
       <div className="relative aspect-square overflow-hidden bg-roots-cream-2">
-        {imageUrl ? (
+        {isBundleProduct ? (
+          <BundleImage slug={slug} name={name} />
+        ) : imageUrl ? (
           <img
             src={imageUrl}
             alt={name}

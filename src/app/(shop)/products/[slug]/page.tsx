@@ -13,6 +13,7 @@ import { getProductBySlug } from "@/server/queries/products";
 import { formatPrice } from "@/lib/utils";
 import { PRODUCT_FAQS } from "@/data/product-faqs";
 import { ProductRecommendations } from "@/components/product/product-recommendations";
+import { BundleImage, isBundle } from "@/components/product/bundle-image";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -139,7 +140,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
               isPom ? "bg-roots-green-2/30" : "bg-roots-cream-2"
             }`}
           >
-            {product.defaultImageUrl ? (
+            {isBundle(slug) ? (
+              <BundleImage slug={slug} name={product.name} className="rounded-[var(--radius-hero)]" />
+            ) : product.defaultImageUrl ? (
               <img
                 src={product.defaultImageUrl}
                 alt={product.name}
