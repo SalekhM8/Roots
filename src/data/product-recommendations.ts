@@ -39,11 +39,11 @@ export const PRODUCT_RECOMMENDATIONS: Record<string, string[]> = {
   // Cod liver oil cross-sells
   "seven-seas-cod-liver-oil": ["seven-seas-jointcare-essential", "valupak-vitamin-d3"],
 
-  // Supplements cross-sells
-  "magnesium-glycinate": ["sleep-support", "centrum-advance"],
-  "sleep-support": ["magnesium-glycinate", "kalms-night"],
-  "electrolytes": ["berocca-energy-orange", "centrum-advance"],
-  "probiotic-womens": ["centrum-advance", "valupak-vitamin-d3"],
+  // Probiotic cross-sells
+  "bio-kult-everyday": ["dioralyte-relief-blackcurrant", "centrum-advance"],
+
+  // Children's vitamins cross-sells
+  "vitabilets": ["centrum-advance", "valupak-vitamin-d3"],
 
   // Bundle cross-sells
   "stomach-relief-kit": ["cold-flu-recovery-kit", "daily-health-stack"],
