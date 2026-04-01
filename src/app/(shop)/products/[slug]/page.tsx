@@ -3,8 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CollapsibleSection } from "@/components/product/collapsible-section";
 import { LinkButton } from "@/components/ui/link-button";
-import { AddToCartButton } from "@/components/checkout/add-to-cart-button";
-import { VariantSelector } from "@/components/product/variant-selector";
 import { ImagePlaceholderIcon } from "@/components/icons";
 import { ProductJsonLd, BreadcrumbJsonLd, FaqJsonLd } from "@/components/seo/json-ld";
 // import { TrustpilotWidget, TrustpilotWidgetLight } from "@/components/product/trustpilot-widget";
@@ -14,6 +12,7 @@ import { formatPrice } from "@/lib/utils";
 import { PRODUCT_FAQS } from "@/data/product-faqs";
 import { ProductRecommendations } from "@/components/product/product-recommendations";
 import { BundleImage, isBundle } from "@/components/product/bundle-image";
+import { ProductDetailInteractive } from "@/components/product/product-detail-interactive";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -134,112 +133,113 @@ export default async function ProductPage({ params }: ProductPageProps) {
       {/* Product content */}
       <div className="page-container pb-20">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-          {/* Image area */}
-          <div
-            className={`aspect-square overflow-hidden rounded-[var(--radius-hero)] ${
-              isBundle(slug) ? "bg-[#ece3ca]" : isPom ? "bg-roots-green-2/30" : "bg-roots-cream-2"
-            }`}
-          >
-            {isBundle(slug) ? (
-              <BundleImage slug={slug} name={product.name} className="rounded-[var(--radius-hero)]" />
-            ) : product.defaultImageUrl ? (
-              <img
-                src={product.defaultImageUrl}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-32 w-32 items-center justify-center rounded-2xl border border-current/10">
-                <ImagePlaceholderIcon size={64} className="opacity-20" />
-              </div>
-            )}
-          </div>
-
-          {/* Details */}
-          <div className="flex flex-col justify-center">
-            <h1 className="mb-4 text-[32px] font-medium leading-tight md:text-[48px] lg:text-[56px]">
-              {product.name}
-            </h1>
-
-            {!isPom && lowestVariant && (
-              <p className="mb-2 text-2xl font-medium">
-                {hasMultipleVariants ? "From " : ""}
-                {formatPrice(lowestVariant.priceMinor)}
-              </p>
-            )}
-
-            {isPom && (
-              <p className="mb-2 text-2xl font-medium">
-                From {lowestVariant ? formatPrice(lowestVariant.priceMinor) : "—"}
-              </p>
-            )}
-
-            <p className="mb-8 whitespace-pre-line text-lg leading-relaxed opacity-80">
-              {product.shortDescription}
-            </p>
-
-            {isPom ? (
-              <LinkButton href={ROUTES.consultation} variant="primary" className="w-fit">
-                Start Consultation
-              </LinkButton>
-            ) : hasMultipleVariants ? (
-              <VariantSelector
-                variants={product.variants.map((v) => ({
-                  id: v.id,
-                  name: v.name,
-                  priceMinor: v.priceMinor,
-                  stockQuantity: v.stockQuantity,
-                }))}
-                productName={product.name}
-                productSlug={product.slug}
-                imageUrl={product.defaultImageUrl ?? undefined}
-              />
-            ) : lowestVariant ? (
-              <AddToCartButton
-                variantId={lowestVariant.id}
-                className="w-fit"
-                productInfo={{
-                  productName: product.name,
-                  variantName: lowestVariant.name,
-                  priceMinor: lowestVariant.priceMinor,
-                  productSlug: product.slug,
-                  imageUrl: product.defaultImageUrl ?? undefined,
-                }}
-              />
-            ) : null}
-
-            {/* TODO: Re-enable Trustpilot widget once ~10+ reviews collected */}
-            {/* <div className="mt-10">
-              {isPom ? <TrustpilotWidget /> : <TrustpilotWidgetLight />}
-            </div> */}
-
-            {/* Collapsible info sections */}
-            <div className="mt-12">
-              {descriptionSections.overview && (
-                <CollapsibleSection title="Overview" defaultOpen>
-                  <p className="whitespace-pre-line">{descriptionSections.overview}</p>
-                </CollapsibleSection>
-              )}
-              {descriptionSections.sections.map((section, i) => (
-                <CollapsibleSection key={i} title={section.title}>
-                  <p className="whitespace-pre-line">{section.content}</p>
-                </CollapsibleSection>
-              ))}
-
-              {faqs.length > 0 && (
-                <CollapsibleSection title="Frequently Asked Questions">
-                  <div className="space-y-4">
-                    {faqs.map((faq, i) => (
-                      <div key={i}>
-                        <h3 className="font-medium">{faq.question}</h3>
-                        <p className="mt-1 opacity-80">{faq.answer}</p>
-                      </div>
-                    ))}
+          {isPom ? (
+            <>
+              {/* POM: Static image */}
+              <div className="aspect-square overflow-hidden rounded-[var(--radius-hero)] bg-roots-green-2/30">
+                {product.defaultImageUrl ? (
+                  <img
+                    src={product.defaultImageUrl}
+                    alt={product.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-32 w-32 items-center justify-center rounded-2xl border border-current/10">
+                    <ImagePlaceholderIcon size={64} className="opacity-20" />
                   </div>
-                </CollapsibleSection>
-              )}
-            </div>
-          </div>
+                )}
+              </div>
+
+              {/* POM: Details */}
+              <div className="flex flex-col justify-center">
+                <h1 className="mb-4 text-[32px] font-medium leading-tight md:text-[48px] lg:text-[56px]">
+                  {product.name}
+                </h1>
+                <p className="mb-2 text-2xl font-medium">
+                  From {lowestVariant ? formatPrice(lowestVariant.priceMinor) : "—"}
+                </p>
+                <p className="mb-8 whitespace-pre-line text-lg leading-relaxed opacity-80">
+                  {product.shortDescription}
+                </p>
+                <LinkButton href={ROUTES.consultation} variant="primary" className="w-fit">
+                  Start Consultation
+                </LinkButton>
+
+                {/* Collapsible info sections */}
+                <div className="mt-12">
+                  {descriptionSections.overview && (
+                    <CollapsibleSection title="Overview" defaultOpen>
+                      <p className="whitespace-pre-line">{descriptionSections.overview}</p>
+                    </CollapsibleSection>
+                  )}
+                  {descriptionSections.sections.map((section, i) => (
+                    <CollapsibleSection key={i} title={section.title}>
+                      <p className="whitespace-pre-line">{section.content}</p>
+                    </CollapsibleSection>
+                  ))}
+                  {faqs.length > 0 && (
+                    <CollapsibleSection title="Frequently Asked Questions">
+                      <div className="space-y-4">
+                        {faqs.map((faq, i) => (
+                          <div key={i}>
+                            <h3 className="font-medium">{faq.question}</h3>
+                            <p className="mt-1 opacity-80">{faq.answer}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </CollapsibleSection>
+                  )}
+                </div>
+              </div>
+            </>
+          ) : (
+            <ProductDetailInteractive
+              variants={product.variants.map((v) => ({
+                id: v.id,
+                name: v.name,
+                priceMinor: v.priceMinor,
+                stockQuantity: v.stockQuantity,
+                imageUrl: v.imageUrl,
+              }))}
+              productName={product.name}
+              productSlug={product.slug}
+              shortDescription={product.shortDescription}
+              defaultImageUrl={product.defaultImageUrl}
+              isPom={false}
+              isBundle={isBundle(slug)}
+              bundleImageNode={
+                isBundle(slug) ? (
+                  <BundleImage slug={slug} name={product.name} className="rounded-[var(--radius-hero)]" />
+                ) : undefined
+              }
+            >
+              {/* Collapsible info sections */}
+              <div className="mt-12">
+                {descriptionSections.overview && (
+                  <CollapsibleSection title="Overview" defaultOpen>
+                    <p className="whitespace-pre-line">{descriptionSections.overview}</p>
+                  </CollapsibleSection>
+                )}
+                {descriptionSections.sections.map((section, i) => (
+                  <CollapsibleSection key={i} title={section.title}>
+                    <p className="whitespace-pre-line">{section.content}</p>
+                  </CollapsibleSection>
+                ))}
+                {faqs.length > 0 && (
+                  <CollapsibleSection title="Frequently Asked Questions">
+                    <div className="space-y-4">
+                      {faqs.map((faq, i) => (
+                        <div key={i}>
+                          <h3 className="font-medium">{faq.question}</h3>
+                          <p className="mt-1 opacity-80">{faq.answer}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </CollapsibleSection>
+                )}
+              </div>
+            </ProductDetailInteractive>
+          )}
         </div>
       </div>
 

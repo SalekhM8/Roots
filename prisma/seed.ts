@@ -605,13 +605,13 @@ async function main() {
     },
   });
   for (const v of [
-    { name: "100ml", slug: "100ml", sku: "SS-CLO-100", price: 479, weight: 130 },
-    { name: "450ml", slug: "450ml", sku: "SS-CLO-450", price: 1099, weight: 500 },
+    { name: "100ml", slug: "100ml", sku: "SS-CLO-100", price: 479, weight: 130, imageUrl: "/images/products/seven-seas-cod-liver-oil-100ml.png" },
+    { name: "450ml", slug: "450ml", sku: "SS-CLO-450", price: 1099, weight: 500, imageUrl: "/images/products/seven-seas-cod-liver-oil-450ml.jpg" },
   ]) {
     await prisma.productVariant.upsert({
       where: { sku: v.sku },
-      update: { priceMinor: v.price },
-      create: { productId: codLiverOil.id, name: v.name, slugFragment: v.slug, sku: v.sku, priceMinor: v.price, stockQuantity: 100, weightGrams: v.weight },
+      update: { priceMinor: v.price, imageUrl: v.imageUrl },
+      create: { productId: codLiverOil.id, name: v.name, slugFragment: v.slug, sku: v.sku, priceMinor: v.price, stockQuantity: 100, weightGrams: v.weight, imageUrl: v.imageUrl },
     });
   }
 
@@ -629,13 +629,13 @@ async function main() {
     },
   });
   for (const v of [
-    { name: "60g", slug: "60g", sku: "SDC-60G", price: 289, weight: 80 },
-    { name: "125g", slug: "125g", sku: "SDC-125G", price: 429, weight: 150 },
+    { name: "60g", slug: "60g", sku: "SDC-60G", price: 289, weight: 80, imageUrl: "/images/products/sudocrem-60g.jpg" },
+    { name: "125g", slug: "125g", sku: "SDC-125G", price: 429, weight: 150, imageUrl: "/images/products/sudocrem-125g.jpg" },
   ]) {
     await prisma.productVariant.upsert({
       where: { sku: v.sku },
-      update: { priceMinor: v.price },
-      create: { productId: sudocrem.id, name: v.name, slugFragment: v.slug, sku: v.sku, priceMinor: v.price, stockQuantity: 100, weightGrams: v.weight },
+      update: { priceMinor: v.price, imageUrl: v.imageUrl },
+      create: { productId: sudocrem.id, name: v.name, slugFragment: v.slug, sku: v.sku, priceMinor: v.price, stockQuantity: 100, weightGrams: v.weight, imageUrl: v.imageUrl },
     });
   }
 
