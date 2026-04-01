@@ -579,48 +579,17 @@ async function main() {
     create: { productId: rescueOrange.id, name: "50g", slugFragment: "50g", sku: "RSC-OE-50G", priceMinor: 729, stockQuantity: 100, weightGrams: 60 },
   });
 
-  // === Vitabilets Children's Chewable Vitamins ===
+  // === DEACTIVATED: Vitabilets and Bio-Kult (awaiting prices and images) ===
   const vitabilets = await prisma.product.upsert({
     where: { slug: "vitabilets" },
-    update: { defaultImageUrl: "/images/products/vitabilets.png" },
-    create: {
-      name: "Vitabilets",
-      slug: "vitabilets",
-      shortDescription: "Chewable multivitamin tablets for children to support healthy growth and development.",
-      longDescription: "Vitabilets are chewable multivitamin tablets designed for children. They provide key vitamins and minerals to support healthy growth, immune function, and overall development.\n\nWhat this helps with:\n• Children's daily nutrition\n• Immune support\n• Healthy growth and development\n\nHow it works:\nThe chewable tablets provide a range of essential vitamins and minerals in a child-friendly format.\n\nHow to use:\nGive to children exactly as directed on the packaging.\n\nSide effects:\n• Food supplements are generally well tolerated when used as directed.",
-      productType: "supplement",
-      defaultImageUrl: "/images/products/vitabilets.png",
-    },
+    update: { isActive: false, isVisible: false },
+    create: { name: "Vitabilets", slug: "vitabilets", shortDescription: "", longDescription: "", productType: "supplement", isActive: false, isVisible: false },
   });
-  await prisma.productVariant.upsert({
-    where: { sku: "VTB-30" },
-    update: {},
-    create: { productId: vitabilets.id, name: "30 Tablets", slugFragment: "30-tablets", sku: "VTB-30", priceMinor: 499, stockQuantity: 100, weightGrams: 50 },
-  });
-
-  // === Bio-Kult Everyday Capsules (2 variants) ===
   const bioKult = await prisma.product.upsert({
     where: { slug: "bio-kult-everyday" },
-    update: { defaultImageUrl: "/images/products/bio-kult-everyday.png" },
-    create: {
-      name: "Bio-Kult Everyday Capsules",
-      slug: "bio-kult-everyday",
-      shortDescription: "Advanced multi-strain probiotic for everyday digestive and immune support.",
-      longDescription: "Bio-Kult Everyday is an advanced multi-strain probiotic formulation containing 14 live bacterial cultures. Designed to support digestive health and immune function as part of a daily routine.\n\nWhat this helps with:\n• Digestive health\n• Gut flora balance\n• Immune support\n• Everyday wellbeing\n\nHow it works:\nThe 14-strain formula provides a broad spectrum of beneficial bacteria to help maintain a healthy gut microbiome.\n\nHow to use:\nTake daily exactly as directed on the packaging. Can be taken with or without food.\n\nSide effects:\n• Food supplements are generally well tolerated when used as directed.",
-      productType: "supplement",
-      defaultImageUrl: "/images/products/bio-kult-everyday.png",
-    },
+    update: { isActive: false, isVisible: false },
+    create: { name: "Bio-Kult Everyday Capsules", slug: "bio-kult-everyday", shortDescription: "", longDescription: "", productType: "supplement", isActive: false, isVisible: false },
   });
-  for (const v of [
-    { name: "30 Capsules", slug: "30-capsules", sku: "BK-EVD-30", price: 999, weight: 30 },
-    { name: "60 Capsules", slug: "60-capsules", sku: "BK-EVD-60", price: 1799, weight: 55 },
-  ]) {
-    await prisma.productVariant.upsert({
-      where: { sku: v.sku },
-      update: { priceMinor: v.price },
-      create: { productId: bioKult.id, name: v.name, slugFragment: v.slug, sku: v.sku, priceMinor: v.price, stockQuantity: 100, weightGrams: v.weight },
-    });
-  }
 
   // === Seven Seas Cod Liver Oil (2 variants) ===
   const codLiverOil = await prisma.product.upsert({
@@ -835,8 +804,7 @@ async function main() {
     { collection: "vitamins-supplements", product: "jointcareTurmeric", sort: 11 },
     { collection: "vitamins-supplements", product: "valupakGluc", sort: 12 },
     { collection: "vitamins-supplements", product: "codLiverOil", sort: 13 },
-    { collection: "vitamins-supplements", product: "vitabilets", sort: 14 },
-    { collection: "vitamins-supplements", product: "bioKult", sort: 15 },
+    // vitabilets and bioKult deactivated — awaiting prices and images
 
     // Digestive Health
     { collection: "digestive-health", product: "gaviscon", sort: 1 },
@@ -844,7 +812,7 @@ async function main() {
     { collection: "digestive-health", product: "imodiumMelts", sort: 3 },
     { collection: "digestive-health", product: "dioralyteRelief", sort: 4 },
     { collection: "digestive-health", product: "dioralyteNatural", sort: 5 },
-    { collection: "digestive-health", product: "bioKult", sort: 6 },
+    // bioKult deactivated — awaiting prices and images
 
     // Stress & Sleep
     { collection: "stress-sleep", product: "kalmsDay", sort: 1 },
