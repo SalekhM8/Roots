@@ -594,14 +594,14 @@ async function main() {
   // === Seven Seas Cod Liver Oil (2 variants) ===
   const codLiverOil = await prisma.product.upsert({
     where: { slug: "seven-seas-cod-liver-oil" },
-    update: { defaultImageUrl: "/images/products/seven-seas-cod-liver-oil.png" },
+    update: { defaultImageUrl: "/images/products/seven-seas-cod-liver-oil-100ml.png" },
     create: {
       name: "Seven Seas Cod Liver Oil",
       slug: "seven-seas-cod-liver-oil",
       shortDescription: "Traditional omega-3 supplement with vitamins A and D for overall health.",
       longDescription: "Seven Seas Cod Liver Oil is a traditional supplement providing omega-3 fatty acids along with vitamins A and D to support everyday health.\n\nWhat this helps with:\n• Heart health\n• Immune support\n• Bone health\n• Overall wellbeing\n\nHow it works:\nCod liver oil naturally contains omega-3 fatty acids EPA and DHA, plus vitamins A and D, which support normal heart function, immune system, and bone maintenance.\n\nHow to use:\nTake daily exactly as directed on the packaging.\n\nSide effects:\n• Food supplements are generally well tolerated when used as directed.",
       productType: "supplement",
-      defaultImageUrl: "/images/products/seven-seas-cod-liver-oil.png",
+      defaultImageUrl: "/images/products/seven-seas-cod-liver-oil-100ml.png",
     },
   });
   for (const v of [
@@ -618,14 +618,14 @@ async function main() {
   // === Sudocrem Antiseptic Healing Cream (2 variants) ===
   const sudocrem = await prisma.product.upsert({
     where: { slug: "sudocrem" },
-    update: { defaultImageUrl: "/images/products/sudocrem.png" },
+    update: { defaultImageUrl: "/images/products/sudocrem-60g.jpg" },
     create: {
       name: "Sudocrem Antiseptic Healing Cream",
       slug: "sudocrem",
       shortDescription: "Versatile antiseptic healing cream for nappy rash, minor wounds, eczema, and skin irritation.",
       longDescription: "Sudocrem Antiseptic Healing Cream is a versatile, clinically proven cream suitable for a range of skin conditions.\n\nWhat this helps with:\n• Nappy rash\n• Minor cuts and grazes\n• Eczema\n• Minor burns and sunburn\n• Acne\n\nHow it works:\nThe formula contains a water-repellent base that forms a protective barrier over the skin, helping to reduce the risk of infection and support healing. It also contains a mild local anaesthetic to soothe discomfort.\n\nHow to use:\nApply a thin layer to the affected area as needed. See packaging for full directions.\n\nSide effects:\n• Rarely may cause mild skin irritation.",
       productType: "other",
-      defaultImageUrl: "/images/products/sudocrem.png",
+      defaultImageUrl: "/images/products/sudocrem-60g.jpg",
     },
   });
   for (const v of [
