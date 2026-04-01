@@ -22,7 +22,7 @@ export function ProductCard({ name, slug, price, type, imageUrl, hasMultipleVari
       className="group flex flex-col overflow-hidden rounded-[var(--radius-card)] bg-roots-cream-2 transition-shadow duration-200 hover:shadow-md"
     >
       {/* Image area */}
-      <div className="relative aspect-square overflow-hidden bg-roots-cream-2">
+      <div className={`relative aspect-square overflow-hidden ${isBundleProduct ? "bg-[#ece3ca]" : "bg-roots-cream-2"}`}>
         {isBundleProduct ? (
           <BundleImage slug={slug} name={name} />
         ) : imageUrl ? (

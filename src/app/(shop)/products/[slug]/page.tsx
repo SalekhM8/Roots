@@ -137,7 +137,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {/* Image area */}
           <div
             className={`aspect-square overflow-hidden rounded-[var(--radius-hero)] ${
-              isPom ? "bg-roots-green-2/30" : "bg-roots-cream-2"
+              isBundle(slug) ? "bg-[#ece3ca]" : isPom ? "bg-roots-green-2/30" : "bg-roots-cream-2"
             }`}
           >
             {isBundle(slug) ? (
