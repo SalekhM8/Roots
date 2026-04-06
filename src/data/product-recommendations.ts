@@ -31,13 +31,11 @@ export const PRODUCT_RECOMMENDATIONS: Record<string, string[]> = {
   "rescue-pastilles-orange-elderflower": ["kalms-day", "nytol-herbal"],
 
   // Joint support cross-sells
-  "seven-seas-jointcare-essential": ["valupak-glucosamine", "osteocare-original"],
-  "seven-seas-jointcare-turmeric": ["valupak-glucosamine", "osteocare-original"],
-  "valupak-glucosamine": ["seven-seas-jointcare-essential", "osteocare-original"],
-  "osteocare-original": ["valupak-glucosamine", "seven-seas-jointcare-essential"],
+  "valupak-glucosamine": ["seven-seas-cod-liver-oil", "osteocare-original"],
+  "osteocare-original": ["valupak-glucosamine", "seven-seas-cod-liver-oil"],
 
   // Cod liver oil cross-sells
-  "seven-seas-cod-liver-oil": ["seven-seas-jointcare-essential", "valupak-vitamin-d3"],
+  "seven-seas-cod-liver-oil": ["osteocare-original", "valupak-vitamin-d3"],
 
   // Bundle cross-sells
   "stomach-relief-kit": ["cold-flu-recovery-kit", "daily-health-stack"],

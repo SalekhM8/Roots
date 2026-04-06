@@ -293,13 +293,21 @@ export default async function WeightLossLandingPage() {
             qualified UK prescribers and delivered to your door.
           </p>
 
+          <p className="mt-8 text-lg font-medium text-roots-cream/90">
+            From £149.99
+          </p>
+
           <LinkButton
             href={ROUTES.consultation}
             variant="primary"
-            className="mt-10"
+            className="mt-4"
           >
             Start Consultation
           </LinkButton>
+
+          <p className="mt-3 text-sm text-roots-cream/60">
+            Takes 2–3 minutes · Reviewed by UK clinician · No obligation
+          </p>
 
           {/* Stat nuggets */}
           <div className="mt-14 flex flex-wrap items-center justify-center gap-3 md:gap-4">
@@ -462,13 +470,19 @@ export default async function WeightLossLandingPage() {
           <div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {variants.length > 0
               ? variants.map((variant) => {
-                  const isPopular = variant.name.toLowerCase().includes("5mg");
+                  const doseName = variant.name.replace(/^Mounjaro\s*/i, "").trim();
+                  const isPopular = doseName === "5mg";
+                  const subtitle = doseName === "2.5mg"
+                    ? "Starter dose (recommended for first-time users)"
+                    : doseName === "5mg"
+                      ? "Best for starting safely with strong results"
+                      : "For continued progress after initial phase";
                   return (
                     <div
                       key={variant.id}
                       className={`relative flex flex-col items-center rounded-[var(--radius-card)] border p-8 text-center transition-shadow duration-200 hover:shadow-md ${
                         isPopular
-                          ? "border-roots-orange/30 bg-white shadow-sm"
+                          ? "border-2 border-roots-green bg-white shadow-md ring-1 ring-roots-green/10"
                           : "border-roots-green/10 bg-roots-cream-2"
                       }`}
                     >
@@ -477,9 +491,12 @@ export default async function WeightLossLandingPage() {
                           Most Popular
                         </span>
                       )}
-                      <h3 className="mb-2 text-xl font-medium text-roots-green">
+                      <h3 className="mb-1 text-xl font-medium text-roots-green">
                         {variant.name}
                       </h3>
+                      <p className="mb-3 text-sm text-roots-green/50">
+                        {subtitle}
+                      </p>
                       <p className="text-display text-[32px] font-medium text-roots-navy">
                         {formatPrice(variant.priceMinor)}
                       </p>
@@ -491,18 +508,18 @@ export default async function WeightLossLandingPage() {
                 })
               : /* Fallback if no variants in DB */
                 [
-                  { name: "Mounjaro 2.5mg", price: 14999 },
-                  { name: "Mounjaro 5mg", price: 17999, popular: true },
-                  { name: "Mounjaro 7.5mg", price: 19999 },
-                  { name: "Mounjaro 10mg", price: 22999 },
-                  { name: "Mounjaro 12.5mg", price: 25999 },
-                  { name: "Mounjaro 15mg", price: 27999 },
+                  { name: "Mounjaro 2.5mg", dose: "2.5mg", price: 14999, subtitle: "Starter dose (recommended for first-time users)" },
+                  { name: "Mounjaro 5mg", dose: "5mg", price: 17999, popular: true, subtitle: "Best for starting safely with strong results" },
+                  { name: "Mounjaro 7.5mg", dose: "7.5mg", price: 19999, subtitle: "For continued progress after initial phase" },
+                  { name: "Mounjaro 10mg", dose: "10mg", price: 22999, subtitle: "For continued progress after initial phase" },
+                  { name: "Mounjaro 12.5mg", dose: "12.5mg", price: 25999, subtitle: "For continued progress after initial phase" },
+                  { name: "Mounjaro 15mg", dose: "15mg", price: 27999, subtitle: "For continued progress after initial phase" },
                 ].map((item) => (
                   <div
                     key={item.name}
                     className={`relative flex flex-col items-center rounded-[var(--radius-card)] border p-8 text-center transition-shadow duration-200 hover:shadow-md ${
                       item.popular
-                        ? "border-roots-orange/30 bg-white shadow-sm"
+                        ? "border-2 border-roots-green bg-white shadow-md ring-1 ring-roots-green/10"
                         : "border-roots-green/10 bg-roots-cream-2"
                     }`}
                   >
@@ -511,9 +528,12 @@ export default async function WeightLossLandingPage() {
                         Most Popular
                       </span>
                     )}
-                    <h3 className="mb-2 text-xl font-medium text-roots-green">
+                    <h3 className="mb-1 text-xl font-medium text-roots-green">
                       {item.name}
                     </h3>
+                    <p className="mb-3 text-sm text-roots-green/50">
+                      {item.subtitle}
+                    </p>
                     <p className="text-display text-[32px] font-medium text-roots-navy">
                       {formatPrice(item.price)}
                     </p>
@@ -522,13 +542,24 @@ export default async function WeightLossLandingPage() {
                 ))}
           </div>
 
-          <div className="mt-12 flex flex-col items-center gap-4">
+          {/* Trust badges */}
+          <div className="mt-8 flex flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-6">
+            <p className="flex items-center gap-2 text-sm text-roots-green/70">
+              <span className="text-roots-green">&#10003;</span>
+              Only pay if approved by a UK clinician
+            </p>
+            <p className="flex items-center gap-2 text-sm text-roots-green/70">
+              <span className="text-roots-green">&#10003;</span>
+              Full refund if not suitable
+            </p>
+          </div>
+
+          <div className="mt-10 flex flex-col items-center gap-4">
             <LinkButton href={ROUTES.consultation} variant="primary">
               Start Consultation — From {formatPrice(lowestPrice)}
             </LinkButton>
             <p className="text-sm text-roots-green/50">
-              Free consultation. No obligation. Your prescriber will guide your
-              dosing.
+              Takes 2–3 minutes · Reviewed by UK clinician · No obligation
             </p>
           </div>
         </div>
@@ -646,6 +677,10 @@ export default async function WeightLossLandingPage() {
           >
             Start Your Consultation
           </LinkButton>
+
+          <p className="mt-3 text-sm text-roots-green/50">
+            Takes 2–3 minutes · Reviewed by UK clinician · No obligation
+          </p>
 
           <p className="mt-6 text-sm text-roots-green/40">
             Questions? Email us at{" "}

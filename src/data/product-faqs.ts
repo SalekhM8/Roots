@@ -138,22 +138,6 @@ export const PRODUCT_FAQS: Record<string, Faq[]> = {
     },
   ],
 
-  "seven-seas-jointcare-essential": [
-    {
-      question: "What is in Seven Seas JointCare Essential?",
-      answer:
-        "JointCare Essential contains glucosamine and omega-3 fish oils to support joint flexibility and mobility. Glucosamine is a building block of cartilage, while omega-3s have anti-inflammatory properties.",
-    },
-  ],
-
-  "seven-seas-jointcare-turmeric-duo-pack": [
-    {
-      question: "Why does JointCare + Turmeric come as a duo pack?",
-      answer:
-        "The duo pack provides two complementary supplements: one capsule with glucosamine and omega-3 for joint health, and a second with turmeric extract (curcumin) for its natural anti-inflammatory benefits.",
-    },
-  ],
-
   "valupak-glucosamine-sulphate-500mg": [
     {
       question: "What is glucosamine sulphate used for?",

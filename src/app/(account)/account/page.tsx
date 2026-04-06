@@ -31,6 +31,12 @@ const dashboardCards = [
     href: "/account/addresses",
     count: null,
   },
+  {
+    title: "Payment Methods",
+    description: "Manage your saved cards",
+    href: "/account/payment-methods",
+    count: null,
+  },
 ];
 
 export default function AccountDashboardPage() {

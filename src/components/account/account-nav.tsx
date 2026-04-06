@@ -12,6 +12,7 @@ const links = [
   { href: "/account/consultations", label: "Consultations" },
   { href: "/account/profile", label: "Profile" },
   { href: "/account/addresses", label: "Addresses" },
+  { href: "/account/payment-methods", label: "Payment Methods" },
 ];
 
 export function AccountNav() {

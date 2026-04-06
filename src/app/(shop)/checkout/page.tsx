@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { getCartWithItems } from "@/server/queries/cart";
 import { getCustomerAddresses } from "@/server/queries/account";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
+import { getSavedPaymentMethodsAction } from "./actions";
 import { ROUTES, calculateShipping } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -13,9 +14,10 @@ export const metadata: Metadata = {
 export default async function CheckoutPage() {
   const user = await requireUser();
 
-  const [cart, savedAddresses] = await Promise.all([
+  const [cart, savedAddresses, savedCards] = await Promise.all([
     getCartWithItems(user.id),
     getCustomerAddresses(user.id),
+    getSavedPaymentMethodsAction(),
   ]);
 
   if (!cart || cart.items.length === 0) {
@@ -46,6 +48,7 @@ export default async function CheckoutPage() {
         itemCount={itemCount}
         hasPomItems={hasPomItems}
         savedAddresses={savedAddresses}
+        savedCards={savedCards}
       />
     </div>
   );

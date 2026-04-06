@@ -23,6 +23,6 @@ export const BUNDLE_IMAGES: Record<string, string[]> = {
   "daily-health-stack": [
     "/images/products/centrum-advance-30.png",
     "/images/products/valupak-vitamin-d3-60.png",
-    "/images/products/seven-seas-jointcare-essential.jpg",
+    "/images/products/seven-seas-cod-liver-oil-100ml.png",
   ],
 };

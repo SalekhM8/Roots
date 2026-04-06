@@ -9,6 +9,7 @@ import {
 } from "@/server/queries/admin";
 import { StatusPill } from "@/components/ui/status-pill";
 import { Section } from "@/components/admin/section";
+import { RefundButton } from "@/components/admin/refund-button";
 import { formatPrice, formatDateTime, humanizeStatus, getDisplayName } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -157,6 +158,19 @@ export default async function AdminOrderDetailPage({
                     )}
                   </div>
                 ))}
+
+                {/* Refund button — only show if there's a captured payment that hasn't been refunded */}
+                {order.payments.some((p) => p.status === "captured") && (
+                  <div className="mt-4 border-t border-roots-green/10 pt-4">
+                    <RefundButton
+                      orderId={order.id}
+                      maxRefundMinor={
+                        order.payments.find((p) => p.status === "captured")!
+                          .amountMinor
+                      }
+                    />
+                  </div>
+                )}
               </div>
             )}
           </Section>

@@ -435,42 +435,48 @@ async function main() {
     create: { productId: osteocare.id, name: "30 Tablets", slugFragment: "30-tablets", sku: "OST-ORI-30", priceMinor: 429, stockQuantity: 100, weightGrams: 60 },
   });
 
-  // === Seven Seas JointCare Essential ===
+  // === Seven Seas JointCare Essential (DEACTIVATED — contains pork gelatine) ===
   const jointcareEssential = await prisma.product.upsert({
     where: { slug: "seven-seas-jointcare-essential" },
-    update: { defaultImageUrl: "/images/products/seven-seas-jointcare-essential.jpg" },
+    update: { isActive: false, isVisible: false, archivedAt: new Date() },
     create: {
       name: "Seven Seas JointCare Essential",
       slug: "seven-seas-jointcare-essential",
       shortDescription: "Joint support supplement combining key nutrients for movement and joint health.",
-      longDescription: "Seven Seas JointCare Essential is a joint support supplement that combines key nutrients in a convenient daily pack to support movement and everyday joint health.\n\nWhat this helps with:\n• Joint support\n• Mobility\n• Everyday joint care\n\nHow it works:\nThe formula combines joint support ingredients with selected nutrients to help support normal joint health as part of a balanced routine.\n\nHow to use:\nTake exactly as directed on the packaging.\n\nSide effects:\n• Food supplements are generally well tolerated when used as directed.",
+      longDescription: "",
       productType: "supplement",
       defaultImageUrl: "/images/products/seven-seas-jointcare-essential.jpg",
+      isActive: false,
+      isVisible: false,
+      archivedAt: new Date(),
     },
   });
   await prisma.productVariant.upsert({
     where: { sku: "SS-JCE-30" },
     update: { priceMinor: 879 },
-    create: { productId: jointcareEssential.id, name: "30 Day Pack", slugFragment: "30-day-pack", sku: "SS-JCE-30", priceMinor: 879, stockQuantity: 100, weightGrams: 80 },
+    create: { productId: jointcareEssential.id, name: "30 Day Pack", slugFragment: "30-day-pack", sku: "SS-JCE-30", priceMinor: 879, stockQuantity: 0, weightGrams: 80 },
   });
 
-  // === Seven Seas JointCare + Turmeric Duo Pack ===
+  // === Seven Seas JointCare + Turmeric Duo Pack (DEACTIVATED — contains pork gelatine) ===
   const jointcareTurmeric = await prisma.product.upsert({
     where: { slug: "seven-seas-jointcare-turmeric" },
-    update: { defaultImageUrl: "/images/products/seven-seas-jointcare-turmeric.jpg" },
+    update: { isActive: false, isVisible: false, archivedAt: new Date() },
     create: {
       name: "Seven Seas JointCare + Turmeric Duo Pack",
       slug: "seven-seas-jointcare-turmeric",
       shortDescription: "Joint comfort and mobility support with turmeric in a daily pack format.",
-      longDescription: "Seven Seas JointCare Plus Turmeric Duo Pack is designed to support joint comfort and mobility, combining core joint support ingredients with turmeric in a daily pack format.\n\nWhat this helps with:\n• Joint support\n• Flexibility\n• Everyday movement\n\nHow it works:\nThe formula combines joint support ingredients with turmeric as part of a daily routine for joint wellbeing.\n\nHow to use:\nTake exactly as directed on the packaging.\n\nSide effects:\n• Food supplements are generally well tolerated when used as directed.",
+      longDescription: "",
       productType: "supplement",
       defaultImageUrl: "/images/products/seven-seas-jointcare-turmeric.jpg",
+      isActive: false,
+      isVisible: false,
+      archivedAt: new Date(),
     },
   });
   await prisma.productVariant.upsert({
     where: { sku: "SS-JCT-30" },
     update: {},
-    create: { productId: jointcareTurmeric.id, name: "30 Day Pack", slugFragment: "30-day-pack", sku: "SS-JCT-30", priceMinor: 1799, stockQuantity: 100, weightGrams: 100 },
+    create: { productId: jointcareTurmeric.id, name: "30 Day Pack", slugFragment: "30-day-pack", sku: "SS-JCT-30", priceMinor: 1799, stockQuantity: 0, weightGrams: 100 },
   });
 
   // === Acnecide 5% Gel (2 variants) ===
@@ -659,7 +665,8 @@ async function main() {
   await prisma.productVariant.upsert({
     where: { sku: "BDL-STOMACH-1" },
     update: {},
-    create: { productId: stomachReliefKit.id, name: "Kit", slugFragment: "kit", sku: "BDL-STOMACH-1", priceMinor: 1399, stockQuantity: 50, weightGrams: 200 },
+    update: { priceMinor: 1250 },
+    create: { productId: stomachReliefKit.id, name: "Kit", slugFragment: "kit", sku: "BDL-STOMACH-1", priceMinor: 1250, stockQuantity: 50, weightGrams: 200 },
   });
 
   // === Cold & Flu Recovery Kit (Berocca 10 £3.99 + Dioralyte 6 £4.99 → £8.98 → Kit £10.49 inc. extras value) ===
@@ -678,7 +685,8 @@ async function main() {
   await prisma.productVariant.upsert({
     where: { sku: "BDL-COLDFLU-1" },
     update: {},
-    create: { productId: coldFluKit.id, name: "Kit", slugFragment: "kit", sku: "BDL-COLDFLU-1", priceMinor: 1049, stockQuantity: 50, weightGrams: 150 },
+    update: { priceMinor: 1600 },
+    create: { productId: coldFluKit.id, name: "Kit", slugFragment: "kit", sku: "BDL-COLDFLU-1", priceMinor: 1600, stockQuantity: 50, weightGrams: 150 },
   });
 
   // === Sleep & Stress Reset (Kalms Night £5.49 + Rescue Pastilles £7.49 → £12.98 → Kit £10.49) ===
@@ -716,26 +724,31 @@ async function main() {
   await prisma.productVariant.upsert({
     where: { sku: "BDL-SKIN-1" },
     update: {},
-    create: { productId: skinRescueKit.id, name: "Kit", slugFragment: "kit", sku: "BDL-SKIN-1", priceMinor: 1649, stockQuantity: 50, weightGrams: 100 },
+    update: { priceMinor: 1400 },
+    create: { productId: skinRescueKit.id, name: "Kit", slugFragment: "kit", sku: "BDL-SKIN-1", priceMinor: 1400, stockQuantity: 50, weightGrams: 100 },
   });
 
-  // === Daily Health Stack (Centrum 30 £4.99 + Vitamin D3 £1.29 + JointCare Essential £12.99 → £19.27 → Kit £17.99) ===
+  // === Daily Health Stack (Centrum 30 £4.99 + Vitamin D3 £1.29 + Cod Liver Oil 100ml £4.79 → £11.07 → Kit £9.50) ===
   const dailyHealthKit = await prisma.product.upsert({
     where: { slug: "daily-health-stack" },
-    update: { defaultImageUrl: "/images/products/daily-health-stack.png" },
+    update: {
+      defaultImageUrl: "/images/products/daily-health-stack.png",
+      shortDescription: "Your daily health essentials — a complete multivitamin, vitamin D, and omega-3 cod liver oil in one bundle.",
+      longDescription: "What's Inside:\nCentrum Advance 30 Tablets — comprehensive A-Z multivitamin for everyday nutrition\nValupak Vitamin D3 1000IU 30 Tablets — supports bones, teeth, immune function, and muscle health\nSeven Seas Cod Liver Oil 100ml — traditional omega-3 supplement with vitamins A and D for overall health\n\nWhy Buy the Kit:\nCover your nutritional bases in one go. Centrum fills micronutrient gaps, Vitamin D supports immunity (especially important in the UK), and Cod Liver Oil provides omega-3 for heart and bone health.",
+    },
     create: {
       name: "Daily Health Stack",
       slug: "daily-health-stack",
-      shortDescription: "Your daily health essentials — a complete multivitamin, vitamin D, and joint support in one bundle.",
-      longDescription: "What's Inside:\nCentrum Advance 30 Tablets — comprehensive A-Z multivitamin for everyday nutrition\nValupak Vitamin D3 1000IU 30 Tablets — supports bones, teeth, immune function, and muscle health\nSeven Seas JointCare Essential 30 Capsules — glucosamine and omega-3 for joint comfort\n\nWhy Buy the Kit:\nCover your nutritional bases in one go. Centrum fills micronutrient gaps, Vitamin D supports immunity (especially important in the UK), and JointCare keeps joints supple. Save over 6% vs buying separately.",
+      shortDescription: "Your daily health essentials — a complete multivitamin, vitamin D, and omega-3 cod liver oil in one bundle.",
+      longDescription: "What's Inside:\nCentrum Advance 30 Tablets — comprehensive A-Z multivitamin for everyday nutrition\nValupak Vitamin D3 1000IU 30 Tablets — supports bones, teeth, immune function, and muscle health\nSeven Seas Cod Liver Oil 100ml — traditional omega-3 supplement with vitamins A and D for overall health\n\nWhy Buy the Kit:\nCover your nutritional bases in one go. Centrum fills micronutrient gaps, Vitamin D supports immunity (especially important in the UK), and Cod Liver Oil provides omega-3 for heart and bone health.",
       productType: "other",
       defaultImageUrl: "/images/products/daily-health-stack.png",
     },
   });
   await prisma.productVariant.upsert({
     where: { sku: "BDL-DAILYHEALTH-1" },
-    update: {},
-    create: { productId: dailyHealthKit.id, name: "Kit", slugFragment: "kit", sku: "BDL-DAILYHEALTH-1", priceMinor: 1799, stockQuantity: 50, weightGrams: 200 },
+    update: { priceMinor: 950 },
+    create: { productId: dailyHealthKit.id, name: "Kit", slugFragment: "kit", sku: "BDL-DAILYHEALTH-1", priceMinor: 950, stockQuantity: 50, weightGrams: 200 },
   });
 
   // ================================================================
@@ -800,9 +813,7 @@ async function main() {
     { collection: "vitamins-supplements", product: "magnesium", sort: 7 },
     { collection: "vitamins-supplements", product: "electrolytes", sort: 8 },
     { collection: "vitamins-supplements", product: "probiotic", sort: 9 },
-    { collection: "vitamins-supplements", product: "jointcareEssential", sort: 10 },
-    { collection: "vitamins-supplements", product: "jointcareTurmeric", sort: 11 },
-    { collection: "vitamins-supplements", product: "valupakGluc", sort: 12 },
+    { collection: "vitamins-supplements", product: "valupakGluc", sort: 10 },
     { collection: "vitamins-supplements", product: "codLiverOil", sort: 13 },
     // vitabilets and bioKult deactivated — awaiting prices and images
 
@@ -823,9 +834,9 @@ async function main() {
     // sleep-support deactivated — removed from stress-sleep
 
     // Joint Support
-    { collection: "joint-support", product: "jointcareEssential", sort: 1 },
-    { collection: "joint-support", product: "jointcareTurmeric", sort: 2 },
-    { collection: "joint-support", product: "valupakGluc", sort: 3 },
+    { collection: "joint-support", product: "valupakGluc", sort: 1 },
+    { collection: "joint-support", product: "codLiverOil", sort: 2 },
+    { collection: "joint-support", product: "osteocare", sort: 3 },
 
     // Skin Care
     { collection: "skin-care", product: "acnecide", sort: 1 },

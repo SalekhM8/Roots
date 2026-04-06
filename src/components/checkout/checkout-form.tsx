@@ -14,7 +14,11 @@ import { Input } from "@/components/ui/input";
 import { LockIcon } from "@/components/icons";
 import { CartSummary } from "./cart-summary";
 import { CheckoutReviews } from "./checkout-reviews";
-import { createCheckoutAction } from "@/app/(shop)/checkout/actions";
+import {
+  createCheckoutAction,
+  deleteSavedPaymentMethodAction,
+  type SavedCard,
+} from "@/app/(shop)/checkout/actions";
 import type { CreateOrderResult } from "@/server/services/order";
 import { ROUTES } from "@/lib/constants";
 import type { AddressInput } from "@/lib/validation/schemas";
@@ -41,6 +45,7 @@ interface CheckoutFormProps {
   itemCount: number;
   hasPomItems: boolean;
   savedAddresses: SavedAddress[];
+  savedCards?: SavedCard[];
 }
 
 const INITIAL_ADDRESS: AddressInput = {
@@ -266,12 +271,24 @@ export function CheckoutForm(props: CheckoutFormProps) {
   );
 }
 
+const CARD_BRAND_LABELS: Record<string, string> = {
+  visa: "Visa",
+  mastercard: "Mastercard",
+  amex: "Amex",
+  discover: "Discover",
+  diners: "Diners",
+  jcb: "JCB",
+  unionpay: "UnionPay",
+  unknown: "Card",
+};
+
 function PaymentStep({
   subtotalMinor,
   shippingMinor,
   totalMinor,
   itemCount,
   hasPomItems,
+  savedCards: initialSavedCards,
   clientSecret,
   orderId,
 }: CheckoutFormProps & { clientSecret: string; orderId: string | null }) {
@@ -280,6 +297,22 @@ function PaymentStep({
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [savedCards, setSavedCards] = useState<SavedCard[]>(
+    initialSavedCards ?? []
+  );
+  const [useNewCard, setUseNewCard] = useState(savedCards.length === 0);
+  const [isDeletingCard, setIsDeletingCard] = useState<string | null>(null);
+
+  async function handleDeleteCard(cardId: string) {
+    setIsDeletingCard(cardId);
+    const result = await deleteSavedPaymentMethodAction(cardId);
+    if (result.success) {
+      const updated = savedCards.filter((c) => c.id !== cardId);
+      setSavedCards(updated);
+      if (updated.length === 0) setUseNewCard(true);
+    }
+    setIsDeletingCard(null);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -322,8 +355,79 @@ function PaymentStep({
           </div>
         )}
 
+        {/* Saved cards */}
+        {savedCards.length > 0 && (
+          <div className="mb-6">
+            <p className="mb-3 text-sm font-medium text-roots-navy/70">
+              Your saved cards
+            </p>
+            <div className="space-y-2">
+              {savedCards.map((card) => (
+                <div
+                  key={card.id}
+                  className={`flex items-center justify-between rounded-[var(--radius-card)] border p-4 transition-colors duration-200 ${
+                    !useNewCard
+                      ? "border-roots-green bg-roots-green/5"
+                      : "border-roots-navy/10"
+                  }`}
+                >
+                  <label className="flex cursor-pointer items-center gap-3">
+                    <input
+                      type="radio"
+                      name="payment-method"
+                      checked={!useNewCard}
+                      onChange={() => setUseNewCard(false)}
+                      className="h-4 w-4 accent-roots-green"
+                    />
+                    <span className="text-sm font-medium text-roots-navy">
+                      {CARD_BRAND_LABELS[card.brand] ?? card.brand} ending in{" "}
+                      {card.last4}
+                    </span>
+                    <span className="text-xs text-roots-navy/40">
+                      {String(card.expMonth).padStart(2, "0")}/{card.expYear}
+                    </span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteCard(card.id)}
+                    disabled={isDeletingCard === card.id}
+                    className="text-xs text-roots-navy/40 transition-colors hover:text-red-500"
+                  >
+                    {isDeletingCard === card.id ? "Removing…" : "Remove"}
+                  </button>
+                </div>
+              ))}
+
+              <div
+                className={`flex items-center rounded-[var(--radius-card)] border p-4 transition-colors duration-200 ${
+                  useNewCard
+                    ? "border-roots-green bg-roots-green/5"
+                    : "border-roots-navy/10"
+                }`}
+              >
+                <label className="flex cursor-pointer items-center gap-3">
+                  <input
+                    type="radio"
+                    name="payment-method"
+                    checked={useNewCard}
+                    onChange={() => setUseNewCard(true)}
+                    className="h-4 w-4 accent-roots-green"
+                  />
+                  <span className="text-sm font-medium text-roots-navy">
+                    Use a new card
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
-          <PaymentElement />
+          {(useNewCard || savedCards.length === 0) && <PaymentElement />}
+
+          <p className="mt-3 text-xs text-roots-navy/40">
+            Your card will be saved securely for faster checkout next time.
+          </p>
 
           {error && (
             <p className="mt-4 text-sm text-red-600">{error}</p>

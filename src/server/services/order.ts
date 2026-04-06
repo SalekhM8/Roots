@@ -1,6 +1,9 @@
 import { db } from "@/lib/db";
 import { OrderType, type Prisma } from "@/generated/prisma/client";
-import { createPaymentIntent } from "@/lib/payments/stripe";
+import {
+  createPaymentIntent,
+  getOrCreateStripeCustomer,
+} from "@/lib/payments/stripe";
 import { writeAuditLog } from "@/lib/security/audit";
 import { generateOrderNumber } from "@/lib/validation/schemas";
 import { markCartConverted } from "./cart";
@@ -48,6 +51,7 @@ function determineOrderType(
  */
 export async function createOrder(
   userId: string,
+  userEmail: string,
   cart: CartWithItems,
   shippingAddress: AddressInput,
   billingAddress?: AddressInput,
@@ -108,7 +112,10 @@ export async function createOrder(
   const captureMethod =
     orderType === "supplement" ? "automatic" : "manual";
 
-  // Create Stripe PaymentIntent
+  // Get or create Stripe Customer for saved card support
+  const stripeCustomerId = await getOrCreateStripeCustomer(userId, userEmail);
+
+  // Create Stripe PaymentIntent linked to customer
   const paymentIntent = await createPaymentIntent({
     amountMinor: totalMinor,
     captureMethod,
@@ -118,6 +125,8 @@ export async function createOrder(
       user_id: userId,
     },
     idempotencyKey,
+    customer: stripeCustomerId,
+    setupFutureUsage: "off_session",
   });
 
   // Calculate capture_before for manual capture (7-day Stripe auth window)

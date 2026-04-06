@@ -44,7 +44,7 @@ export default function HomePage() {
         slugs={[
           "centrum-advance",
           "valupak-vitamin-d3",
-          "seven-seas-jointcare-essential",
+          "seven-seas-cod-liver-oil",
           "berocca-energy-orange",
           "osteocare-original",
         ]}
