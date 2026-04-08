@@ -25,6 +25,11 @@ function getAppUrl(): string {
 /**
  * Create an order for a guest (non-authenticated) user.
  * Only supplement/other products allowed — no POM items.
+ *
+ * Flow:
+ * 1. Create order in DB first to get the real order ID
+ * 2. Create Mollie payment with correct redirect URL
+ * 3. Update payment record with real Mollie payment ID
  */
 export async function createGuestOrder(
   email: string,
@@ -106,19 +111,7 @@ export async function createGuestOrder(
   const orderNumber = generateOrderNumber();
   const appUrl = getAppUrl();
 
-  // Guest orders are always supplement-only → immediate capture
-  const molliePayment = await createMolliePayment({
-    amountMinor: totalMinor,
-    description: `Order ${orderNumber}`,
-    redirectUrl: `${appUrl}/checkout/confirmation?order_id={ORDER_ID}`,
-    webhookUrl: `${appUrl}/api/mollie/webhook`,
-    metadata: {
-      order_number: orderNumber,
-      order_type: "supplement",
-      guest_email: email,
-    },
-  });
-
+  // Step 1: Create order in DB first to get real order ID
   const order = await db.$transaction(async (tx) => {
     const created = await tx.order.create({
       data: {
@@ -144,7 +137,7 @@ export async function createGuestOrder(
     await tx.payment.create({
       data: {
         orderId: created.id,
-        molliePaymentId: molliePayment.id,
+        molliePaymentId: `pending_${created.id}`,
         status: "pending",
         amountMinor: totalMinor,
       },
@@ -153,10 +146,23 @@ export async function createGuestOrder(
     return created;
   });
 
-  // Update redirect URL with actual order ID
-  const mollie = (await import("@/lib/payments/mollie")).getMollie();
-  await mollie.payments.update(molliePayment.id, {
+  // Step 2: Create Mollie payment with the REAL order ID in redirect URL
+  const molliePayment = await createMolliePayment({
+    amountMinor: totalMinor,
+    description: `Order ${orderNumber}`,
     redirectUrl: `${appUrl}/checkout/confirmation?order_id=${order.id}`,
+    webhookUrl: `${appUrl}/api/mollie/webhook`,
+    metadata: {
+      order_number: orderNumber,
+      order_type: "supplement",
+      guest_email: email,
+    },
+  });
+
+  // Step 3: Update payment record with real Mollie payment ID
+  await db.payment.updateMany({
+    where: { orderId: order.id, molliePaymentId: `pending_${order.id}` },
+    data: { molliePaymentId: molliePayment.id },
   });
 
   await writeAuditLog({

@@ -46,6 +46,11 @@ function getAppUrl(): string {
 /**
  * Create an order from the user's cart.
  *
+ * Flow:
+ * 1. Create order + payment record in DB (with placeholder molliePaymentId)
+ * 2. Create Mollie payment with correct redirect URL containing the real order ID
+ * 3. Update payment record with the real Mollie payment ID
+ *
  * Payment model:
  * - Supplement-only: capture immediately (default Mollie behavior)
  * - POM/mixed: authorize only (captureMode: "manual")
@@ -109,38 +114,13 @@ export async function createOrder(
   }
 
   const orderNumber = generateOrderNumber();
-
-  // Supplement-only: immediate capture. POM/mixed: authorize only.
   const isManualCapture = orderType !== "supplement";
-
-  // Get or create Mollie Customer for saved card support
-  const mollieCustomerId = await getOrCreateMollieCustomer(userId, userEmail);
-
-  const appUrl = getAppUrl();
-
-  // Create Mollie payment linked to customer
-  const molliePayment = await createMolliePayment({
-    amountMinor: totalMinor,
-    description: `Order ${orderNumber}`,
-    redirectUrl: `${appUrl}/checkout/confirmation?order_id={ORDER_ID}`,
-    webhookUrl: `${appUrl}/api/mollie/webhook`,
-    captureMode: isManualCapture ? "manual" : undefined,
-    metadata: {
-      order_number: orderNumber,
-      order_type: orderType,
-      user_id: userId,
-    },
-    customerId: mollieCustomerId,
-    sequenceType: "first",
-  });
-
-  // Calculate capture_before for manual capture (7-day auth window)
   const captureBefore =
     isManualCapture
       ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
       : null;
 
-  // Create order, order items, and payment record in a transaction
+  // Step 1: Create order in DB first so we have the real order ID
   const order = await db.$transaction(async (tx) => {
     const created = await tx.order.create({
       data: {
@@ -173,10 +153,11 @@ export async function createOrder(
       },
     });
 
+    // Create payment record with a temporary placeholder — updated below
     await tx.payment.create({
       data: {
         orderId: created.id,
-        molliePaymentId: molliePayment.id,
+        molliePaymentId: `pending_${created.id}`,
         status: "pending",
         amountMinor: totalMinor,
         captureBefore,
@@ -186,10 +167,31 @@ export async function createOrder(
     return created;
   });
 
-  // Update the redirect URL to include the actual order ID
-  const mollie = (await import("@/lib/payments/mollie")).getMollie();
-  await mollie.payments.update(molliePayment.id, {
+  // Step 2: Get or create Mollie Customer
+  const mollieCustomerId = await getOrCreateMollieCustomer(userId, userEmail);
+
+  const appUrl = getAppUrl();
+
+  // Step 3: Create Mollie payment with the REAL order ID in the redirect URL
+  const molliePayment = await createMolliePayment({
+    amountMinor: totalMinor,
+    description: `Order ${orderNumber}`,
     redirectUrl: `${appUrl}/checkout/confirmation?order_id=${order.id}`,
+    webhookUrl: `${appUrl}/api/mollie/webhook`,
+    captureMode: isManualCapture ? "manual" : undefined,
+    metadata: {
+      order_number: orderNumber,
+      order_type: orderType,
+      user_id: userId,
+    },
+    customerId: mollieCustomerId,
+    sequenceType: "first",
+  });
+
+  // Step 4: Update payment record with real Mollie payment ID
+  await db.payment.updateMany({
+    where: { orderId: order.id, molliePaymentId: `pending_${order.id}` },
+    data: { molliePaymentId: molliePayment.id },
   });
 
   // Mark cart as converted + audit log + save address in parallel
@@ -209,7 +211,6 @@ export async function createOrder(
         itemCount: cart.items.length,
       },
     }),
-    // Auto-save shipping address for future checkouts
     saveAddressIfNew(userId, shippingAddress),
   ]);
 
