@@ -2,9 +2,8 @@
 
 import { requireAnyRole } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { refundPayment } from "@/lib/payments/stripe";
+import { refundMolliePayment } from "@/lib/payments/mollie";
 import { writeAuditLog } from "@/lib/security/audit";
-import { randomUUID } from "crypto";
 
 export async function refundOrderAction(
   orderId: string,
@@ -42,17 +41,12 @@ export async function refundOrderAction(
   }
 
   const isFullRefund = refundAmount === payment.amountMinor;
-  const idempotencyKey = randomUUID();
 
   try {
-    await refundPayment(
-      payment.stripePaymentIntentId,
-      refundAmount,
-      idempotencyKey
-    );
+    await refundMolliePayment(payment.molliePaymentId, refundAmount);
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : "Stripe refund failed.";
+      err instanceof Error ? err.message : "Mollie refund failed.";
     return { success: false, error: message };
   }
 

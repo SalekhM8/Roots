@@ -22,7 +22,7 @@ const isPublicRoute = createRouteMatcher([
   "/consultations/mounjaro",
   "/api/search",
   "/api/clerk/webhook",
-  "/api/stripe/webhook",
+  "/api/mollie/webhook",
   "/api/inngest(.*)",
 ]);
 

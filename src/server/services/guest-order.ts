@@ -1,10 +1,9 @@
 import { db } from "@/lib/db";
 import { type Prisma } from "@/generated/prisma/client";
-import { createPaymentIntent } from "@/lib/payments/stripe";
+import { createMolliePayment } from "@/lib/payments/mollie";
 import { writeAuditLog } from "@/lib/security/audit";
 import { generateOrderNumber } from "@/lib/validation/schemas";
 import type { AddressInput } from "@/lib/validation/schemas";
-import { randomUUID } from "crypto";
 import { calculateShipping } from "@/lib/constants";
 
 export interface GuestOrderItem {
@@ -15,8 +14,12 @@ export interface GuestOrderItem {
 export interface CreateGuestOrderResult {
   success: boolean;
   orderId?: string;
-  clientSecret?: string;
+  checkoutUrl?: string;
   error?: string;
+}
+
+function getAppUrl(): string {
+  return process.env.NEXT_PUBLIC_APP_URL ?? "https://rootspharmacy.co.uk";
 }
 
 /**
@@ -101,18 +104,19 @@ export async function createGuestOrder(
   }
 
   const orderNumber = generateOrderNumber();
-  const idempotencyKey = randomUUID();
+  const appUrl = getAppUrl();
 
   // Guest orders are always supplement-only → immediate capture
-  const paymentIntent = await createPaymentIntent({
+  const molliePayment = await createMolliePayment({
     amountMinor: totalMinor,
-    captureMethod: "automatic",
+    description: `Order ${orderNumber}`,
+    redirectUrl: `${appUrl}/checkout/confirmation?order_id={ORDER_ID}`,
+    webhookUrl: `${appUrl}/api/mollie/webhook`,
     metadata: {
       order_number: orderNumber,
       order_type: "supplement",
       guest_email: email,
     },
-    idempotencyKey,
   });
 
   const order = await db.$transaction(async (tx) => {
@@ -140,14 +144,19 @@ export async function createGuestOrder(
     await tx.payment.create({
       data: {
         orderId: created.id,
-        stripePaymentIntentId: paymentIntent.id,
+        molliePaymentId: molliePayment.id,
         status: "pending",
         amountMinor: totalMinor,
-        idempotencyKey,
       },
     });
 
     return created;
+  });
+
+  // Update redirect URL with actual order ID
+  const mollie = (await import("@/lib/payments/mollie")).getMollie();
+  await mollie.payments.update(molliePayment.id, {
+    redirectUrl: `${appUrl}/checkout/confirmation?order_id=${order.id}`,
   });
 
   await writeAuditLog({
@@ -167,6 +176,6 @@ export async function createGuestOrder(
   return {
     success: true,
     orderId: order.id,
-    clientSecret: paymentIntent.client_secret ?? undefined,
+    checkoutUrl: molliePayment.getCheckoutUrl() ?? undefined,
   };
 }

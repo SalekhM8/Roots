@@ -6,10 +6,9 @@ import { createOrder, type CreateOrderResult } from "@/server/services/order";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validation/schemas";
 import { checkRateLimit } from "@/lib/security/rate-limit";
 import {
-  listSavedPaymentMethods,
-  detachPaymentMethod,
-  getOrCreateStripeCustomer,
-} from "@/lib/payments/stripe";
+  listMollieMandates,
+  revokeMollieMandate,
+} from "@/lib/payments/mollie";
 import { db } from "@/lib/db";
 
 export async function createCheckoutAction(
@@ -56,44 +55,60 @@ export async function getSavedPaymentMethodsAction(): Promise<SavedCard[]> {
 
   const dbUser = await db.user.findUnique({
     where: { id: user.id },
-    select: { stripeCustomerId: true },
+    select: { mollieCustomerId: true },
   });
 
-  if (!dbUser?.stripeCustomerId) return [];
+  if (!dbUser?.mollieCustomerId) return [];
 
-  const methods = await listSavedPaymentMethods(dbUser.stripeCustomerId);
+  try {
+    const mandates = await listMollieMandates(dbUser.mollieCustomerId);
 
-  return methods.map((m) => ({
-    id: m.id,
-    brand: m.card?.brand ?? "unknown",
-    last4: m.card?.last4 ?? "****",
-    expMonth: m.card?.exp_month ?? 0,
-    expYear: m.card?.exp_year ?? 0,
-  }));
+    return Array.from(mandates)
+      .filter((m) => m.status === "valid")
+      .map((m) => {
+        const details = m.details as unknown as Record<string, string> | null;
+        const expiryDate = details?.cardExpiryDate ?? "";
+        const [yearStr, monthStr] = expiryDate.split("-");
+
+        return {
+          id: m.id,
+          brand: details?.cardLabel ?? m.method ?? "Card",
+          last4: details?.cardNumber ?? "****",
+          expMonth: parseInt(monthStr ?? "0", 10),
+          expYear: parseInt(yearStr ?? "0", 10),
+        };
+      });
+  } catch {
+    return [];
+  }
 }
 
 export async function deleteSavedPaymentMethodAction(
-  paymentMethodId: string
+  mandateId: string
 ): Promise<{ success: boolean; error?: string }> {
   const user = await requireUser();
 
-  // Verify the payment method belongs to this user's Stripe customer
   const dbUser = await db.user.findUnique({
     where: { id: user.id },
-    select: { stripeCustomerId: true },
+    select: { mollieCustomerId: true },
   });
 
-  if (!dbUser?.stripeCustomerId) {
+  if (!dbUser?.mollieCustomerId) {
     return { success: false, error: "No saved payment methods." };
   }
 
-  const methods = await listSavedPaymentMethods(dbUser.stripeCustomerId);
-  const owns = methods.some((m) => m.id === paymentMethodId);
+  // Verify the mandate belongs to this customer
+  try {
+    const mandates = await listMollieMandates(dbUser.mollieCustomerId);
+    const owns = Array.from(mandates).some((m) => m.id === mandateId);
 
-  if (!owns) {
-    return { success: false, error: "Payment method not found." };
+    if (!owns) {
+      return { success: false, error: "Payment method not found." };
+    }
+
+    await revokeMollieMandate(dbUser.mollieCustomerId, mandateId);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to remove payment method." };
   }
-
-  await detachPaymentMethod(paymentMethodId);
-  return { success: true };
 }

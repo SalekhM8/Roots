@@ -1,21 +1,20 @@
 import { db } from "@/lib/db";
 import { OrderType, type Prisma } from "@/generated/prisma/client";
 import {
-  createPaymentIntent,
-  getOrCreateStripeCustomer,
-} from "@/lib/payments/stripe";
+  createMolliePayment,
+  getOrCreateMollieCustomer,
+} from "@/lib/payments/mollie";
 import { writeAuditLog } from "@/lib/security/audit";
 import { generateOrderNumber } from "@/lib/validation/schemas";
 import { markCartConverted } from "./cart";
 import type { CartWithItems } from "@/server/queries/cart";
 import type { AddressInput } from "@/lib/validation/schemas";
-import { randomUUID } from "crypto";
 import { calculateShipping } from "@/lib/constants";
 
 export interface CreateOrderResult {
   success: boolean;
   orderId?: string;
-  clientSecret?: string;
+  checkoutUrl?: string;
   error?: string;
 }
 
@@ -40,14 +39,18 @@ function determineOrderType(
   return "supplement";
 }
 
+function getAppUrl(): string {
+  return process.env.NEXT_PUBLIC_APP_URL ?? "https://rootspharmacy.co.uk";
+}
+
 /**
  * Create an order from the user's cart.
  *
  * Payment model:
- * - Supplement-only: capture immediately (capture_method: "automatic")
- * - POM/mixed: authorize only (capture_method: "manual")
+ * - Supplement-only: capture immediately (default Mollie behavior)
+ * - POM/mixed: authorize only (captureMode: "manual")
  *
- * Returns the Stripe client secret for client-side payment confirmation.
+ * Returns the Mollie checkout URL for client-side redirect.
  */
 export async function createOrder(
   userId: string,
@@ -106,32 +109,34 @@ export async function createOrder(
   }
 
   const orderNumber = generateOrderNumber();
-  const idempotencyKey = randomUUID();
 
   // Supplement-only: immediate capture. POM/mixed: authorize only.
-  const captureMethod =
-    orderType === "supplement" ? "automatic" : "manual";
+  const isManualCapture = orderType !== "supplement";
 
-  // Get or create Stripe Customer for saved card support
-  const stripeCustomerId = await getOrCreateStripeCustomer(userId, userEmail);
+  // Get or create Mollie Customer for saved card support
+  const mollieCustomerId = await getOrCreateMollieCustomer(userId, userEmail);
 
-  // Create Stripe PaymentIntent linked to customer
-  const paymentIntent = await createPaymentIntent({
+  const appUrl = getAppUrl();
+
+  // Create Mollie payment linked to customer
+  const molliePayment = await createMolliePayment({
     amountMinor: totalMinor,
-    captureMethod,
+    description: `Order ${orderNumber}`,
+    redirectUrl: `${appUrl}/checkout/confirmation?order_id={ORDER_ID}`,
+    webhookUrl: `${appUrl}/api/mollie/webhook`,
+    captureMode: isManualCapture ? "manual" : undefined,
     metadata: {
       order_number: orderNumber,
       order_type: orderType,
       user_id: userId,
     },
-    idempotencyKey,
-    customer: stripeCustomerId,
-    setupFutureUsage: "off_session",
+    customerId: mollieCustomerId,
+    sequenceType: "first",
   });
 
-  // Calculate capture_before for manual capture (7-day Stripe auth window)
+  // Calculate capture_before for manual capture (7-day auth window)
   const captureBefore =
-    captureMethod === "manual"
+    isManualCapture
       ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
       : null;
 
@@ -171,15 +176,20 @@ export async function createOrder(
     await tx.payment.create({
       data: {
         orderId: created.id,
-        stripePaymentIntentId: paymentIntent.id,
+        molliePaymentId: molliePayment.id,
         status: "pending",
         amountMinor: totalMinor,
         captureBefore,
-        idempotencyKey,
       },
     });
 
     return created;
+  });
+
+  // Update the redirect URL to include the actual order ID
+  const mollie = (await import("@/lib/payments/mollie")).getMollie();
+  await mollie.payments.update(molliePayment.id, {
+    redirectUrl: `${appUrl}/checkout/confirmation?order_id=${order.id}`,
   });
 
   // Mark cart as converted + audit log + save address in parallel
@@ -195,7 +205,7 @@ export async function createOrder(
         orderNumber,
         orderType,
         totalMinor,
-        captureMethod,
+        captureMode: isManualCapture ? "manual" : "automatic",
         itemCount: cart.items.length,
       },
     }),
@@ -206,7 +216,7 @@ export async function createOrder(
   return {
     success: true,
     orderId: order.id,
-    clientSecret: paymentIntent.client_secret ?? undefined,
+    checkoutUrl: molliePayment.getCheckoutUrl() ?? undefined,
   };
 }
 

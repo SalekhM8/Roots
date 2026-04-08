@@ -613,7 +613,7 @@ export default async function WeightLossLandingPage() {
                 icon: <LockIcon />,
                 title: "Secure Payment",
                 description:
-                  "All transactions are encrypted and processed securely via Stripe with bank-level security.",
+                  "All transactions are encrypted and processed securely with bank-level security.",
               },
             ].map((item) => (
               <div

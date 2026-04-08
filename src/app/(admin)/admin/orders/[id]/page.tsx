@@ -149,7 +149,7 @@ export default async function AdminOrderDetailPage({
                       {formatPrice(p.amountMinor)}
                     </span>
                     <span className="text-roots-navy/40">
-                      {p.stripePaymentIntentId}
+                      {p.molliePaymentId}
                     </span>
                     {p.captureBefore && (
                       <span className="text-roots-navy/50">

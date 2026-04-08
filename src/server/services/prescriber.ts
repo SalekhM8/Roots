@@ -1,8 +1,7 @@
 import { db } from "@/lib/db";
-import { capturePaymentIntent, voidPaymentIntent } from "@/lib/payments/stripe";
+import { captureMolliePayment, releaseAuthorization } from "@/lib/payments/mollie";
 import { writeAuditLog } from "@/lib/security/audit";
 import { inngest } from "@/server/workflows/inngest";
-import { randomUUID } from "crypto";
 
 interface ReviewInput {
   consultationId: string;
@@ -53,12 +52,9 @@ export async function approveConsultation(
     };
   }
 
-  // Capture the authorized payment
+  // Capture the authorized payment via Mollie
   try {
-    await capturePaymentIntent(
-      payment.stripePaymentIntentId,
-      `capture-${payment.id}-${randomUUID()}`
-    );
+    await captureMolliePayment(payment.molliePaymentId);
   } catch {
     return {
       success: false,
@@ -155,7 +151,7 @@ export async function approveConsultation(
 }
 
 /**
- * Reject a consultation. Voids the payment authorization.
+ * Reject a consultation. Releases the payment authorization.
  */
 export async function rejectConsultation(
   input: ReviewInput & { customerMessage: string }
@@ -181,13 +177,10 @@ export async function rejectConsultation(
   const order = consultation.orders[0];
   const payment = order?.payments[0];
 
-  // Void payment authorization
+  // Release payment authorization via Mollie
   if (payment) {
     try {
-      await voidPaymentIntent(
-        payment.stripePaymentIntentId,
-        `void-${payment.id}-${randomUUID()}`
-      );
+      await releaseAuthorization(payment.molliePaymentId);
     } catch {
       // Log but continue — authorization may have already expired
     }
