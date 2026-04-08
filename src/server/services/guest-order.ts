@@ -179,9 +179,10 @@ export async function createGuestOrder(
     },
   });
 
-  return {
-    success: true,
-    orderId: order.id,
-    checkoutUrl: molliePayment.getCheckoutUrl() ?? undefined,
-  };
+  const checkoutUrl = molliePayment.getCheckoutUrl();
+  if (!checkoutUrl) {
+    return { success: false, error: "Failed to generate payment URL. Please try again." };
+  }
+
+  return { success: true, orderId: order.id, checkoutUrl };
 }
