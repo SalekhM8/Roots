@@ -1,4 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse, type NextRequest, type NextFetchEvent } from "next/server";
 
 // Public routes — accessible without auth
 const isPublicRoute = createRouteMatcher([
@@ -26,11 +27,19 @@ const isPublicRoute = createRouteMatcher([
   "/api/inngest(.*)",
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
+const clerk = clerkMiddleware(async (auth, req) => {
   if (!isPublicRoute(req)) {
     await auth.protect();
   }
 });
+
+export default function middleware(req: NextRequest, event: NextFetchEvent) {
+  // Bypass Clerk entirely for Mollie webhook — must respond fast
+  if (req.nextUrl.pathname === "/api/mollie/webhook") {
+    return NextResponse.next();
+  }
+  return clerk(req, event);
+}
 
 export const config = {
   matcher: [
