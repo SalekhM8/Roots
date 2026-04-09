@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { getMolliePayment } from "@/lib/payments/mollie";
 import { db } from "@/lib/db";
 import { writeAuditLog } from "@/lib/security/audit";
@@ -7,11 +7,8 @@ import { inngest } from "@/server/workflows/inngest";
 /**
  * Mollie webhook handler.
  *
- * Mollie sends a POST with `id` form field containing the payment ID.
- * We fetch the payment from Mollie to validate status (no HMAC signing).
- *
- * Configure in Mollie Dashboard or pass `webhookUrl` on payment creation:
- *   Webhook URL: https://rootspharmacy.co.uk/api/mollie/webhook
+ * Returns 200 immediately so Mollie doesn't time out,
+ * then processes the payment status update in the background via `after()`.
  */
 export async function POST(req: Request) {
   const formData = await req.formData();
@@ -21,13 +18,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing id" }, { status: 400 });
   }
 
-  // Fetch payment from Mollie API — this is how you validate the webhook
-  let molliePayment;
-  try {
-    molliePayment = await getMolliePayment(paymentId);
-  } catch {
-    return NextResponse.json({ error: "Invalid payment" }, { status: 400 });
-  }
+  // Respond immediately — process in background
+  after(async () => {
+    try {
+      await processWebhook(paymentId);
+    } catch (err) {
+      console.error("[mollie-webhook] processing failed:", paymentId, err);
+    }
+  });
+
+  return NextResponse.json({ received: true });
+}
+
+async function processWebhook(paymentId: string) {
+  // Fetch payment from Mollie API — this validates the webhook
+  const molliePayment = await getMolliePayment(paymentId);
 
   // Find our payment record
   const payment = await db.payment.findFirst({
@@ -44,10 +49,7 @@ export async function POST(req: Request) {
     },
   });
 
-  if (!payment) {
-    // Unknown payment — acknowledge to prevent retries
-    return NextResponse.json({ received: true });
-  }
+  if (!payment) return;
 
   const mollieStatus = molliePayment.status;
   const currentStatus = payment.status;
@@ -79,8 +81,6 @@ export async function POST(req: Request) {
       break;
     }
   }
-
-  return NextResponse.json({ received: true });
 }
 
 type PaymentWithOrder = {
@@ -97,7 +97,6 @@ type PaymentWithOrder = {
 };
 
 async function handleAuthorized(payment: PaymentWithOrder) {
-  // Manual capture payment (POM/mixed) — authorized, awaiting prescriber review
   const now = new Date();
 
   await db.$transaction(async (tx) => {
@@ -126,7 +125,6 @@ async function handleAuthorized(payment: PaymentWithOrder) {
 }
 
 async function handlePaid(payment: PaymentWithOrder) {
-  // Payment captured/completed
   const now = new Date();
   const wasAuthorized = payment.status === "authorized";
 
@@ -144,12 +142,10 @@ async function handlePaid(payment: PaymentWithOrder) {
       where: { id: payment.order.id },
       data: {
         paymentStatus: "captured",
-        // Auto-capture supplements go straight to ready_to_pack
         ...(!wasAuthorized ? { fulfillmentStatus: "ready_to_pack" } : {}),
       },
     });
 
-    // Create fulfillment job for auto-capture orders
     if (!wasAuthorized) {
       await tx.fulfillmentJob.create({
         data: { orderId: payment.order.id },
@@ -169,7 +165,6 @@ async function handlePaid(payment: PaymentWithOrder) {
     },
   });
 
-  // Emit payment captured event
   if (!wasAuthorized) {
     await inngest.send({
       name: "payment/captured",
