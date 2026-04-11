@@ -177,7 +177,6 @@ export async function createOrder(
     amountMinor: totalMinor,
     description: `Order ${orderNumber}`,
     redirectUrl: `${appUrl}/checkout/confirmation?order_id=${order.id}`,
-    webhookUrl: `${appUrl}/api/mollie/webhook`,
     captureMode: isManualCapture ? "manual" : undefined,
     metadata: {
       order_number: orderNumber,

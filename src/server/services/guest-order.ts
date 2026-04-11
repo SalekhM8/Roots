@@ -151,7 +151,6 @@ export async function createGuestOrder(
     amountMinor: totalMinor,
     description: `Order ${orderNumber}`,
     redirectUrl: `${appUrl}/checkout/confirmation?order_id=${order.id}`,
-    webhookUrl: `${appUrl}/api/mollie/webhook`,
     metadata: {
       order_number: orderNumber,
       order_type: "supplement",

@@ -60,7 +60,7 @@ export async function createMolliePayment(params: {
   amountMinor: number;
   description: string;
   redirectUrl: string;
-  webhookUrl: string;
+  webhookUrl?: string;
   captureMode?: "manual";
   metadata?: Record<string, string>;
   customerId?: string;
@@ -74,7 +74,7 @@ export async function createMolliePayment(params: {
     amount: { currency: "GBP", value: toMollieAmount(params.amountMinor) },
     description: params.description,
     redirectUrl: params.redirectUrl,
-    webhookUrl: params.webhookUrl,
+    ...(params.webhookUrl ? { webhookUrl: params.webhookUrl } : {}),
     metadata: params.metadata ?? null,
     ...(params.captureMode === "manual" ? { captureMode: CaptureMethod.manual } : {}),
     ...(params.customerId ? { customerId: params.customerId } : {}),
