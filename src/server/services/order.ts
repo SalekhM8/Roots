@@ -184,7 +184,6 @@ export async function createOrder(
       user_id: userId,
     },
     customerId: mollieCustomerId,
-    sequenceType: "first",
   });
 
   // Step 4: Update payment record with real Mollie payment ID
