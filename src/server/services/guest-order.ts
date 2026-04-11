@@ -19,7 +19,7 @@ export interface CreateGuestOrderResult {
 }
 
 function getAppUrl(): string {
-  return process.env.NEXT_PUBLIC_APP_URL ?? "https://rootspharmacy.co.uk";
+  return (process.env.NEXT_PUBLIC_APP_URL ?? "https://rootspharmacy.co.uk").trim();
 }
 
 /**
