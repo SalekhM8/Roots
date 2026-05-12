@@ -42,9 +42,9 @@ export async function GET(req: NextRequest) {
   });
 
   if (result.outcome === "success" && result.orderId) {
-    return NextResponse.redirect(
-      new URL(`/checkout/confirmation/${result.orderId}`, req.url),
-    );
+    const url = new URL("/checkout/confirmation", req.url);
+    url.searchParams.set("order_id", result.orderId);
+    return NextResponse.redirect(url);
   }
 
   if (result.outcome === "failure") {
