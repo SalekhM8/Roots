@@ -11,6 +11,7 @@ import * as templates from "@/lib/email/templates";
 const STALE_DRAFT_DAYS = 30;
 const ACTION_REQUIRED_REMINDER_HOURS = 48;
 const STUCK_PACKED_HOURS = 48;
+const STALE_PENDING_ORDER_HOURS = 24;
 
 /**
  * Mark consultation drafts that have been idle for >30 days as `expired`.
@@ -172,5 +173,63 @@ export const alertStuckPackedOrders = inngest.createFunction(
       stuck: stuckOrders.length,
       alerted: !!messageId,
     };
+  },
+);
+
+/**
+ * Mark orders+payments that have sat in `pending` for >24h as failed.
+ *
+ * A pending order is one where Viva accepted our `createOrder` but the
+ * customer never completed the hosted checkout (closed the tab, lost
+ * network, bailed on 3DS). The order is dead — no money was charged, no
+ * webhook will arrive — but until we sweep it the admin queue, the
+ * customer's account view, and the idempotency guard in createOrder
+ * all carry around a useless row.
+ *
+ * No Viva-side action is needed: the Viva order auto-expires their
+ * side too. We just align our DB to reality.
+ */
+export const sweepStalePendingOrders = inngest.createFunction(
+  { id: "sweep-stale-pending-orders" },
+  { cron: "TZ=Europe/London 30 3 * * *" },
+  async () => {
+    const cutoff = new Date(
+      Date.now() - STALE_PENDING_ORDER_HOURS * 60 * 60 * 1000,
+    );
+
+    const stale = await db.order.findMany({
+      where: {
+        paymentStatus: "pending",
+        createdAt: { lt: cutoff },
+      },
+      select: {
+        id: true,
+        payments: {
+          where: { status: "pending" },
+          select: { id: true },
+        },
+      },
+    });
+
+    if (stale.length === 0) return { checked: 0, swept: 0 };
+
+    let swept = 0;
+    for (const order of stale) {
+      await db.$transaction(async (tx) => {
+        await tx.order.update({
+          where: { id: order.id },
+          data: { paymentStatus: "failed" },
+        });
+        if (order.payments.length > 0) {
+          await tx.payment.updateMany({
+            where: { id: { in: order.payments.map((p) => p.id) } },
+            data: { status: "failed" },
+          });
+        }
+      });
+      swept += 1;
+    }
+
+    return { checked: stale.length, swept };
   },
 );

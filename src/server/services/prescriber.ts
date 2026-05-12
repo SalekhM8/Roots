@@ -30,9 +30,13 @@ export async function approveConsultation(
     where: { id: input.consultationId },
     include: {
       productVariant: true,
+      // Fetch ALL orders newest-first. A consultation can have multiple
+      // orders if the customer hit "continue to checkout" twice; we need
+      // to find the order with the live authorised payment, not whichever
+      // Prisma picked first.
       orders: {
         include: { payments: { where: { status: "authorized" } } },
-        take: 1,
+        orderBy: { createdAt: "desc" },
       },
     },
   });
@@ -45,7 +49,7 @@ export async function approveConsultation(
     return { success: false, error: "Consultation is not in a reviewable state." };
   }
 
-  const order = consultation.orders[0];
+  const order = consultation.orders.find((o) => o.payments.length > 0);
   const payment = order?.payments[0];
 
   // Block approval if no order or no authorized payment exists
@@ -157,9 +161,14 @@ export async function rejectConsultation(
   const consultation = await db.consultation.findUnique({
     where: { id: input.consultationId },
     include: {
+      // Same reason as approveConsultation: order by createdAt desc and
+      // find the order that actually has an authorised payment to void.
+      // Picking orders[0] blindly led to a silent void-skip in prod
+      // (2026-05-12) when a consultation had a failed order ahead of a
+      // good one.
       orders: {
         include: { payments: { where: { status: "authorized" } } },
-        take: 1,
+        orderBy: { createdAt: "desc" },
       },
     },
   });
@@ -172,7 +181,7 @@ export async function rejectConsultation(
     return { success: false, error: "Consultation is not in a reviewable state." };
   }
 
-  const order = consultation.orders[0];
+  const order = consultation.orders.find((o) => o.payments.length > 0);
   const payment = order?.payments[0];
 
   // Void the Viva preauth via the service. If it fails we log + audit but

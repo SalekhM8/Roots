@@ -494,6 +494,20 @@ async function handlePaymentCreated(
 
     // Convert the customer's active cart now that payment is locked in.
     await markUserActiveCartsConverted(payment.order.userId);
+
+    // Fire the order-confirmation email exactly once, on the first
+    // transition out of `pending`. Previously this was wired up to a
+    // Mollie event that got deleted in the Viva migration, leaving every
+    // customer in silence after they paid.
+    await inngest.send({
+      name: "order/created",
+      data: {
+        userId: payment.order.userId,
+        orderId: payment.orderId,
+        orderNumber: payment.order.orderNumber,
+        isPom: payment.order.orderType !== "supplement",
+      },
+    });
     return;
   }
 
@@ -546,15 +560,30 @@ async function handlePaymentCreated(
     await markUserActiveCartsConverted(payment.order.userId);
 
     if (!wasAuthorized) {
-      await inngest.send({
-        name: "payment/captured",
-        data: {
-          userId: payment.order.userId,
-          orderId: payment.orderId,
-          amountMinor: payment.amountMinor,
-          orderNumber: payment.order.orderNumber,
-        },
-      });
+      // Synchronous-charge path (supplement-only orders): this is the
+      // customer's first signal that the order exists, so emit both
+      // order/created AND payment/captured. Authorize→capture path
+      // already emitted order/created when the preauth completed.
+      await Promise.all([
+        inngest.send({
+          name: "order/created",
+          data: {
+            userId: payment.order.userId,
+            orderId: payment.orderId,
+            orderNumber: payment.order.orderNumber,
+            isPom: payment.order.orderType !== "supplement",
+          },
+        }),
+        inngest.send({
+          name: "payment/captured",
+          data: {
+            userId: payment.order.userId,
+            orderId: payment.orderId,
+            amountMinor: payment.amountMinor,
+            orderNumber: payment.order.orderNumber,
+          },
+        }),
+      ]);
     }
   }
 }

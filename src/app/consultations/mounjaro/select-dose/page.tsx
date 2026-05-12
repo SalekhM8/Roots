@@ -30,11 +30,39 @@ export default async function SelectDosePage({ searchParams }: SelectDosePagePro
       userId: user.id,
       status: { in: ["submitted", "approved"] },
     },
-    select: { id: true, productId: true },
+    select: {
+      id: true,
+      productId: true,
+      // Pull existing orders so we can short-circuit a double checkout.
+      // Without this, a customer hitting back/forward could create a
+      // second order against the same consultation — we saw it happen
+      // on 2026-05-12 and the prescriber's reject silently voided the
+      // wrong payment because the orders had no ordering guarantee.
+      orders: {
+        select: {
+          id: true,
+          paymentStatus: true,
+        },
+        orderBy: { createdAt: "desc" },
+      },
+    },
   });
 
   if (!consultation) {
     redirect(ROUTES.consultation);
+  }
+
+  // If a paid (authorized / captured) order already exists, send the
+  // customer to the order page instead of letting them initiate a second
+  // checkout. Failed / expired / pending orders are fair game to retry.
+  const livePaidOrder = consultation.orders.find(
+    (o) =>
+      o.paymentStatus === "authorized" ||
+      o.paymentStatus === "captured" ||
+      o.paymentStatus === "pending",
+  );
+  if (livePaidOrder) {
+    redirect(`/account/orders/${livePaidOrder.id}`);
   }
 
   // Fetch the Mounjaro product with all active variants

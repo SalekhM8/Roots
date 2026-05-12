@@ -246,8 +246,12 @@ export async function retrieveTransaction(
   };
   const t = parsed.transactions?.[0] ?? parsed;
 
+  // Viva's GET /checkout/v2/transactions/{id} does NOT echo transactionId in
+  // the body, so falling back to `String(undefined)` would persist the literal
+  // string "undefined" to the DB. Use the input argument as canonical — we
+  // already know it, that's how we made the request.
   return {
-    transactionId: String(t.transactionId ?? t.TransactionId),
+    transactionId,
     orderCode: asOrderCode(String(t.orderCode ?? t.OrderCode)),
     statusId: (t.statusId ?? t.StatusId) as RetrieveTransactionResponse["statusId"],
     amount: Number(t.amount ?? t.Amount),

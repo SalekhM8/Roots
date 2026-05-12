@@ -427,10 +427,11 @@ export const checkExpiringAuthorizations = inngest.createFunction(
       });
       if (alreadyEmailed) continue;
 
-      // Attempt the Viva void. Failures here are non-fatal — the funds
-      // release at the issuer once the window closes regardless of whether
-      // we get a clean void response. We log + audit and continue so the
-      // customer-facing state still progresses to "expired".
+      // Attempt the Viva void. If this fails we must NOT mark the payment
+      // expired — the issuer hold may still be live and capturable, and
+      // marking expired would send the customer a "your auth expired"
+      // email while the merchant could still take their money. Leave the
+      // row as authorized and let the next sweeper run retry.
       try {
         await voidOrRefundVivaPayment({
           paymentId: payment.id,
@@ -441,12 +442,14 @@ export const checkExpiringAuthorizations = inngest.createFunction(
         const correlationId =
           err instanceof VivaError ? err.correlationId : undefined;
         const message = err instanceof Error ? err.message : String(err);
-        console.error("[preauth-sweeper] Viva void failed", {
+        console.error("[preauth-sweeper] Viva void failed — will retry next run", {
           paymentId: payment.id,
           orderId: payment.orderId,
           correlationId,
           error: message,
         });
+        // Skip the rest of this iteration: no status change, no email.
+        continue;
       }
 
       // Override the post-void status to "expired" so the customer-facing

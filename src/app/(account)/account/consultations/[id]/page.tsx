@@ -9,6 +9,7 @@ import { Section, Field } from "@/components/admin/section";
 import { formatDate, formatDateTime, formatPrice, humanizeStatus } from "@/lib/utils";
 import { consultationStatusVariant } from "@/server/queries/admin";
 import { createPresignedViewUrl } from "@/lib/uploads/s3";
+import { ActionRequiredReply } from "@/components/account/action-required-reply";
 
 export const metadata: Metadata = {
   title: "Consultation Detail",
@@ -72,6 +73,17 @@ export default async function ConsultationDetailPage({ params }: ConsultationDet
 
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
+          {/* Action required reply form. Surface this above the timeline so
+              the customer sees the question + reply box together without
+              scrolling. Once they reply the page refreshes, status flips to
+              "submitted", and this block disappears. */}
+          {consultation.status === "action_required" && (
+            <ActionRequiredReply
+              consultationId={consultation.id}
+              prescriberMessage={consultation.reviews[0]?.customerMessage ?? null}
+            />
+          )}
+
           {/* Status Timeline */}
           <Section title="Status Timeline">
             <div className="space-y-3">

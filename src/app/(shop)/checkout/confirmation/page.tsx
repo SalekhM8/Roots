@@ -11,6 +11,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// Re-fetch on every request — the payment status is racing the webhook and
+// caching this page would freeze the user on the pending screen.
+export const dynamic = "force-dynamic";
+
 interface ConfirmationPageProps {
   searchParams: Promise<{ order_id?: string }>;
 }
@@ -43,7 +47,12 @@ export default async function ConfirmationPage({
       orderNumber: true,
       orderType: true,
       guestEmail: true,
-      payments: { select: { status: true } },
+      paymentStatus: true,
+      payments: {
+        select: { status: true },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      },
     },
   });
 
@@ -60,7 +69,68 @@ export default async function ConfirmationPage({
 
   const isPom = order.orderType === "pom" || order.orderType === "mixed";
   const isGuest = !user;
+  const paymentStatus = order.payments[0]?.status ?? order.paymentStatus;
 
+  // ---- Failed / expired: tell the customer what happened + offer a retry path
+  if (paymentStatus === "failed" || paymentStatus === "expired") {
+    return (
+      <div className="page-container py-16 md:py-20">
+        <div className="mx-auto max-w-lg text-center">
+          <h1 className="mb-3 text-[32px] font-medium text-roots-navy">
+            Payment didn&apos;t complete
+          </h1>
+          <p className="mb-2 text-roots-navy/70">
+            Order <strong className="text-roots-navy">{order.orderNumber}</strong>
+          </p>
+          <p className="mb-8 text-roots-navy/60">
+            Your card was not charged. This usually happens when the card was
+            declined or 3-D Secure was cancelled. You can try again — your
+            consultation answers are still on file.
+          </p>
+          <div className="flex flex-col items-center gap-3">
+            {!isGuest && (
+              <Link
+                href={ROUTES.accountOrders}
+                className="text-sm font-medium text-roots-green underline"
+              >
+                Go to my orders
+              </Link>
+            )}
+            <Link
+              href={ROUTES.home}
+              className="text-sm text-roots-navy/50 underline"
+            >
+              Return home
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- Pending: webhook hasn't landed yet. Auto-refresh every 3s.
+  if (paymentStatus === "pending") {
+    return (
+      <div className="page-container py-16 md:py-20">
+        {/* Refresh until we see a terminal status. Server component, so
+            client-side state isn't an option here. */}
+        <meta httpEquiv="refresh" content="3" />
+        <div className="mx-auto max-w-lg text-center">
+          <h1 className="mb-3 text-[32px] font-medium text-roots-navy">
+            Confirming your payment…
+          </h1>
+          <p className="mb-2 text-roots-navy/70">
+            Order <strong className="text-roots-navy">{order.orderNumber}</strong>
+          </p>
+          <p className="text-roots-navy/60">
+            This usually takes a few seconds. Please don&apos;t close this page.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- Success path: authorized (POM preauth) or captured (charge)
   return (
     <div className="page-container py-16 md:py-20">
       {isGuest && <ClearGuestCart />}

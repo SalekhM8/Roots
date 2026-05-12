@@ -70,23 +70,29 @@ export function isIpAllowed(
 /**
  * Extract the originating client IP from a Next.js request.
  *
- * On Vercel (and most proxies) the connecting socket IP is the proxy itself,
- * so we trust the leftmost entry in `x-forwarded-for`. Falls back to
- * `x-real-ip` and finally to the raw header bag.
- *
- * NOTE: This trusts the forwarding header. That's safe behind Vercel's edge
- * (which strips/normalises XFF) — but if you ever expose this directly to
- * the public internet without a trusted proxy, an attacker can spoof XFF and
- * bypass the allowlist. The Viva webhook route is always behind Vercel.
+ * SECURITY NOTE: We MUST NOT trust the leftmost `x-forwarded-for` entry —
+ * an attacker can spoof XFF by sending `X-Forwarded-For: <viva-ip>` and our
+ * webhook handler would have accepted forged events. Vercel's edge appends
+ * the real client IP to XFF and also sets `x-real-ip` to the TCP-level
+ * source. We prefer `x-real-ip` (set by the trusted proxy, not the client)
+ * and fall back to the RIGHTMOST XFF entry (the one Vercel itself appended).
  */
 export function clientIpFromHeaders(headers: Headers): string | null {
+  // x-real-ip is set by Vercel's edge to the actual TCP source — this is
+  // the only header the client cannot influence.
+  const real = headers.get("x-real-ip");
+  if (real) {
+    const trimmed = real.trim();
+    if (trimmed) return trimmed;
+  }
   const xff = headers.get("x-forwarded-for");
   if (xff) {
-    // XFF is a comma-separated list — leftmost is the originating client.
-    const first = xff.split(",")[0]?.trim();
-    if (first) return first;
+    // XFF is a comma-separated list. The rightmost entry is what the most
+    // recent trusted hop (Vercel) saw — anything to the left was supplied
+    // by the client and is attacker-controllable.
+    const parts = xff.split(",").map((p) => p.trim()).filter(Boolean);
+    const last = parts[parts.length - 1];
+    if (last) return last;
   }
-  const real = headers.get("x-real-ip");
-  if (real) return real.trim();
   return null;
 }

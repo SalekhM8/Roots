@@ -2,7 +2,8 @@
 
 import { requireAnyRole } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { refundMolliePayment } from "@/lib/payments/mollie";
+import { VivaError } from "@/lib/payments/viva";
+import { voidOrRefundVivaPayment } from "@/server/services/payment";
 import { writeAuditLog } from "@/lib/security/audit";
 
 export async function refundOrderAction(
@@ -33,46 +34,41 @@ export async function refundOrderAction(
 
   const payment = order.payments[0];
 
-  // Determine refund amount — full refund if not specified
+  // Full refund if not specified
   const refundAmount = amountMinor ?? payment.amountMinor;
 
   if (refundAmount <= 0 || refundAmount > payment.amountMinor) {
     return { success: false, error: "Invalid refund amount." };
   }
 
-  const isFullRefund = refundAmount === payment.amountMinor;
-
-  if (!payment.molliePaymentId) {
-    // Viva-originated payment — Viva refunds run through the Viva service.
-    // This branch should not be reached once the checkout migration is live.
-    return { success: false, error: "Mollie refund unavailable for non-Mollie payment." };
+  if (!payment.vivaTransactionId) {
+    return {
+      success: false,
+      error: "Payment has no Viva transaction reference — refund via Viva dashboard.",
+    };
   }
 
   try {
-    await refundMolliePayment(payment.molliePaymentId, refundAmount);
+    // voidOrRefundVivaPayment handles the Viva API call, payment row,
+    // order paymentStatus, and writes the payment.refunded audit log.
+    await voidOrRefundVivaPayment({
+      paymentId: payment.id,
+      amountMinor: refundAmount,
+      reason: reason ?? `admin refund by ${user.id}`,
+    });
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : "Mollie refund failed.";
+      err instanceof VivaError
+        ? `Viva refund failed (${err.status}): ${err.message}`
+        : err instanceof Error
+          ? err.message
+          : "Refund failed.";
     return { success: false, error: message };
   }
 
-  // Update payment status
-  await db.payment.update({
-    where: { id: payment.id },
-    data: {
-      status: isFullRefund ? "refunded" : "captured",
-      refundedAt: isFullRefund ? new Date() : undefined,
-    },
-  });
-
-  // Update order payment status if full refund
-  if (isFullRefund) {
-    await db.order.update({
-      where: { id: orderId },
-      data: { paymentStatus: "refunded" },
-    });
-  }
-
+  // Order-level audit on top of the payment-level one written by the service,
+  // so the order timeline has admin attribution.
+  const isFullRefund = refundAmount === payment.amountMinor;
   await writeAuditLog({
     actorUserId: user.id,
     actorRole: "admin",

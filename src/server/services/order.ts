@@ -108,6 +108,34 @@ export async function createOrder(
     return { success: false, error: "Order total must be greater than zero." };
   }
 
+  // Idempotency guard: if a paid (authorized/captured) order already
+  // exists for this consultation, refuse to create a duplicate. A
+  // consultation ended up with TWO orders in prod (2026-05-12) because
+  // the customer bounced through checkout twice — the second order's
+  // preauth survived, the first was a failed stub, and the prescriber's
+  // reject silently voided the wrong one.
+  //
+  // We allow `pending` to fall through: the customer may legitimately
+  // be retrying a checkout where the first Viva URL never completed.
+  // The duplicate-pending risk is low because the select-dose page
+  // also redirects them away in that case.
+  if (linkedConsultationId) {
+    const liveOrder = await db.order.findFirst({
+      where: {
+        consultationId: linkedConsultationId,
+        paymentStatus: { in: ["authorized", "captured"] },
+      },
+      select: { id: true },
+    });
+    if (liveOrder) {
+      return {
+        success: false,
+        error:
+          "This consultation already has an active order. Please visit your account to view it.",
+      };
+    }
+  }
+
   const orderNumber = generateOrderNumber();
   const isPreauth = orderType !== "supplement";
 

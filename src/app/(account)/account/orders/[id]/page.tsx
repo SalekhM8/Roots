@@ -147,6 +147,23 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 {payment.captureBefore && (
                   <Field label="Auth expires" value={formatDate(payment.captureBefore)} />
                 )}
+                {/* Re-attempt path. Failed (card declined / 3DS cancelled)
+                    and expired (preauth window elapsed) both need a fresh
+                    checkout. Pending is rare — only shown if the webhook
+                    hasn't landed; same retry path applies. We route via
+                    select-dose so the customer keeps their existing
+                    consultation answers. */}
+                {order.consultation &&
+                  (payment.status === "failed" ||
+                    payment.status === "expired" ||
+                    payment.status === "pending") && (
+                    <Link
+                      href={`/consultations/mounjaro/select-dose?consultation=${order.consultation.id}`}
+                      className="mt-2 inline-flex items-center rounded-full bg-roots-green px-4 py-2 text-sm font-medium text-white hover:bg-roots-green/90"
+                    >
+                      Re-attempt payment
+                    </Link>
+                  )}
               </div>
             </Section>
           )}
