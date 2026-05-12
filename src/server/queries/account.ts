@@ -76,6 +76,12 @@ export async function getCustomerConsultations(userId: string, page = 1) {
           orderBy: { createdAt: "desc" },
           take: 1,
         },
+        // Used by the list view to decide whether to show a
+        // "Continue to checkout" CTA. If any linked order has a payment
+        // already in authorized/captured state, checkout is complete.
+        orders: {
+          select: { paymentStatus: true },
+        },
       },
       orderBy: { createdAt: "desc" },
       skip,

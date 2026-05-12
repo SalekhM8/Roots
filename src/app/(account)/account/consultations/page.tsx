@@ -49,34 +49,64 @@ export default async function ConsultationsPage({ searchParams }: ConsultationsP
           <div className="space-y-4">
             {consultations.map((c) => {
               const latestReview = c.reviews[0];
+              // A consultation needs "Continue to checkout" if it's in a
+              // resumable status and no linked order has a successful
+              // payment yet. Failed/pending orders don't count — those
+              // are the very ones the customer is here to retry.
+              const hasPaidOrder = c.orders.some(
+                (o) =>
+                  o.paymentStatus === "authorized" ||
+                  o.paymentStatus === "captured",
+              );
+              const canResumeCheckout =
+                (c.status === "submitted" || c.status === "approved") &&
+                !hasPaidOrder;
               return (
-                <Link
+                <div
                   key={c.id}
-                  href={`/account/consultations/${c.id}`}
-                  className="block rounded-[var(--radius-card)] border border-roots-green/10 bg-white p-5 transition-colors hover:border-roots-green/25"
+                  className="rounded-[var(--radius-card)] border border-roots-green/10 bg-white p-5 transition-colors hover:border-roots-green/25"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <p className="font-medium text-roots-navy">{c.product.name}</p>
-                      {c.productVariant && (
-                        <p className="text-sm text-roots-navy/50">{c.productVariant.name}</p>
-                      )}
+                  <Link
+                    href={`/account/consultations/${c.id}`}
+                    className="block"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-roots-navy">{c.product.name}</p>
+                        {c.productVariant && (
+                          <p className="text-sm text-roots-navy/50">{c.productVariant.name}</p>
+                        )}
+                      </div>
+                      <StatusPill variant={consultationStatusVariant(c.status)}>
+                        {humanizeStatus(c.status)}
+                      </StatusPill>
                     </div>
-                    <StatusPill variant={consultationStatusVariant(c.status)}>
-                      {humanizeStatus(c.status)}
-                    </StatusPill>
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-4 text-sm text-roots-navy/50">
-                    {c.submittedAt && <span>Submitted {formatDate(c.submittedAt)}</span>}
-                    {c.approvedAt && <span>Approved {formatDate(c.approvedAt)}</span>}
-                    {c.rejectedAt && <span>Rejected {formatDate(c.rejectedAt)}</span>}
-                  </div>
-                  {latestReview?.customerMessage && (
-                    <p className="mt-2 text-sm text-roots-navy/70">
-                      {latestReview.customerMessage}
-                    </p>
+                    <div className="mt-2 flex flex-wrap gap-4 text-sm text-roots-navy/50">
+                      {c.submittedAt && <span>Submitted {formatDate(c.submittedAt)}</span>}
+                      {c.approvedAt && <span>Approved {formatDate(c.approvedAt)}</span>}
+                      {c.rejectedAt && <span>Rejected {formatDate(c.rejectedAt)}</span>}
+                    </div>
+                    {latestReview?.customerMessage && (
+                      <p className="mt-2 text-sm text-roots-navy/70">
+                        {latestReview.customerMessage}
+                      </p>
+                    )}
+                  </Link>
+                  {canResumeCheckout && (
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-input)] border border-roots-orange/30 bg-roots-orange/5 px-4 py-3">
+                      <p className="text-sm text-roots-navy">
+                        Payment not completed — finish your order to send it
+                        to a prescriber.
+                      </p>
+                      <Link
+                        href={`/consultations/mounjaro/select-dose?consultation=${c.id}`}
+                        className="inline-flex items-center rounded-[var(--radius-input)] bg-roots-green px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-roots-green/90"
+                      >
+                        Continue to checkout
+                      </Link>
+                    </div>
                   )}
-                </Link>
+                </div>
               );
             })}
 
