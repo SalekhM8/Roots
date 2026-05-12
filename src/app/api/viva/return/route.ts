@@ -1,0 +1,63 @@
+/**
+ * Viva.com Smart Checkout return URL.
+ *
+ * Viva sends the customer back here after the checkout interaction with
+ * query params (per Viva Smart Checkout docs):
+ *   - `t`        — TransactionId (UUID), present on success and on most failure modes
+ *   - `s`        — int64 OrderCode (the 16-digit payment order id)
+ *   - `eventId`  — numeric reason code on failure
+ *   - `lang`     — locale code
+ *   - `eci`      — Electronic Commerce Indicator (3DS outcome)
+ *
+ * The Source code (4-digit) on the Viva dashboard pins ONE success URL and
+ * ONE failure URL — they are NOT settable per order. Both can safely point
+ * at this single endpoint: we don't disambiguate from a query param, we
+ * determine the outcome server-side by calling Viva's Retrieve Transaction
+ * API on `t` and branching on the real StatusId.
+ *
+ * This is the PRIMARY signal for cancelled / 3DS-failed flows because Viva
+ * does NOT emit a webhook for those events. For successful flows the 1796
+ * webhook is the canonical state mutation; we run `processVivaReturn` here
+ * mainly so the confirmation page renders without waiting on the webhook.
+ *
+ * Bypassed in Clerk middleware so customers paying as guests aren't bounced
+ * to sign-in.
+ */
+
+import { NextResponse, type NextRequest } from "next/server";
+
+import { processVivaReturn } from "@/server/services/payment";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = req.nextUrl;
+  const transactionId = searchParams.get("t") ?? undefined;
+  const eventId = searchParams.get("eventId") ?? undefined;
+
+  const result = await processVivaReturn({
+    transactionId,
+    eventId,
+  });
+
+  if (result.outcome === "success" && result.orderId) {
+    return NextResponse.redirect(
+      new URL(`/checkout/confirmation/${result.orderId}`, req.url),
+    );
+  }
+
+  if (result.outcome === "failure") {
+    const url = new URL("/checkout", req.url);
+    url.searchParams.set("error", "payment_failed");
+    if (eventId) url.searchParams.set("eventId", eventId);
+    return NextResponse.redirect(url);
+  }
+
+  // Unknown — Viva returned us here without a parseable transaction. Send
+  // the customer to a neutral landing rather than a confirmation we can't
+  // back up with a real order.
+  const url = new URL("/checkout", req.url);
+  url.searchParams.set("error", "payment_unknown");
+  return NextResponse.redirect(url);
+}

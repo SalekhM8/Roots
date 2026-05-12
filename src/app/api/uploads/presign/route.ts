@@ -10,7 +10,7 @@ import { checkRateLimit } from "@/lib/security/rate-limit";
 export async function POST(req: Request) {
   const user = await requireUser();
 
-  const rl = checkRateLimit("upload", user.id);
+  const rl = await checkRateLimit("upload", user.id);
   if (!rl.allowed) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }

@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { writeAuditLog } from "@/lib/security/audit";
 import { inngest } from "@/server/workflows/inngest";
 import { createClickDropOrder } from "@/lib/shipping/click-drop";
+import { addressSnapshotSchema } from "@/lib/validation/schemas";
 
 interface FulfillmentResult {
   success: boolean;
@@ -84,6 +85,9 @@ export async function markShipped(
   trackingNumber: string,
   trackingUrl?: string
 ): Promise<FulfillmentResult> {
+  if (!trackingNumber.trim()) {
+    return { success: false, error: "Tracking number is required." };
+  }
   // Auto-generate Royal Mail tracking URL if not provided
   trackingUrl = trackingUrl || buildTrackingUrl(trackingNumber);
   const order = await db.order.findUnique({
@@ -196,15 +200,19 @@ export async function bulkGenerateLabels(
 
   for (const order of orders) {
     try {
-      const address = order.shippingAddressSnapshot as {
-        firstName: string;
-        lastName: string;
-        line1: string;
-        line2?: string;
-        city: string;
-        postcode: string;
-        countryCode: string;
-      };
+      const addressParse = addressSnapshotSchema.safeParse(
+        order.shippingAddressSnapshot,
+      );
+      if (!addressParse.success) {
+        results.push({
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          success: false,
+          error: "Shipping address snapshot is malformed.",
+        });
+        continue;
+      }
+      const address = addressParse.data;
 
       const totalWeight = order.items.reduce(
         (sum, item) =>
@@ -220,13 +228,14 @@ export async function bulkGenerateLabels(
           line2: address.line2,
           city: address.city,
           postcode: address.postcode,
-          countryCode: address.countryCode ?? "GB",
+          countryCode: address.countryCode,
         },
         weightGrams: totalWeight,
         items: order.items.map((item) => ({
           description: item.productNameSnapshot,
           quantity: item.quantity,
           value: item.unitPriceMinor / 100,
+          unitWeightGrams: item.productVariant.weightGrams ?? 100,
         })),
       });
 

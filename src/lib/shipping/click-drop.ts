@@ -18,7 +18,12 @@ interface CreateOrderParams {
   orderReference: string;
   recipientAddress: ClickDropAddress;
   weightGrams: number;
-  items: Array<{ description: string; quantity: number; value: number }>;
+  items: Array<{
+    description: string;
+    quantity: number;
+    value: number;
+    unitWeightGrams: number;
+  }>;
 }
 
 interface ClickDropOrder {
@@ -44,6 +49,49 @@ async function clickDropFetch(
       ...options.headers,
     },
   });
+}
+
+/**
+ * Retry transient failures (network blips, 5xx, 429) with exponential backoff.
+ * Does NOT retry on 4xx client errors — those won't succeed by retrying.
+ *
+ * 3 attempts total: ~0ms, ~250ms, ~1000ms.
+ *
+ * Why inline rather than Inngest: bulk label generation is admin-initiated
+ * and the operator expects per-row success/failure feedback in the same
+ * request. Inngest would invert that to a queue/poll UX. Transient retries
+ * cover the common case (Royal Mail API momentary blips) without changing
+ * the operator workflow. Sustained outages still surface to the admin.
+ */
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  shouldRetry: (err: unknown) => boolean,
+): Promise<T> {
+  const delays = [0, 250, 1000];
+  let lastErr: unknown;
+  for (let attempt = 0; attempt < delays.length; attempt++) {
+    if (delays[attempt] > 0) {
+      await new Promise((r) => setTimeout(r, delays[attempt]));
+    }
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (!shouldRetry(err) || attempt === delays.length - 1) {
+        throw err;
+      }
+    }
+  }
+  throw lastErr;
+}
+
+class TransientClickDropError extends Error {
+  readonly status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+    this.name = "TransientClickDropError";
+  }
 }
 
 /**
@@ -78,7 +126,7 @@ export async function createClickDropOrder(
               SKU: "",
               quantity: item.quantity,
               unitValue: item.value,
-              unitWeightInGrams: Math.round(params.weightGrams / params.items.length),
+              unitWeightInGrams: item.unitWeightGrams,
             })),
           },
         ],
@@ -91,17 +139,32 @@ export async function createClickDropOrder(
     ],
   };
 
-  const response = await clickDropFetch("/orders", {
-    method: "POST",
-    body: JSON.stringify(body),
-  });
+  const data = await withRetry(
+    async () => {
+      const response = await clickDropFetch("/orders", {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Click & Drop API error: ${response.status} ${text}`);
-  }
+      if (!response.ok) {
+        const text = await response.text();
+        // 5xx and 429 are transient; 4xx client errors are not.
+        if (response.status >= 500 || response.status === 429) {
+          throw new TransientClickDropError(
+            response.status,
+            `Click & Drop API error: ${response.status} ${text}`,
+          );
+        }
+        throw new Error(`Click & Drop API error: ${response.status} ${text}`);
+      }
 
-  const data = await response.json();
+      return response.json();
+    },
+    (err) =>
+      err instanceof TransientClickDropError ||
+      // Native fetch / undici network errors look like TypeError("fetch failed")
+      (err instanceof TypeError && err.message.toLowerCase().includes("fetch")),
+  );
 
   // Response: { createdOrders: [{ orderIdentifier, trackingNumber, ... }], failedOrders: [...] }
   const created = data.createdOrders?.[0];

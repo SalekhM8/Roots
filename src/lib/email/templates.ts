@@ -321,3 +321,25 @@ export function paymentExpired(name: string, orderNumber: string): string {
     ${cta("Visit ROOTS Pharmacy", BRAND.siteUrl)}`
   );
 }
+
+export function accountCreated(name: string): string {
+  return layout(
+    "Welcome to ROOTS Pharmacy",
+    `Hi ${name}, your ROOTS Pharmacy account is ready.`,
+    `${heading("Welcome to ROOTS")}
+    ${greeting(name)}
+    ${paragraph("Your account is ready. ROOTS is a GPhC-registered UK pharmacy specialising in clinically-led weight management and premium wellness.")}
+    ${infoBox(`
+      <p style="margin:0 0 8px;font-size:14px;color:${BRAND.navy};line-height:1.6;">
+        <strong>What you can do now:</strong>
+      </p>
+      <ul style="margin:0;padding-left:18px;font-size:14px;color:${BRAND.navy};line-height:1.7;">
+        <li>Start a confidential Mounjaro consultation reviewed by a UK prescriber.</li>
+        <li>Browse our supplement range — vitamins, minerals, daily essentials.</li>
+        <li>Track orders and consultations from your account dashboard.</li>
+      </ul>
+    `, "green")}
+    ${paragraph("If you didn't create this account, please ignore this email or contact us.")}
+    ${cta("Visit Your Dashboard", `${BRAND.siteUrl}/account`)}`
+  );
+}

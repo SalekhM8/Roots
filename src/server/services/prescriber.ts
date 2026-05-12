@@ -1,5 +1,9 @@
 import { db } from "@/lib/db";
-import { captureMolliePayment, releaseAuthorization } from "@/lib/payments/mollie";
+import { VivaError } from "@/lib/payments/viva";
+import {
+  captureVivaPayment,
+  voidOrRefundVivaPayment,
+} from "@/server/services/payment";
 import { writeAuditLog } from "@/lib/security/audit";
 import { inngest } from "@/server/workflows/inngest";
 
@@ -52,20 +56,43 @@ export async function approveConsultation(
     };
   }
 
-  // Capture the authorized payment via Mollie
+  // Capture the authorized Viva payment. `captureVivaPayment` handles the
+  // Payment row, the Order paymentStatus + fulfillmentStatus, the
+  // FulfillmentJob upsert, the audit log, and the Inngest payment/captured
+  // event. If it throws, the consultation stays under_review so the
+  // prescriber can retry.
   try {
-    await captureMolliePayment(payment.molliePaymentId);
-  } catch {
+    await captureVivaPayment(payment.id);
+  } catch (err) {
+    if (err instanceof VivaError) {
+      console.error("[prescriber.approve] Viva capture failed", {
+        paymentId: payment.id,
+        status: err.status,
+        errorCode: err.errorCode,
+        correlationId: err.correlationId,
+      });
+      // Viva ErrorCode 403 on capture means the preauth has expired or has
+      // already been captured. Surface a specific message in that case.
+      if (err.errorCode === 403) {
+        return {
+          success: false,
+          error:
+            "The payment authorisation has expired or was already captured. The customer needs to re-checkout.",
+        };
+      }
+    }
     return {
       success: false,
-      error: "Failed to capture payment. The authorisation may have expired.",
+      error: "Failed to capture payment. Please try again.",
     };
   }
 
   const now = new Date();
 
+  // Second tx: clinical state. Capture has succeeded already; if this fails
+  // we'd have a captured order with no review row — extremely unlikely
+  // (single-row inserts). We log and let ops reconcile.
   await db.$transaction(async (tx) => {
-    // Create prescriber review
     await tx.prescriberReview.create({
       data: {
         consultationId: input.consultationId,
@@ -76,7 +103,6 @@ export async function approveConsultation(
       },
     });
 
-    // Create prescription if variant is set
     if (consultation.productVariant) {
       await tx.prescription.create({
         data: {
@@ -91,29 +117,9 @@ export async function approveConsultation(
       });
     }
 
-    // Update consultation status
     await tx.consultation.update({
       where: { id: input.consultationId },
       data: { status: "approved", approvedAt: now },
-    });
-
-    // Update order + payment (guaranteed to exist — checked above)
-    await tx.payment.update({
-      where: { id: payment.id },
-      data: { status: "captured", capturedAt: now },
-    });
-
-    await tx.order.update({
-      where: { id: order.id },
-      data: {
-        paymentStatus: "captured",
-        fulfillmentStatus: "ready_to_pack",
-      },
-    });
-
-    // Create fulfillment job
-    await tx.fulfillmentJob.create({
-      data: { orderId: order.id },
     });
   });
 
@@ -135,16 +141,8 @@ export async function approveConsultation(
         orderNumber: order.orderNumber,
       },
     }),
-    // Emit payment captured event for POM approval capture
-    inngest.send({
-      name: "payment/captured",
-      data: {
-        userId: consultation.userId,
-        orderId: order.id,
-        amountMinor: payment.amountMinor,
-        orderNumber: order.orderNumber,
-      },
-    }),
+    // Note: the `payment/captured` event is emitted by `captureVivaPayment`
+    // itself — no need to re-send here.
   ]);
 
   return { success: true };
@@ -177,15 +175,49 @@ export async function rejectConsultation(
   const order = consultation.orders[0];
   const payment = order?.payments[0];
 
-  // Release payment authorization via Mollie
+  // Void the Viva preauth via the service. If it fails we log + audit but
+  // continue with the rejection so the customer-facing decision isn't held
+  // hostage by a transient payment-provider blip. Ops reconciles from the
+  // audit log + Sentry. `voidOrRefundVivaPayment` updates the Payment + Order
+  // rows on success.
+  let voidSucceeded = false;
   if (payment) {
     try {
-      await releaseAuthorization(payment.molliePaymentId);
-    } catch {
-      // Log but continue — authorization may have already expired
+      await voidOrRefundVivaPayment({
+        paymentId: payment.id,
+        reason: `consultation.rejected: ${input.consultationId}`,
+      });
+      voidSucceeded = true;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      const correlationId =
+        err instanceof VivaError ? err.correlationId : undefined;
+      console.error(
+        `[prescriber.reject] Viva void failed for payment ${payment.id}:`,
+        message,
+      );
+      await writeAuditLog({
+        actorUserId: input.prescriberUserId,
+        actorRole: "prescriber",
+        entityType: "Payment",
+        entityId: payment.id,
+        action: "payment.void.failed",
+        metadata: {
+          consultationId: input.consultationId,
+          provider: "viva",
+          vivaTransactionId: payment.vivaTransactionId,
+          correlationId: correlationId ?? null,
+          error: message,
+        },
+      });
     }
   }
 
+  // Clinical state mutation. Always runs — even if the void failed — so the
+  // patient sees the rejection promptly. The Payment/Order paymentStatus is
+  // updated by `voidOrRefundVivaPayment` itself when it succeeds; if it
+  // failed we leave the row untouched and rely on the operational sweeper
+  // to retry void at preauth-expiry.
   await db.$transaction(async (tx) => {
     await tx.prescriberReview.create({
       data: {
@@ -201,19 +233,11 @@ export async function rejectConsultation(
       where: { id: input.consultationId },
       data: { status: "rejected", rejectedAt: new Date() },
     });
-
-    if (order && payment) {
-      await tx.payment.update({
-        where: { id: payment.id },
-        data: { status: "voided", voidedAt: new Date() },
-      });
-
-      await tx.order.update({
-        where: { id: order.id },
-        data: { paymentStatus: "voided" },
-      });
-    }
   });
+
+  // Suppress unused-var lint while keeping the boolean local — it's
+  // surfaced via the audit log already, but useful for future telemetry.
+  void voidSucceeded;
 
   await Promise.all([
     writeAuditLog({

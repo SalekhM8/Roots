@@ -24,6 +24,8 @@ const isPublicRoute = createRouteMatcher([
   "/api/search",
   "/api/clerk/webhook",
   "/api/mollie/webhook",
+  "/api/viva/webhook",
+  "/api/viva/return",
   "/api/inngest(.*)",
 ]);
 
@@ -34,8 +36,14 @@ const clerk = clerkMiddleware(async (auth, req) => {
 });
 
 export default function middleware(req: NextRequest, event: NextFetchEvent) {
-  // Bypass Clerk entirely for Mollie webhook — must respond fast
-  if (req.nextUrl.pathname === "/api/mollie/webhook") {
+  // Bypass Clerk entirely for payment provider webhooks and the Viva return
+  // URL — must respond fast and Viva will not follow 3xx redirects.
+  const path = req.nextUrl.pathname;
+  if (
+    path === "/api/mollie/webhook" ||
+    path === "/api/viva/webhook" ||
+    path === "/api/viva/return"
+  ) {
     return NextResponse.next();
   }
   return clerk(req, event);

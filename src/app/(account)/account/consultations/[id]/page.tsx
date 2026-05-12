@@ -6,8 +6,9 @@ import { getCustomerConsultationDetail } from "@/server/queries/account";
 import { AccountNav } from "@/components/account/account-nav";
 import { StatusPill } from "@/components/ui/status-pill";
 import { Section, Field } from "@/components/admin/section";
-import { formatDate, formatDateTime, formatPrice, humanizeStatus, calculateAge } from "@/lib/utils";
+import { formatDate, formatDateTime, formatPrice, humanizeStatus } from "@/lib/utils";
 import { consultationStatusVariant } from "@/server/queries/admin";
+import { createPresignedViewUrl } from "@/lib/uploads/s3";
 
 export const metadata: Metadata = {
   title: "Consultation Detail",
@@ -27,6 +28,21 @@ export default async function ConsultationDetailPage({ params }: ConsultationDet
   const answers = consultation.answers;
   const order = consultation.orders[0];
   const prescription = consultation.prescriptions[0];
+
+  // Generate presigned view URLs for each upload in parallel. URLs are short-
+  // lived (10 min) so a leaked URL has minimal blast radius. Generated
+  // server-side per request — never persisted, never leaked client-side
+  // beyond this single render.
+  const uploadsWithUrls = await Promise.all(
+    consultation.uploads.map(async (upload) => ({
+      ...upload,
+      viewUrl:
+        upload.status === "uploaded"
+          ? await createPresignedViewUrl(upload.storageKey)
+          : null,
+      isImage: upload.mimeType.startsWith("image/"),
+    })),
+  );
 
   return (
     <div className="page-container py-16 md:py-20">
@@ -104,17 +120,49 @@ export default async function ConsultationDetailPage({ params }: ConsultationDet
           )}
 
           {/* Uploads */}
-          {consultation.uploads.length > 0 && (
+          {uploadsWithUrls.length > 0 && (
             <Section title="Uploads">
-              <div className="space-y-2">
-                {consultation.uploads.map((upload) => (
-                  <div key={upload.id} className="flex items-center justify-between text-sm">
-                    <span className="text-roots-navy">
-                      {humanizeStatus(upload.uploadType)}
-                    </span>
-                    <span className="text-roots-navy/50">
-                      {humanizeStatus(upload.status)} · {upload.fileName}
-                    </span>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                {uploadsWithUrls.map((upload) => (
+                  <div key={upload.id} className="space-y-2">
+                    {upload.viewUrl && upload.isImage ? (
+                      <a
+                        href={upload.viewUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block aspect-square overflow-hidden rounded-[var(--radius-card)] border border-roots-green/10 bg-roots-cream/30"
+                      >
+                        {/* Presigned S3 URL — must use plain <img>, next/image
+                           cannot resolve query-signed remote sources. */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={upload.viewUrl}
+                          alt={`${humanizeStatus(upload.uploadType)} upload`}
+                          className="h-full w-full object-cover"
+                        />
+                      </a>
+                    ) : upload.viewUrl ? (
+                      <a
+                        href={upload.viewUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex aspect-square items-center justify-center rounded-[var(--radius-card)] border border-roots-green/10 bg-roots-cream/30 text-xs text-roots-navy/60 underline"
+                      >
+                        Open file
+                      </a>
+                    ) : (
+                      <div className="flex aspect-square items-center justify-center rounded-[var(--radius-card)] border border-dashed border-roots-navy/20 bg-roots-cream/30 text-xs text-roots-navy/40">
+                        Pending upload
+                      </div>
+                    )}
+                    <div className="text-xs">
+                      <p className="font-medium text-roots-navy">
+                        {humanizeStatus(upload.uploadType)}
+                      </p>
+                      <p className="text-roots-navy/50">
+                        {humanizeStatus(upload.status)}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>

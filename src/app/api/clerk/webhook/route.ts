@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Webhook } from "svix";
 import { syncClerkUser } from "@/lib/auth";
+import { inngest } from "@/server/workflows/inngest";
 
 /**
  * Clerk webhook handler — syncs users to our DB.
@@ -49,7 +50,19 @@ export async function POST(req: Request) {
     const primaryEmail = email_addresses[0]?.email_address;
 
     if (id && primaryEmail) {
-      await syncClerkUser(id, primaryEmail);
+      const user = await syncClerkUser(id, primaryEmail);
+
+      // Fire welcome-email event only on first creation. Inngest dedupes by
+      // function id, so even if Clerk redelivers this webhook the email
+      // sender's idempotent-ish nature (one email_events row per send) keeps
+      // duplicates manageable. We still gate on event.type to avoid sending
+      // a welcome on every profile update.
+      if (event.type === "user.created") {
+        await inngest.send({
+          name: "user/created",
+          data: { userId: user.id },
+        });
+      }
     }
   }
 

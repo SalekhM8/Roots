@@ -40,7 +40,9 @@ export async function createPresignedUploadUrl(params: {
     ContentType: params.mimeType,
   });
 
-  const url = await getSignedUrl(getS3(), command, { expiresIn: 300 }); // 5 min
+  // 15 min — gives slow mobile connections time to PUT a 10MB photo without
+  // the URL expiring mid-upload. Short enough that a leaked URL has minimal value.
+  const url = await getSignedUrl(getS3(), command, { expiresIn: 900 });
 
   return { url, key };
 }

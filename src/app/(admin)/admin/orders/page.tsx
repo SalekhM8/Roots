@@ -39,14 +39,14 @@ export default async function AdminOrdersPage({
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-roots-green/10 text-xs font-medium uppercase tracking-wider text-roots-navy/50">
-              <th className="px-4 py-3">Order #</th>
-              <th className="px-4 py-3">Customer</th>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">Total</th>
-              <th className="px-4 py-3">Payment</th>
-              <th className="px-4 py-3">Fulfillment</th>
-              <th className="px-4 py-3">Date</th>
-              <th className="px-4 py-3">Actions</th>
+              <th scope="col" className="px-4 py-3">Order #</th>
+              <th scope="col" className="px-4 py-3">Customer</th>
+              <th scope="col" className="px-4 py-3">Type</th>
+              <th scope="col" className="px-4 py-3">Total</th>
+              <th scope="col" className="px-4 py-3">Payment</th>
+              <th scope="col" className="px-4 py-3">Fulfillment</th>
+              <th scope="col" className="px-4 py-3">Date</th>
+              <th scope="col" className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>

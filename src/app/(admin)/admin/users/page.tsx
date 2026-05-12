@@ -99,11 +99,11 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-roots-green/10 text-xs font-medium uppercase tracking-wider text-roots-navy/50">
-              <th className="px-4 py-3">User</th>
-              <th className="px-4 py-3">Roles</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Joined</th>
-              <th className="px-4 py-3">Actions</th>
+              <th scope="col" className="px-4 py-3">User</th>
+              <th scope="col" className="px-4 py-3">Roles</th>
+              <th scope="col" className="px-4 py-3">Status</th>
+              <th scope="col" className="px-4 py-3">Joined</th>
+              <th scope="col" className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>

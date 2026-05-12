@@ -69,11 +69,11 @@ export default async function AdminOrderDetailPage({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-roots-green/10 text-xs text-roots-navy/50">
-                  <th className="pb-2 text-left">Product</th>
-                  <th className="pb-2 text-left">SKU</th>
-                  <th className="pb-2 text-right">Qty</th>
-                  <th className="pb-2 text-right">Unit Price</th>
-                  <th className="pb-2 text-right">Total</th>
+                  <th scope="col" className="pb-2 text-left">Product</th>
+                  <th scope="col" className="pb-2 text-left">SKU</th>
+                  <th scope="col" className="pb-2 text-right">Qty</th>
+                  <th scope="col" className="pb-2 text-right">Unit Price</th>
+                  <th scope="col" className="pb-2 text-right">Total</th>
                 </tr>
               </thead>
               <tbody>

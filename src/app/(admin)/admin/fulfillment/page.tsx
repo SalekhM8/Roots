@@ -54,14 +54,14 @@ export default async function FulfillmentQueuePage({
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-roots-green/10 text-xs font-medium uppercase tracking-wider text-roots-navy/50">
-              <th className="px-4 py-3">Order #</th>
-              <th className="px-4 py-3">Date</th>
-              <th className="px-4 py-3">Customer</th>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">Items</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Tracking</th>
-              <th className="px-4 py-3">Actions</th>
+              <th scope="col" className="px-4 py-3">Order #</th>
+              <th scope="col" className="px-4 py-3">Date</th>
+              <th scope="col" className="px-4 py-3">Customer</th>
+              <th scope="col" className="px-4 py-3">Type</th>
+              <th scope="col" className="px-4 py-3">Items</th>
+              <th scope="col" className="px-4 py-3">Status</th>
+              <th scope="col" className="px-4 py-3">Tracking</th>
+              <th scope="col" className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>

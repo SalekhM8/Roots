@@ -199,7 +199,6 @@ docs/                     # all source-of-truth documentation
 - Multiple POM products beyond Mounjaro
 - Complex marketing automation
 - Multi-warehouse routing
-- Guest checkout (account required)
 
 ## Code Quality
 - Strict TypeScript. No `any` types except where truly unavoidable.

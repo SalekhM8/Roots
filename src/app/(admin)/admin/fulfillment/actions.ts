@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 
 export async function markPackedAction(orderId: string) {
   const user = await requireAnyRole("admin", "prescriber");
-  const rl = checkRateLimit("admin", user.id);
+  const rl = await checkRateLimit("admin", user.id);
   if (!rl.allowed) return { success: false, error: "Too many requests." };
   const result = await markPacked(orderId, user.id);
   if (result.success) {
@@ -22,7 +22,7 @@ export async function markShippedAction(
   trackingUrl?: string
 ) {
   const user = await requireAnyRole("admin", "prescriber");
-  const rl = checkRateLimit("admin", user.id);
+  const rl = await checkRateLimit("admin", user.id);
   if (!rl.allowed) return { success: false, error: "Too many requests." };
   const result = await markShipped(orderId, user.id, trackingNumber, trackingUrl);
   if (result.success) {
@@ -34,7 +34,7 @@ export async function markShippedAction(
 
 export async function bulkGenerateLabelsAction(orderIds: string[]) {
   const user = await requireAnyRole("admin");
-  const rl = checkRateLimit("admin", user.id);
+  const rl = await checkRateLimit("admin", user.id);
   if (!rl.allowed) return { success: false as const, error: "Too many requests.", results: [] };
 
   if (orderIds.length === 0) {

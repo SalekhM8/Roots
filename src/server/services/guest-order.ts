@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { type Prisma } from "@/generated/prisma/client";
-import { createMolliePayment } from "@/lib/payments/mollie";
+import { createVivaPayment } from "@/server/services/payment";
+import { VivaError } from "@/lib/payments/viva";
 import { writeAuditLog } from "@/lib/security/audit";
 import { generateOrderNumber } from "@/lib/validation/schemas";
 import type { AddressInput } from "@/lib/validation/schemas";
@@ -18,18 +19,12 @@ export interface CreateGuestOrderResult {
   error?: string;
 }
 
-function getAppUrl(): string {
-  return (process.env.NEXT_PUBLIC_APP_URL ?? "https://rootspharmacy.co.uk").trim();
-}
-
 /**
- * Create an order for a guest (non-authenticated) user.
- * Only supplement/other products allowed — no POM items.
+ * Create an order for a guest (non-authenticated) user. Only supplement/other
+ * products are allowed — POM items require an account.
  *
- * Flow:
- * 1. Create order in DB first to get the real order ID
- * 2. Create Mollie payment with correct redirect URL
- * 3. Update payment record with real Mollie payment ID
+ * Charges immediately on the Viva-hosted checkout (no preauth path for
+ * guests, since there's no consultation flow gating capture).
  */
 export async function createGuestOrder(
   email: string,
@@ -109,60 +104,60 @@ export async function createGuestOrder(
   }
 
   const orderNumber = generateOrderNumber();
-  const appUrl = getAppUrl();
 
-  // Step 1: Create order in DB first to get real order ID
-  const order = await db.$transaction(async (tx) => {
-    const created = await tx.order.create({
-      data: {
-        userId: null,
-        guestEmail: email,
-        guestPhone: phone ?? null,
-        orderNumber,
-        orderType: "supplement",
-        shippingAddressSnapshot:
-          shippingAddress as unknown as Prisma.InputJsonValue,
-        billingAddressSnapshot: (billingAddress ??
-          shippingAddress) as unknown as Prisma.InputJsonValue,
-        paymentStatus: "pending",
-        subtotalMinor,
-        shippingMinor,
-        taxMinor: 0,
-        totalMinor,
-        placedAt: new Date(),
-        items: { create: orderItems },
-      },
-    });
-
-    await tx.payment.create({
-      data: {
-        orderId: created.id,
-        molliePaymentId: `pending_${created.id}`,
-        status: "pending",
-        amountMinor: totalMinor,
-      },
-    });
-
-    return created;
-  });
-
-  // Step 2: Create Mollie payment with the REAL order ID in redirect URL
-  const molliePayment = await createMolliePayment({
-    amountMinor: totalMinor,
-    description: `Order ${orderNumber}`,
-    redirectUrl: `${appUrl}/checkout/confirmation?order_id=${order.id}`,
-    metadata: {
-      order_number: orderNumber,
-      order_type: "supplement",
-      guest_email: email,
+  // Step 1: Create the Order. Payment row is written by `createVivaPayment`.
+  const order = await db.order.create({
+    data: {
+      userId: null,
+      guestEmail: email,
+      guestPhone: phone ?? null,
+      orderNumber,
+      orderType: "supplement",
+      shippingAddressSnapshot:
+        shippingAddress as unknown as Prisma.InputJsonValue,
+      billingAddressSnapshot: (billingAddress ??
+        shippingAddress) as unknown as Prisma.InputJsonValue,
+      paymentStatus: "pending",
+      subtotalMinor,
+      shippingMinor,
+      taxMinor: 0,
+      totalMinor,
+      placedAt: new Date(),
+      items: { create: orderItems },
     },
   });
 
-  // Step 3: Update payment record with real Mollie payment ID
-  await db.payment.updateMany({
-    where: { orderId: order.id, molliePaymentId: `pending_${order.id}` },
-    data: { molliePaymentId: molliePayment.id },
-  });
+  // Step 2: Create the Viva payment. Guests always charge immediately —
+  // no preauth path here.
+  let viva: { redirectUrl: string };
+  try {
+    viva = await createVivaPayment({
+      orderId: order.id,
+      amountMinor: totalMinor,
+      preauth: false,
+      customer: {
+        email,
+        phone,
+      },
+      description: `Order ${orderNumber}`,
+      tags: ["supplement", "guest"],
+    });
+  } catch (err) {
+    if (err instanceof VivaError) {
+      console.error("[guest-order.create] Viva createOrder failed", {
+        orderId: order.id,
+        status: err.status,
+        errorCode: err.errorCode,
+        correlationId: err.correlationId,
+      });
+    } else {
+      console.error("[guest-order.create] Viva createOrder failed (non-VivaError)", err);
+    }
+    return {
+      success: false,
+      error: "Could not start payment. Please try again in a moment.",
+    };
+  }
 
   await writeAuditLog({
     actorUserId: null,
@@ -178,10 +173,5 @@ export async function createGuestOrder(
     },
   });
 
-  const checkoutUrl = molliePayment.getCheckoutUrl();
-  if (!checkoutUrl) {
-    return { success: false, error: "Failed to generate payment URL. Please try again." };
-  }
-
-  return { success: true, orderId: order.id, checkoutUrl };
+  return { success: true, orderId: order.id, checkoutUrl: viva.redirectUrl };
 }

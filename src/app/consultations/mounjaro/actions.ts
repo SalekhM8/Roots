@@ -8,7 +8,7 @@ import type { ConsultationAnswersInput } from "@/lib/validation/schemas";
 export async function submitConsultationAction(formData: ConsultationAnswersInput) {
   const user = await requireUser();
 
-  const rl = checkRateLimit("consultation", user.id);
+  const rl = await checkRateLimit("consultation", user.id);
   if (!rl.allowed) {
     return { success: false as const, error: "Too many requests. Please try again shortly." };
   }

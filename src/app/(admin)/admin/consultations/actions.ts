@@ -17,7 +17,7 @@ interface PrescriberActionInput {
 
 export async function approveConsultationAction(input: PrescriberActionInput) {
   const user = await requireAnyRole("admin", "prescriber");
-  const rl = checkRateLimit("admin", user.id);
+  const rl = await checkRateLimit("admin", user.id);
   if (!rl.allowed) return { success: false, error: "Too many requests." };
   const result = await approveConsultation({
     ...input,
@@ -33,7 +33,7 @@ export async function rejectConsultationAction(
   input: PrescriberActionInput & { customerMessage: string }
 ) {
   const user = await requireAnyRole("admin", "prescriber");
-  const rl = checkRateLimit("admin", user.id);
+  const rl = await checkRateLimit("admin", user.id);
   if (!rl.allowed) return { success: false, error: "Too many requests." };
   const result = await rejectConsultation({
     ...input,
@@ -49,7 +49,7 @@ export async function requestMoreInfoAction(
   input: PrescriberActionInput & { customerMessage: string }
 ) {
   const user = await requireAnyRole("admin", "prescriber");
-  const rl = checkRateLimit("admin", user.id);
+  const rl = await checkRateLimit("admin", user.id);
   if (!rl.allowed) return { success: false, error: "Too many requests." };
   const result = await requestMoreInfo({
     ...input,

@@ -85,7 +85,7 @@ async function processWebhook(paymentId: string) {
 
 type PaymentWithOrder = {
   id: string;
-  molliePaymentId: string;
+  molliePaymentId: string | null;
   status: string;
   amountMinor: number;
   order: {

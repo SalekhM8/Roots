@@ -34,15 +34,15 @@ export default async function ConsultationQueuePage({
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-roots-green/10 text-xs font-medium uppercase tracking-wider text-roots-navy/50">
-              <th className="px-4 py-3">Customer</th>
-              <th className="px-4 py-3">Age</th>
-              <th className="px-4 py-3">BMI</th>
-              <th className="px-4 py-3">Product</th>
-              <th className="px-4 py-3">Submitted</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Uploads</th>
-              <th className="px-4 py-3">Auth Expiry</th>
-              <th className="px-4 py-3">Actions</th>
+              <th scope="col" className="px-4 py-3">Customer</th>
+              <th scope="col" className="px-4 py-3">Age</th>
+              <th scope="col" className="px-4 py-3">BMI</th>
+              <th scope="col" className="px-4 py-3">Product</th>
+              <th scope="col" className="px-4 py-3">Submitted</th>
+              <th scope="col" className="px-4 py-3">Status</th>
+              <th scope="col" className="px-4 py-3">Uploads</th>
+              <th scope="col" className="px-4 py-3">Auth Expiry</th>
+              <th scope="col" className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>

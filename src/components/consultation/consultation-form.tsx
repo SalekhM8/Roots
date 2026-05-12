@@ -34,6 +34,8 @@ interface FormState {
   // Step 2
   hasMedicalConditions: boolean | null;
   medicalConditionsText: string;
+  takesPrescriptionMedications: boolean | null;
+  currentMedicationsText: string;
   hasPriorGlp1Use: boolean | null;
   priorGlp1Details: string;
 
@@ -96,6 +98,8 @@ const initialState: FormState = {
   processConfirmed: false,
   hasMedicalConditions: null,
   medicalConditionsText: "",
+  takesPrescriptionMedications: null,
+  currentMedicationsText: "",
   hasPriorGlp1Use: null,
   priorGlp1Details: "",
   heightUnit: "cm",
@@ -332,8 +336,10 @@ export default function ConsultationForm() {
 
   const canContinueStep2 =
     state.hasMedicalConditions !== null &&
+    state.takesPrescriptionMedications !== null &&
     state.hasPriorGlp1Use !== null &&
     (state.hasMedicalConditions === false || state.medicalConditionsText.trim().length > 0) &&
+    (state.takesPrescriptionMedications === false || state.currentMedicationsText.trim().length > 0) &&
     (state.hasPriorGlp1Use === false || state.priorGlp1Details.trim().length > 0);
 
   const canContinueStep3 = useMemo(() => {
@@ -399,7 +405,7 @@ export default function ConsultationForm() {
       const payload: ConsultationAnswersInput = {
         hasMedicalConditions: state.hasMedicalConditions === true,
         medicalConditionsText: state.hasMedicalConditions ? state.medicalConditionsText : undefined,
-        currentMedicationsText: state.hasMedicalConditions ? state.medicalConditionsText : undefined,
+        currentMedicationsText: state.takesPrescriptionMedications ? state.currentMedicationsText : undefined,
         hasPriorGlp1Use: state.hasPriorGlp1Use === true,
         priorGlp1Details: state.hasPriorGlp1Use ? state.priorGlp1Details : undefined,
         heightCm: Math.round(heightInCm * 10) / 10,
@@ -573,13 +579,24 @@ export default function ConsultationForm() {
           </h2>
 
           <div className="space-y-8">
-            <QuestionBlock question="Do you take any medication, or have any medical conditions?">
+            <QuestionBlock question="Do you have any medical conditions?">
               <YesNoRadio name="hasMedicalConditions" value={state.hasMedicalConditions} onChange={(v) => setField("hasMedicalConditions", v)} />
               {state.hasMedicalConditions && (
                 <Textarea
                   value={state.medicalConditionsText}
                   onChange={(v) => setField("medicalConditionsText", v)}
-                  placeholder="Please list your medications and/or medical conditions..."
+                  placeholder="Please list your medical conditions..."
+                />
+              )}
+            </QuestionBlock>
+
+            <QuestionBlock question="Are you currently taking any prescription medications?">
+              <YesNoRadio name="takesPrescriptionMedications" value={state.takesPrescriptionMedications} onChange={(v) => setField("takesPrescriptionMedications", v)} />
+              {state.takesPrescriptionMedications && (
+                <Textarea
+                  value={state.currentMedicationsText}
+                  onChange={(v) => setField("currentMedicationsText", v)}
+                  placeholder="Please list each medication, dose, and how often you take it..."
                 />
               )}
             </QuestionBlock>

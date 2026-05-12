@@ -1,9 +1,7 @@
 import { db } from "@/lib/db";
 import { OrderType, type Prisma } from "@/generated/prisma/client";
-import {
-  createMolliePayment,
-  getOrCreateMollieCustomer,
-} from "@/lib/payments/mollie";
+import { createVivaPayment } from "@/server/services/payment";
+import { VivaError } from "@/lib/payments/viva";
 import { writeAuditLog } from "@/lib/security/audit";
 import { generateOrderNumber } from "@/lib/validation/schemas";
 import { markCartConverted } from "./cart";
@@ -39,23 +37,21 @@ function determineOrderType(
   return "supplement";
 }
 
-function getAppUrl(): string {
-  return (process.env.NEXT_PUBLIC_APP_URL ?? "https://rootspharmacy.co.uk").trim();
-}
-
 /**
  * Create an order from the user's cart.
  *
  * Flow:
- * 1. Create order + payment record in DB (with placeholder molliePaymentId)
- * 2. Create Mollie payment with correct redirect URL containing the real order ID
- * 3. Update payment record with the real Mollie payment ID
+ * 1. Create the Order row.
+ * 2. Call `createVivaPayment` — issues the Viva order, persists the Payment row,
+ *    returns the Viva-hosted checkout redirect URL.
+ * 3. Mark cart converted, write audit log, save shipping address.
  *
  * Payment model:
- * - Supplement-only: capture immediately (default Mollie behavior)
- * - POM/mixed: authorize only (captureMode: "manual")
+ * - Supplement-only: charge immediately (`preauth: false`).
+ * - POM/mixed: authorize only (`preauth: true`); capture happens on
+ *   prescriber approval via `captureVivaPayment`.
  *
- * Returns the Mollie checkout URL for client-side redirect.
+ * Returns the Viva checkout URL for client-side redirect.
  */
 export async function createOrder(
   userId: string,
@@ -114,83 +110,75 @@ export async function createOrder(
   }
 
   const orderNumber = generateOrderNumber();
-  const isManualCapture = orderType !== "supplement";
-  const captureBefore =
-    isManualCapture
-      ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-      : null;
+  const isPreauth = orderType !== "supplement";
 
-  // Step 1: Create order in DB first so we have the real order ID
-  const order = await db.$transaction(async (tx) => {
-    const created = await tx.order.create({
-      data: {
-        userId,
-        orderNumber,
-        orderType,
-        consultationId: linkedConsultationId,
-        shippingAddressSnapshot:
-          shippingAddress as unknown as Prisma.InputJsonValue,
-        billingAddressSnapshot: (billingAddress ??
-          shippingAddress) as unknown as Prisma.InputJsonValue,
-        paymentStatus: "pending",
-        subtotalMinor,
-        shippingMinor,
-        taxMinor,
-        totalMinor,
-        placedAt: new Date(),
-        items: {
-          create: cart.items.map((item) => ({
-            productId: item.productVariant.product.id,
-            productVariantId: item.productVariant.id,
-            productNameSnapshot: item.productVariant.product.name,
-            variantNameSnapshot: item.productVariant.name,
-            skuSnapshot: item.productVariant.sku,
-            quantity: item.quantity,
-            unitPriceMinor: item.unitPriceMinor,
-            lineTotalMinor: item.unitPriceMinor * item.quantity,
-          })),
-        },
+  // Step 1: Create the Order row. We do NOT pre-create a Payment row —
+  // `createVivaPayment` writes one with the canonical Viva identifiers
+  // (vivaOrderCode + merchantTrns) once Viva accepts the order. This
+  // avoids the "placeholder id" dance the Mollie path used.
+  const order = await db.order.create({
+    data: {
+      userId,
+      orderNumber,
+      orderType,
+      consultationId: linkedConsultationId,
+      shippingAddressSnapshot:
+        shippingAddress as unknown as Prisma.InputJsonValue,
+      billingAddressSnapshot: (billingAddress ??
+        shippingAddress) as unknown as Prisma.InputJsonValue,
+      paymentStatus: "pending",
+      subtotalMinor,
+      shippingMinor,
+      taxMinor,
+      totalMinor,
+      placedAt: new Date(),
+      items: {
+        create: cart.items.map((item) => ({
+          productId: item.productVariant.product.id,
+          productVariantId: item.productVariant.id,
+          productNameSnapshot: item.productVariant.product.name,
+          variantNameSnapshot: item.productVariant.name,
+          skuSnapshot: item.productVariant.sku,
+          quantity: item.quantity,
+          unitPriceMinor: item.unitPriceMinor,
+          lineTotalMinor: item.unitPriceMinor * item.quantity,
+        })),
       },
-    });
-
-    // Create payment record with a temporary placeholder — updated below
-    await tx.payment.create({
-      data: {
-        orderId: created.id,
-        molliePaymentId: `pending_${created.id}`,
-        status: "pending",
-        amountMinor: totalMinor,
-        captureBefore,
-      },
-    });
-
-    return created;
-  });
-
-  // Step 2: Get or create Mollie Customer
-  const mollieCustomerId = await getOrCreateMollieCustomer(userId, userEmail);
-
-  const appUrl = getAppUrl();
-
-  // Step 3: Create Mollie payment with the REAL order ID in the redirect URL
-  const molliePayment = await createMolliePayment({
-    amountMinor: totalMinor,
-    description: `Order ${orderNumber}`,
-    redirectUrl: `${appUrl}/checkout/confirmation?order_id=${order.id}`,
-    captureMode: isManualCapture ? "manual" : undefined,
-    metadata: {
-      order_number: orderNumber,
-      order_type: orderType,
-      user_id: userId,
     },
-    customerId: mollieCustomerId,
   });
 
-  // Step 4: Update payment record with real Mollie payment ID
-  await db.payment.updateMany({
-    where: { orderId: order.id, molliePaymentId: `pending_${order.id}` },
-    data: { molliePaymentId: molliePayment.id },
-  });
+  // Step 2: Create the Viva payment order. If this fails, the Order is
+  // orphaned in pending state — the customer can retry checkout, and any
+  // unpaid `pending` orders aged > 30 min can be reaped by a maintenance
+  // cron. Same risk profile as the prior Mollie flow.
+  let viva: { redirectUrl: string };
+  try {
+    viva = await createVivaPayment({
+      orderId: order.id,
+      amountMinor: totalMinor,
+      preauth: isPreauth,
+      customer: {
+        email: userEmail,
+      },
+      description: `Order ${orderNumber}`,
+      tags: [orderType, `user_${userId}`],
+    });
+  } catch (err) {
+    if (err instanceof VivaError) {
+      console.error("[order.create] Viva createOrder failed", {
+        orderId: order.id,
+        status: err.status,
+        errorCode: err.errorCode,
+        correlationId: err.correlationId,
+      });
+    } else {
+      console.error("[order.create] Viva createOrder failed (non-VivaError)", err);
+    }
+    return {
+      success: false,
+      error: "Could not start payment. Please try again in a moment.",
+    };
+  }
 
   // Mark cart as converted + audit log + save address in parallel
   await Promise.all([
@@ -205,19 +193,14 @@ export async function createOrder(
         orderNumber,
         orderType,
         totalMinor,
-        captureMode: isManualCapture ? "manual" : "automatic",
+        preauth: isPreauth,
         itemCount: cart.items.length,
       },
     }),
     saveAddressIfNew(userId, shippingAddress),
   ]);
 
-  const checkoutUrl = molliePayment.getCheckoutUrl();
-  if (!checkoutUrl) {
-    return { success: false, error: "Failed to generate payment URL. Please try again." };
-  }
-
-  return { success: true, orderId: order.id, checkoutUrl };
+  return { success: true, orderId: order.id, checkoutUrl: viva.redirectUrl };
 }
 
 /**

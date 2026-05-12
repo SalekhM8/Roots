@@ -25,7 +25,7 @@ export async function updateProductAction(
   input: z.infer<typeof updateProductSchema>
 ): Promise<ActionResult> {
   const user = await requireAnyRole("admin");
-  const rl = checkRateLimit("admin", user.id);
+  const rl = await checkRateLimit("admin", user.id);
   if (!rl.allowed) return { success: false, error: "Too many requests." };
 
   const parsed = updateProductSchema.safeParse(input);
@@ -70,7 +70,7 @@ export async function updateVariantAction(
   input: z.infer<typeof updateVariantSchema>
 ): Promise<ActionResult> {
   const user = await requireAnyRole("admin");
-  const rl = checkRateLimit("admin", user.id);
+  const rl = await checkRateLimit("admin", user.id);
   if (!rl.allowed) return { success: false, error: "Too many requests." };
 
   const parsed = updateVariantSchema.safeParse(input);
@@ -114,7 +114,7 @@ export async function archiveProductAction(
   input: z.infer<typeof archiveSchema>
 ): Promise<ActionResult> {
   const user = await requireAnyRole("admin");
-  const rl = checkRateLimit("admin", user.id);
+  const rl = await checkRateLimit("admin", user.id);
   if (!rl.allowed) return { success: false, error: "Too many requests." };
 
   const parsed = archiveSchema.safeParse(input);
@@ -149,7 +149,7 @@ export async function unarchiveProductAction(
   input: z.infer<typeof archiveSchema>
 ): Promise<ActionResult> {
   const user = await requireAnyRole("admin");
-  const rl = checkRateLimit("admin", user.id);
+  const rl = await checkRateLimit("admin", user.id);
   if (!rl.allowed) return { success: false, error: "Too many requests." };
 
   const parsed = archiveSchema.safeParse(input);
@@ -191,7 +191,7 @@ export async function assignCollectionAction(
   input: z.infer<typeof collectionSchema>
 ): Promise<ActionResult> {
   const user = await requireAnyRole("admin");
-  const rl = checkRateLimit("admin", user.id);
+  const rl = await checkRateLimit("admin", user.id);
   if (!rl.allowed) return { success: false, error: "Too many requests." };
 
   const parsed = collectionSchema.safeParse(input);
@@ -234,7 +234,7 @@ export async function removeCollectionAction(
   input: z.infer<typeof collectionSchema>
 ): Promise<ActionResult> {
   const user = await requireAnyRole("admin");
-  const rl = checkRateLimit("admin", user.id);
+  const rl = await checkRateLimit("admin", user.id);
   if (!rl.allowed) return { success: false, error: "Too many requests." };
 
   const parsed = collectionSchema.safeParse(input);

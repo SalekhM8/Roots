@@ -42,6 +42,12 @@ export async function refundOrderAction(
 
   const isFullRefund = refundAmount === payment.amountMinor;
 
+  if (!payment.molliePaymentId) {
+    // Viva-originated payment — Viva refunds run through the Viva service.
+    // This branch should not be reached once the checkout migration is live.
+    return { success: false, error: "Mollie refund unavailable for non-Mollie payment." };
+  }
+
   try {
     await refundMolliePayment(payment.molliePaymentId, refundAmount);
   } catch (err) {

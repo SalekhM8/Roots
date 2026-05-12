@@ -44,11 +44,11 @@ export default async function EmailEventsPage({
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-roots-green/10 text-xs font-medium uppercase tracking-wider text-roots-navy/50">
-              <th className="px-4 py-3">Recipient</th>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Sent At</th>
-              <th className="px-4 py-3">Error</th>
+              <th scope="col" className="px-4 py-3">Recipient</th>
+              <th scope="col" className="px-4 py-3">Type</th>
+              <th scope="col" className="px-4 py-3">Status</th>
+              <th scope="col" className="px-4 py-3">Sent At</th>
+              <th scope="col" className="px-4 py-3">Error</th>
             </tr>
           </thead>
           <tbody>

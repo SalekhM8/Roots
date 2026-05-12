@@ -362,8 +362,16 @@ model OrderItem {
 model Payment {
   id                    String        @id @default(uuid()) @db.Uuid
   orderId               String        @map("order_id") @db.Uuid
-  provider              String        @default("mollie")
-  molliePaymentId       String        @map("mollie_payment_id")
+  provider              String        @default("viva")
+  // Mollie identifier — kept nullable for legacy rows during the Viva migration.
+  molliePaymentId       String?       @map("mollie_payment_id")
+  // Viva 16-digit OrderCode — store as string, exceeds Number.MAX_SAFE_INTEGER.
+  vivaOrderCode         String?       @map("viva_order_code")
+  // Viva TransactionId (UUID) — populated on first 1796 webhook or retrieve.
+  vivaTransactionId     String?       @map("viva_transaction_id")
+  // UUID we generate per payment and pass as `merchantTrns` for idempotency
+  // (Viva has no native idempotency keys).
+  merchantTrns          String?       @map("merchant_trns") @db.Uuid
 
   status                PaymentStatus @default(pending)
   amountMinor           Int           @map("amount_minor")
@@ -377,11 +385,29 @@ model Payment {
   createdAt             DateTime      @default(now()) @map("created_at")
   updatedAt             DateTime      @updatedAt @map("updated_at")
 
-  order Order @relation(fields: [orderId], references: [id])
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([molliePaymentId])
+  @@index([vivaOrderCode])
+  @@index([vivaTransactionId])
   @@index([captureBefore])
   @@map("payments")
+}
+
+/// Inbound provider webhook receipts — used for at-least-once dedupe.
+/// For Viva the unique key is (provider, messageId) where messageId is the
+/// per-delivery UUID Viva ships in the envelope.
+model WebhookEvent {
+  id          String   @id @default(uuid()) @db.Uuid
+  provider    String
+  messageId   String   @map("message_id")
+  eventType   String?  @map("event_type")
+  receivedAt  DateTime @default(now()) @map("received_at")
+  payloadJson Json?    @map("payload_json")
+
+  @@unique([provider, messageId])
+  @@index([receivedAt])
+  @@map("webhook_events")
 }
 
 // =============================================
@@ -526,7 +552,7 @@ model FulfillmentJob {
   createdAt      DateTime             @default(now()) @map("created_at")
   updatedAt      DateTime             @updatedAt @map("updated_at")
 
-  order    Order @relation(fields: [orderId], references: [id])
+  order    Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
   packedBy User? @relation("PackedBy", fields: [packedByUserId], references: [id])
 
   @@map("fulfillment_jobs")
@@ -549,7 +575,7 @@ model Shipment {
   createdAt        DateTime       @default(now()) @map("created_at")
   updatedAt        DateTime       @updatedAt @map("updated_at")
 
-  order          Order           @relation(fields: [orderId], references: [id])
+  order          Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
   trackingEvents TrackingEvent[]
 
   @@index([orderId])
@@ -589,6 +615,10 @@ model EmailEvent {
 
   user User? @relation(fields: [userId], references: [id])
 
+  @@index([status, createdAt])
+  @@index([userId])
+  @@index([orderId])
+  @@index([consultationId])
   @@map("email_events")
 }
 

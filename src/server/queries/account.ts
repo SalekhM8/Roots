@@ -96,7 +96,14 @@ export async function getCustomerConsultationDetail(userId: string, consultation
       productVariant: { select: { name: true, priceMinor: true } },
       answers: true,
       uploads: {
-        select: { id: true, uploadType: true, status: true, fileName: true },
+        select: {
+          id: true,
+          uploadType: true,
+          status: true,
+          fileName: true,
+          mimeType: true,
+          storageKey: true,
+        },
       },
       reviews: {
         select: {

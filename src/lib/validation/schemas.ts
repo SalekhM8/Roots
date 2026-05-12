@@ -127,6 +127,23 @@ export const guestCheckoutSchema = z.object({
   items: z.array(guestCartItemSchema).min(1, "Cart cannot be empty"),
 });
 
+// ---- Address Snapshot (read-side) ----
+// Order.shippingAddressSnapshot / billingAddressSnapshot are stored as Json,
+// so anything reading them off an Order should parse with this schema rather
+// than casting blind.
+export const addressSnapshotSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  line1: z.string(),
+  line2: z.string().optional(),
+  city: z.string(),
+  postcode: z.string(),
+  countryCode: z.string().default("GB"),
+  phone: z.string().optional(),
+});
+
+export type AddressSnapshot = z.infer<typeof addressSnapshotSchema>;
+
 export type AddressInput = z.infer<typeof addressSchema>;
 export type ProfileInput = z.infer<typeof profileSchema>;
 export type ConsultationAnswersInput = z.infer<typeof consultationAnswersSchema>;

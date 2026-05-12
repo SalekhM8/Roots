@@ -30,13 +30,13 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-roots-green/10 text-xs font-medium uppercase tracking-wider text-roots-navy/50">
-              <th className="px-4 py-3">Product</th>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">Variants</th>
-              <th className="px-4 py-3">Price Range</th>
-              <th className="px-4 py-3">Total Stock</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Actions</th>
+              <th scope="col" className="px-4 py-3">Product</th>
+              <th scope="col" className="px-4 py-3">Type</th>
+              <th scope="col" className="px-4 py-3">Variants</th>
+              <th scope="col" className="px-4 py-3">Price Range</th>
+              <th scope="col" className="px-4 py-3">Total Stock</th>
+              <th scope="col" className="px-4 py-3">Status</th>
+              <th scope="col" className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>

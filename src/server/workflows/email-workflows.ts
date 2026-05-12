@@ -2,11 +2,46 @@ import { inngest } from "./inngest";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email/resend";
 import * as templates from "@/lib/email/templates";
+import { voidOrRefundVivaPayment } from "@/server/services/payment";
+import { VivaError } from "@/lib/payments/viva";
 
 /**
  * All transactional emails are triggered through Inngest workflows,
  * never inline in route handlers. Each send creates an email_events record.
  */
+
+export const sendAccountCreatedEmail = inngest.createFunction(
+  { id: "send-account-created-email" },
+  { event: "user/created" },
+  async ({ event }) => {
+    const { userId } = event.data;
+
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      include: { customerProfile: { select: { firstName: true } } },
+    });
+    if (!user) return;
+
+    const name = user.customerProfile?.firstName ?? "there";
+    const html = templates.accountCreated(name);
+
+    const { messageId } = await sendEmail({
+      to: user.email,
+      subject: "Welcome to ROOTS Pharmacy",
+      html,
+    });
+
+    await db.emailEvent.create({
+      data: {
+        userId,
+        emailType: "account_created",
+        providerMessageId: messageId,
+        sentAt: messageId ? new Date() : null,
+        status: messageId ? "sent" : "failed",
+      },
+    });
+  }
+);
 
 export const sendConsultationSubmittedEmail = inngest.createFunction(
   { id: "send-consultation-submitted-email" },
@@ -178,6 +213,64 @@ export const sendOrderShippedEmail = inngest.createFunction(
   }
 );
 
+/**
+ * Order confirmation — fired when a customer's payment first transitions out of
+ * `pending` (i.e. authorized for POM/mixed, captured for supplements).
+ *
+ * Triggered by the payment-provider webhook. Currently NOT fired anywhere yet
+ * because the Mollie webhook is being torn out — wire `inngest.send({ name:
+ * "order/created", data: { userId, orderId, orderNumber, isPom } })` from the
+ * Viva webhook on first non-pending state transition.
+ */
+export const sendOrderConfirmationEmail = inngest.createFunction(
+  { id: "send-order-confirmation-email" },
+  { event: "order/created" },
+  async ({ event }) => {
+    const { userId, orderId, orderNumber, isPom } = event.data;
+
+    let toEmail: string;
+    let name: string;
+
+    if (userId) {
+      const user = await db.user.findUnique({
+        where: { id: userId },
+        include: { customerProfile: { select: { firstName: true } } },
+      });
+      if (!user) return;
+      toEmail = user.email;
+      name = user.customerProfile?.firstName ?? "there";
+    } else {
+      const order = await db.order.findUnique({
+        where: { id: orderId },
+        select: { guestEmail: true },
+      });
+      if (!order?.guestEmail) return;
+      toEmail = order.guestEmail;
+      name = "there";
+    }
+
+    const html = templates.orderConfirmation(name, orderNumber, !!isPom);
+
+    const { messageId } = await sendEmail({
+      to: toEmail,
+      subject: `Order ${orderNumber} Received — ROOTS Pharmacy`,
+      html,
+    });
+
+    await db.emailEvent.create({
+      data: {
+        userId: userId ?? undefined,
+        recipientEmail: toEmail,
+        orderId,
+        emailType: "order_confirmation",
+        providerMessageId: messageId,
+        sentAt: messageId ? new Date() : null,
+        status: messageId ? "sent" : "failed",
+      },
+    });
+  },
+);
+
 export const sendPaymentCapturedEmail = inngest.createFunction(
   { id: "send-payment-captured-email" },
   { event: "payment/captured" },
@@ -289,7 +382,10 @@ export const sendReviewRequestEmail = inngest.createFunction(
  */
 export const checkExpiringAuthorizations = inngest.createFunction(
   { id: "check-expiring-authorizations" },
-  { cron: "0 6 * * *" }, // 6 AM daily
+  // Runs at 06:00 UK time year-round (Inngest evaluates the TZ prefix, so this
+  // shifts correctly between GMT and BST). Without TZ= this would drift by one
+  // hour twice a year.
+  { cron: "TZ=Europe/London 0 6 * * *" },
   async () => {
     const now = new Date();
     const in24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
@@ -313,44 +409,85 @@ export const checkExpiringAuthorizations = inngest.createFunction(
       },
     });
 
+    let voided = 0;
+    let emailed = 0;
+
     for (const payment of expiringPayments) {
-      // If already past capture deadline, void and notify
-      if (payment.captureBefore && payment.captureBefore <= now) {
-        await db.$transaction(async (tx) => {
-          await tx.payment.update({
-            where: { id: payment.id },
-            data: { status: "expired" },
-          });
-          await tx.order.update({
-            where: { id: payment.orderId },
-            data: { paymentStatus: "expired" },
-          });
+      // Only act on payments PAST the capture deadline. Viva's preauth window
+      // is issuer-controlled (typically 1–5 days); we recorded our best-guess
+      // captureBefore at create time. Once past it, the issuer may already
+      // have released the hold, but we still call void as a belt-and-braces
+      // cleanup — Viva is idempotent enough that a stale void is harmless.
+      if (!payment.captureBefore || payment.captureBefore > now) continue;
+
+      // Idempotency: skip if we've already emailed the customer for this order.
+      const alreadyEmailed = await db.emailEvent.findFirst({
+        where: { orderId: payment.orderId, emailType: "payment_expired" },
+        select: { id: true },
+      });
+      if (alreadyEmailed) continue;
+
+      // Attempt the Viva void. Failures here are non-fatal — the funds
+      // release at the issuer once the window closes regardless of whether
+      // we get a clean void response. We log + audit and continue so the
+      // customer-facing state still progresses to "expired".
+      try {
+        await voidOrRefundVivaPayment({
+          paymentId: payment.id,
+          reason: "preauth.expired.sweeper",
         });
-
-        const user = payment.order.user;
-        if (!user) continue; // Guest orders use automatic capture, no auth expiry
-        const name = user.customerProfile?.firstName ?? "there";
-        const html = templates.paymentExpired(name, payment.order.orderNumber);
-
-        const { messageId } = await sendEmail({
-          to: user.email,
-          subject: "Payment Authorization Expired — ROOTS Pharmacy",
-          html,
-        });
-
-        await db.emailEvent.create({
-          data: {
-            userId: user.id,
-            orderId: payment.orderId,
-            emailType: "payment_expired",
-            providerMessageId: messageId,
-            sentAt: messageId ? new Date() : null,
-            status: messageId ? "sent" : "failed",
-          },
+        voided += 1;
+      } catch (err) {
+        const correlationId =
+          err instanceof VivaError ? err.correlationId : undefined;
+        const message = err instanceof Error ? err.message : String(err);
+        console.error("[preauth-sweeper] Viva void failed", {
+          paymentId: payment.id,
+          orderId: payment.orderId,
+          correlationId,
+          error: message,
         });
       }
+
+      // Override the post-void status to "expired" so the customer-facing
+      // copy ("Payment Authorization Expired") matches the order state.
+      // voidOrRefundVivaPayment sets "voided" on success — we treat the
+      // sweeper-triggered case as semantically distinct.
+      await db.$transaction(async (tx) => {
+        await tx.payment.update({
+          where: { id: payment.id },
+          data: { status: "expired" },
+        });
+        await tx.order.update({
+          where: { id: payment.orderId },
+          data: { paymentStatus: "expired" },
+        });
+      });
+
+      const user = payment.order.user;
+      if (!user) continue; // Guest orders use immediate capture, no auth expiry path.
+      const name = user.customerProfile?.firstName ?? "there";
+      const html = templates.paymentExpired(name, payment.order.orderNumber);
+
+      const { messageId } = await sendEmail({
+        to: user.email,
+        subject: "Payment Authorization Expired — ROOTS Pharmacy",
+        html,
+      });
+
+      await db.emailEvent.create({
+        data: {
+          userId: user.id,
+          orderId: payment.orderId,
+          emailType: "payment_expired",
+          providerMessageId: messageId,
+          sentAt: messageId ? new Date() : null,
+          status: messageId ? "sent" : "failed",
+        },
+      });
+      emailed += 1;
     }
 
-    return { checked: expiringPayments.length };
+    return { checked: expiringPayments.length, voided, emailed };
   }
 );

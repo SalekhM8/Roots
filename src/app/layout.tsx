@@ -5,6 +5,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { CartCountProvider } from "@/components/cart/cart-count-provider";
 import { PendingCartReplay } from "@/components/cart/pending-cart-replay";
 import NewsletterPopup from "@/components/marketing/newsletter-popup";
+import { PostHogBootstrap } from "@/components/observability/posthog-bootstrap";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -119,6 +120,7 @@ export default function RootLayout({
           />
         </head>
         <body className="min-h-screen bg-roots-cream font-sans text-roots-navy antialiased">
+          <PostHogBootstrap />
           <CartCountProvider>
             <PendingCartReplay />
             {children}

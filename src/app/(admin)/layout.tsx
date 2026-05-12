@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/layout/logo";
 import { ADMIN_NAV, ROUTES } from "@/lib/constants";
 import { requireAnyRole } from "@/lib/auth";
+import { AdminMobileNav } from "@/components/admin/admin-mobile-nav";
 
 export default async function AdminLayout({
   children,
@@ -43,9 +44,12 @@ export default async function AdminLayout({
       <main className="flex-1 bg-roots-cream">
         {/* Mobile admin header */}
         <div className="sticky top-0 z-40 flex h-14 items-center justify-between bg-roots-green px-4 lg:hidden">
-          <span className="font-display text-lg font-black uppercase tracking-tighter text-roots-cream">
-            ROOTS Admin
-          </span>
+          <div className="flex items-center gap-3">
+            <AdminMobileNav />
+            <span className="font-display text-lg font-black uppercase tracking-tighter text-roots-cream">
+              ROOTS Admin
+            </span>
+          </div>
           <Link href="/" className="text-sm text-roots-cream/60">
             Store &rarr;
           </Link>

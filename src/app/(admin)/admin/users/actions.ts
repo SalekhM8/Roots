@@ -22,7 +22,7 @@ export async function assignRoleAction(
   input: z.infer<typeof assignRoleSchema>
 ): Promise<ActionResult> {
   const actor = await requireAnyRole("admin");
-  const rl = checkRateLimit("admin", actor.id);
+  const rl = await checkRateLimit("admin", actor.id);
   if (!rl.allowed) return { success: false, error: "Too many requests." };
 
   const parsed = assignRoleSchema.safeParse(input);
@@ -73,7 +73,7 @@ export async function removeRoleAction(
   input: z.infer<typeof removeRoleSchema>
 ): Promise<ActionResult> {
   const actor = await requireAnyRole("admin");
-  const rl = checkRateLimit("admin", actor.id);
+  const rl = await checkRateLimit("admin", actor.id);
   if (!rl.allowed) return { success: false, error: "Too many requests." };
 
   const parsed = removeRoleSchema.safeParse(input);

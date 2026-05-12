@@ -14,7 +14,7 @@ export async function createGuestCheckoutAction(
   input: GuestCheckoutInput
 ): Promise<CreateGuestOrderResult> {
   // Rate limit by email
-  const rl = checkRateLimit("checkout", input.email);
+  const rl = await checkRateLimit("checkout", input.email);
   if (!rl.allowed) {
     return {
       success: false,
