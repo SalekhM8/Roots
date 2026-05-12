@@ -13,22 +13,23 @@ export const metadata: Metadata = {
 };
 
 /**
- * Customers who already have a non-terminal Mounjaro consultation should
+ * Customers who already have an IN-FLIGHT Mounjaro consultation should
  * never be shown the form again — the duplicate-submit guard in
  * `submitConsultation` would reject them at the end anyway, and forcing
  * them to re-answer 30+ questions just to discover that is hostile UX.
  *
- * Signed-in users with an existing `submitted` / `approved` / `info_requested`
- * consultation get redirected straight to the dose-selection step (or, for
- * `info_requested`, to their account detail page so they can respond to the
- * prescriber's note).
+ * Terminal statuses (rejected / expired / approved) are excluded from
+ * this guard so the customer is free to start a fresh consultation:
+ * - rejected / expired → previous attempt is done, retry from scratch
+ * - approved           → previous order is complete; this is a repeat
+ *                        purchase, which is the whole Mounjaro business.
  *
  * Guests (no Clerk session) still see the form; the auth gate inside the
  * form will route them through sign-in and the duplicate-check kicks in
  * server-side on submit as a final backstop.
  */
 // Statuses where the customer should jump back into dose-select + checkout.
-const RESUMABLE_STATUSES = ["draft", "submitted", "approved"] as const;
+const RESUMABLE_STATUSES = ["draft", "submitted"] as const;
 // Statuses owned by prescriber action — customer is sent to the detail page.
 const ACCOUNT_STATUSES = ["under_review", "action_required"] as const;
 
@@ -39,7 +40,10 @@ export default async function MounjaroConsultationPage() {
     const existing = await db.consultation.findFirst({
       where: {
         userId: user.id,
-        status: { notIn: ["rejected", "expired"] },
+        // Match the INACTIVE_STATUSES list in server/services/consultation.ts
+        // exactly. If you add a status here, add it there too — or the form
+        // and the submit handler will disagree about who is allowed to start.
+        status: { notIn: ["rejected", "expired", "approved"] },
       },
       orderBy: { createdAt: "desc" },
       select: { id: true, status: true },

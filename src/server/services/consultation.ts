@@ -6,7 +6,15 @@ import { inngest } from "@/server/workflows/inngest";
 
 const MOUNJARO_SLUG = "mounjaro";
 
-const INACTIVE_STATUSES: ConsultationStatus[] = ["rejected", "expired"];
+// Terminal/non-blocking statuses. A customer with ONLY consultations in
+// these states is free to start a brand-new consultation.
+// - rejected / expired: prescriber declined or auth lapsed, fresh start
+// - approved:           prescriber already decided + payment captured; this
+//                       is a COMPLETED transaction, not an in-flight one.
+//                       Mounjaro is a repeat-purchase business — locking a
+//                       customer out forever after one successful order
+//                       would kill reorders, which is the revenue model.
+const INACTIVE_STATUSES: ConsultationStatus[] = ["rejected", "expired", "approved"];
 
 export interface SubmitConsultationResult {
   success: boolean;
