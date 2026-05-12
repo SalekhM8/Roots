@@ -1,12 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { cn, formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { addDoseToCartAction } from "./actions";
-import { ROUTES } from "@/lib/constants";
-import { useCartCount } from "@/components/cart/cart-count-provider";
 
 interface Variant {
   id: string;
@@ -24,8 +21,6 @@ export function DoseSelector({ variants, consultationId }: DoseSelectorProps) {
   const [selectedId, setSelectedId] = useState(variants[0]?.id ?? "");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const { refresh } = useCartCount();
 
   const selected = variants.find((v) => v.id === selectedId);
   const outOfStock = selected ? selected.stockQuantity <= 0 : true;
@@ -34,13 +29,11 @@ export function DoseSelector({ variants, consultationId }: DoseSelectorProps) {
     if (!selectedId || outOfStock) return;
     setError(null);
 
+    // The server action redirects to /checkout on success. It only returns
+    // here if there's an error to surface inline.
     startTransition(async () => {
       const result = await addDoseToCartAction(selectedId, consultationId);
-
-      if (result.success) {
-        refresh();
-        router.push(ROUTES.checkout);
-      } else {
+      if (result && !result.success) {
         setError(result.error);
       }
     });
