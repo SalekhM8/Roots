@@ -19,7 +19,7 @@ function formatRelativeDate(dateStr: string): string {
 
 function ReviewCard({ review }: { review: Review }) {
   return (
-    <div className="flex min-w-[300px] max-w-[360px] shrink-0 snap-start flex-col rounded-[16px] bg-white p-6 shadow-sm md:p-8">
+    <div className="glass-card flex min-w-[300px] max-w-[360px] shrink-0 snap-start flex-col rounded-[16px] p-6 md:p-8">
       <StarRating rating={review.rating} size="md" />
 
       <p className="mt-4 flex-1 text-base leading-relaxed text-roots-navy">

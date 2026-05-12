@@ -58,7 +58,7 @@ export function AddressForm({ mode, addressId, initial, onDone }: AddressFormPro
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-[var(--radius-card)] border border-roots-green/10 bg-white p-6">
+    <form onSubmit={handleSubmit} className="glass-card-strong space-y-4 rounded-[var(--radius-card)] p-6">
       <h3 className="text-lg font-medium text-roots-navy">
         {mode === "edit" ? "Edit Address" : "Add Address"}
       </h3>

@@ -322,6 +322,43 @@ export function paymentExpired(name: string, orderNumber: string): string {
   );
 }
 
+/**
+ * Internal admin notification — fired alongside the customer's order
+ * confirmation. Plain summary, deep link straight to the order detail
+ * in admin. Sent to admin@rootspharmacy.co.uk.
+ */
+export function adminNewOrder(params: {
+  orderNumber: string;
+  amountFormatted: string;
+  customerLabel: string; // "Jane Smith (jane@x.com)" or "Guest — jane@x.com"
+  isPom: boolean;
+  itemsSummary: string; // multi-line "1× MNJ-5MG\n2× Berocca"
+  orderId: string;
+}): string {
+  const adminOrderUrl = `${BRAND.siteUrl}/admin/orders/${params.orderId}`;
+  const typeBadge = params.isPom
+    ? `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background-color:${BRAND.green};color:${BRAND.cream};font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">POM · Mounjaro</span>`
+    : `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background-color:${BRAND.creamDark};color:${BRAND.navy};font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">Supplement</span>`;
+
+  return layout(
+    `New Order ${params.orderNumber} — ROOTS Admin`,
+    `New order placed: ${params.orderNumber} for ${params.amountFormatted}`,
+    `${heading("New Order Received")}
+    ${paragraph(`A new order has been placed on ROOTS Pharmacy.`)}
+    ${infoBox(`
+      <p style="margin:0 0 12px;">${typeBadge}</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;color:${BRAND.navy};line-height:1.7;">
+        <tr><td style="padding:2px 0;width:130px;color:${BRAND.grey};">Order number</td><td style="padding:2px 0;font-weight:600;">${params.orderNumber}</td></tr>
+        <tr><td style="padding:2px 0;color:${BRAND.grey};">Amount</td><td style="padding:2px 0;font-weight:600;">${params.amountFormatted}</td></tr>
+        <tr><td style="padding:2px 0;color:${BRAND.grey};vertical-align:top;">Customer</td><td style="padding:2px 0;">${params.customerLabel}</td></tr>
+        <tr><td style="padding:2px 0;color:${BRAND.grey};vertical-align:top;">Items</td><td style="padding:2px 0;white-space:pre-line;">${params.itemsSummary}</td></tr>
+      </table>
+    `, "green")}
+    ${params.isPom ? paragraph("This is a POM order. Payment is authorised pending prescriber review — capture happens on approval, void on rejection.") : paragraph("Supplement order — payment captured at checkout, ready to enter the fulfillment queue.")}
+    ${cta("Open Order in Admin", adminOrderUrl)}`
+  );
+}
+
 export function accountCreated(name: string): string {
   return layout(
     "Welcome to ROOTS Pharmacy",

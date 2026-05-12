@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { DM_Sans, Fraunces } from "next/font/google";
+import { DM_Sans, Fraunces, Instrument_Serif } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { CartCountProvider } from "@/components/cart/cart-count-provider";
 import { PendingCartReplay } from "@/components/cart/pending-cart-replay";
@@ -19,6 +19,16 @@ const fraunces = Fraunces({
   subsets: ["latin"],
   weight: ["900"],
   variable: "--font-display",
+  display: "swap",
+});
+
+// Editorial thin serif used for Voy-style consultation headings
+// ("Select your dose", "Upload your photos"). GT Super Display lookalike.
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["normal", "italic"],
+  variable: "--font-serif-thin",
   display: "swap",
 });
 
@@ -83,10 +93,8 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://rootspharmacy.co.uk",
   },
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
-  },
+  // Icons are auto-detected from src/app/icon.svg and src/app/apple-icon.svg
+  // by the Next.js file-based metadata convention — see those files.
 };
 
 export default function RootLayout({
@@ -100,7 +108,7 @@ export default function RootLayout({
       signUpUrl="/sign-up"
       afterSignOutUrl="/"
     >
-      <html lang="en" className={`${dmSans.variable} ${fraunces.variable}`}>
+      <html lang="en" className={`${dmSans.variable} ${fraunces.variable} ${instrumentSerif.variable}`}>
         <head>
           <Script
             src="https://www.googletagmanager.com/gtag/js?id=AW-18012492286"

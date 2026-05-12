@@ -28,14 +28,14 @@ const miniReviews: MiniReview[] = [
 
 export function CheckoutReviews() {
   return (
-    <div className="rounded-[8px] bg-roots-cream-2 p-4">
+    <div className="glass-card rounded-[var(--radius-card)] p-4">
       <p className="mb-3 text-xs font-medium uppercase tracking-wider text-roots-navy/50">
         What others say
       </p>
 
       <div className="space-y-3">
         {miniReviews.map((review) => (
-          <div key={review.name} className="rounded-[8px] bg-white p-3">
+          <div key={review.name} className="glass-panel rounded-[var(--radius-card)] p-3">
             <StarRating rating={review.rating} size="sm" />
             <p className="mt-1.5 line-clamp-2 text-sm leading-snug text-roots-navy/80">
               &ldquo;{review.text}&rdquo;

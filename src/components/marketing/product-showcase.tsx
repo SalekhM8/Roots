@@ -22,7 +22,7 @@ const products: ShowcaseProduct[] = [
     description:
       "A clinician-led weight management programme using tirzepatide. Includes full medical consultation, prescriber review, and ongoing support.",
     href: "/products/mounjaro",
-    imageUrl: "/images/products/mounjaro.svg",
+    imageUrl: "/images/products/mounjaro.jpg",
   },
   {
     name: "Centrum Advance",

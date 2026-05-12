@@ -38,7 +38,7 @@ export function CollectionFilter({ categories, products }: CollectionFilterProps
             "rounded-full border px-5 py-2 text-sm font-medium transition-all duration-200",
             active === "all"
               ? "border-roots-green bg-roots-green text-roots-cream shadow-sm"
-              : "border-roots-green/20 bg-white text-roots-green hover:border-roots-green/40 hover:bg-roots-green/5"
+              : "border-roots-green/20 bg-white/60 backdrop-blur-sm text-roots-green hover:border-roots-green/40 hover:bg-roots-green/5"
           )}
         >
           All Products
@@ -58,7 +58,7 @@ export function CollectionFilter({ categories, products }: CollectionFilterProps
               "rounded-full border px-5 py-2 text-sm font-medium transition-all duration-200",
               active === cat.slug
                 ? "border-roots-green bg-roots-green text-roots-cream shadow-sm"
-                : "border-roots-green/20 bg-white text-roots-green hover:border-roots-green/40 hover:bg-roots-green/5"
+                : "border-roots-green/20 bg-white/60 backdrop-blur-sm text-roots-green hover:border-roots-green/40 hover:bg-roots-green/5"
             )}
           >
             {cat.name}

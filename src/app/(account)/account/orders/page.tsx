@@ -54,7 +54,7 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
                 <Link
                   key={order.id}
                   href={`/account/orders/${order.id}`}
-                  className="block rounded-[var(--radius-card)] border border-roots-green/10 bg-white p-5 transition-colors hover:border-roots-green/25"
+                  className="glass-card block rounded-[var(--radius-card)] p-5 transition-all hover:bg-roots-cream/70"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>

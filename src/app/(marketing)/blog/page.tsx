@@ -39,7 +39,7 @@ export default function BlogPage() {
             <Link
               key={post.slug}
               href={`/blog/${post.slug}`}
-              className="group flex flex-col overflow-hidden rounded-[var(--radius-card)] bg-white transition-shadow duration-200 hover:shadow-md"
+              className="glass-card group flex flex-col overflow-hidden rounded-[var(--radius-card)] transition-shadow duration-200 hover:shadow-md"
             >
               <div className="flex flex-1 flex-col p-6 md:p-8">
                 <span className="mb-3 w-fit rounded-full bg-roots-green/10 px-3 py-1 text-xs font-medium text-roots-green">

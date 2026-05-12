@@ -482,7 +482,7 @@ export default async function WeightLossLandingPage() {
                       key={variant.id}
                       className={`relative flex flex-col items-center rounded-[var(--radius-card)] border p-8 text-center transition-shadow duration-200 hover:shadow-md ${
                         isPopular
-                          ? "border-2 border-roots-green bg-white shadow-md ring-1 ring-roots-green/10"
+                          ? "glass-card-strong border-2 border-roots-green ring-1 ring-roots-green/10"
                           : "border-roots-green/10 bg-roots-cream-2"
                       }`}
                     >
@@ -519,7 +519,7 @@ export default async function WeightLossLandingPage() {
                     key={item.name}
                     className={`relative flex flex-col items-center rounded-[var(--radius-card)] border p-8 text-center transition-shadow duration-200 hover:shadow-md ${
                       item.popular
-                        ? "border-2 border-roots-green bg-white shadow-md ring-1 ring-roots-green/10"
+                        ? "glass-card-strong border-2 border-roots-green ring-1 ring-roots-green/10"
                         : "border-roots-green/10 bg-roots-cream-2"
                     }`}
                   >

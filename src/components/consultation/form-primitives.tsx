@@ -17,7 +17,7 @@ export function RadioCard({
         "flex cursor-pointer items-center gap-3 rounded-[var(--radius-input)] border px-5 py-4 text-base transition-all duration-200",
         checked
           ? "border-roots-green bg-roots-green/5 text-roots-navy"
-          : "border-roots-green/20 bg-white text-roots-navy/70 hover:border-roots-green/40",
+          : "border-roots-green/20 bg-roots-cream/40 backdrop-blur-sm text-roots-navy/70 hover:border-roots-green/40 hover:bg-roots-cream/70",
       )}
     >
       <span
@@ -90,7 +90,7 @@ export function Textarea({
 
 export function FormCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-[var(--radius-hero)] border border-roots-green/10 bg-white p-8 md:p-10">
+    <div className="glass-card-strong rounded-[var(--radius-hero)] p-8 md:p-10">
       {children}
     </div>
   );
@@ -125,7 +125,7 @@ export function UnitToggle({
             "px-4 py-2 text-sm font-medium transition-colors duration-200",
             value === opt.value
               ? "bg-roots-green text-white"
-              : "bg-white text-roots-navy/60 hover:bg-roots-green/5",
+              : "bg-roots-cream/40 backdrop-blur-sm text-roots-navy/60 hover:bg-roots-green/5",
           )}
         >
           {opt.label}

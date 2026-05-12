@@ -91,12 +91,12 @@ export default async function SelectDosePage({ searchParams }: SelectDosePagePro
     <div className="bg-roots-cream text-roots-green">
       <div className="page-container py-12 md:py-20">
         {/* Header */}
-        <div className="mb-10 text-center">
-          <p className="mb-2 text-sm font-medium uppercase tracking-wider text-roots-green/60">
+        <div className="mb-12 text-center">
+          <p className="mb-3 text-xs font-medium uppercase tracking-[0.18em] text-roots-green/60">
             Consultation submitted
           </p>
-          <h1 className="mb-3 font-display text-[32px] font-medium text-roots-green md:text-[42px]">
-            Select Your Dose
+          <h1 className="font-serif-display mb-4 text-roots-green text-[40px] md:text-[56px]">
+            Select your dose
           </h1>
           <p className="mx-auto max-w-lg text-base text-roots-navy/70">
             Choose the Mounjaro dose you would like to order. Your prescriber
@@ -106,7 +106,7 @@ export default async function SelectDosePage({ searchParams }: SelectDosePagePro
 
         {/* Product + selector */}
         <div className="mx-auto max-w-3xl">
-          <div className="overflow-hidden rounded-[var(--radius-hero)] border border-roots-green/10 bg-white">
+          <div className="glass-card-strong overflow-hidden rounded-[var(--radius-hero)]">
             <div className="grid grid-cols-1 md:grid-cols-2">
               {/* Product image */}
               <div className="flex aspect-square items-center justify-center bg-roots-cream-2">
@@ -125,7 +125,7 @@ export default async function SelectDosePage({ searchParams }: SelectDosePagePro
 
               {/* Product details + selector */}
               <div className="flex flex-col justify-center p-6 md:p-8">
-                <h2 className="mb-1 font-display text-2xl font-medium text-roots-green">
+                <h2 className="font-serif-display-medium mb-1 text-roots-green text-3xl">
                   {product.name}
                 </h2>
                 <p className="mb-4 text-lg font-medium text-roots-green/70">

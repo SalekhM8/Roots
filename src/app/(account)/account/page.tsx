@@ -56,7 +56,7 @@ export default function AccountDashboardPage() {
           <Link
             key={card.href}
             href={card.href}
-            className="group flex flex-col rounded-[var(--radius-card)] border border-roots-green/10 bg-white p-6 transition-all duration-200 hover:border-roots-green/20 hover:shadow-sm"
+            className="glass-card group flex flex-col rounded-[var(--radius-card)] p-6 transition-all duration-200 hover:bg-roots-cream/70 hover:shadow-md"
           >
             <h2 className="mb-2 text-lg font-medium text-roots-green group-hover:text-roots-navy">
               {card.title}

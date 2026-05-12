@@ -271,6 +271,103 @@ export const sendOrderConfirmationEmail = inngest.createFunction(
   },
 );
 
+/**
+ * Internal admin notification on every new order.
+ *
+ * Listens to the same `order/created` event as the customer-facing
+ * confirmation, so any future provider that emits this event (Viva today,
+ * a backup acquirer tomorrow) gets admin notifications for free.
+ *
+ * Goes to ADMIN_NOTIFICATIONS_EMAIL (defaults to admin@rootspharmacy.co.uk).
+ * Resend send failures still create an email_events row with status=failed
+ * so we can spot a broken pipeline at a glance.
+ */
+const ADMIN_NOTIFICATIONS_EMAIL =
+  process.env.ADMIN_NOTIFICATIONS_EMAIL ?? "admin@rootspharmacy.co.uk";
+
+export const sendAdminNewOrderEmail = inngest.createFunction(
+  { id: "send-admin-new-order-email" },
+  { event: "order/created" },
+  async ({ event }) => {
+    const { orderId } = event.data;
+
+    const order = await db.order.findUnique({
+      where: { id: orderId },
+      include: {
+        user: { include: { customerProfile: true } },
+        items: {
+          select: {
+            quantity: true,
+            productNameSnapshot: true,
+            variantNameSnapshot: true,
+            skuSnapshot: true,
+          },
+        },
+      },
+    });
+    if (!order) return;
+
+    // Build a human label for the customer column. Account orders show
+    // "First Last (email)"; guest orders fall back to the captured email.
+    const profile = order.user?.customerProfile;
+    const fullName = profile
+      ? [profile.firstName, profile.lastName].filter(Boolean).join(" ")
+      : "";
+    let customerLabel: string;
+    if (order.user) {
+      customerLabel = fullName
+        ? `${fullName} (${order.user.email})`
+        : order.user.email;
+    } else if (order.guestEmail) {
+      customerLabel = `Guest — ${order.guestEmail}`;
+    } else {
+      customerLabel = "Unknown";
+    }
+
+    const itemsSummary =
+      order.items
+        .map((item) => {
+          const label =
+            [item.productNameSnapshot, item.variantNameSnapshot]
+              .filter(Boolean)
+              .join(" ") ||
+            item.skuSnapshot ||
+            "Item";
+          return `${item.quantity}× ${label}`;
+        })
+        .join("\n") || "(no line items)";
+
+    const amountFormatted = `£${(order.totalMinor / 100).toFixed(2)}`;
+    const isPom = order.orderType !== "supplement";
+
+    const html = templates.adminNewOrder({
+      orderNumber: order.orderNumber,
+      amountFormatted,
+      customerLabel,
+      isPom,
+      itemsSummary,
+      orderId: order.id,
+    });
+
+    const { messageId } = await sendEmail({
+      to: ADMIN_NOTIFICATIONS_EMAIL,
+      subject: `New Order ${order.orderNumber} — ${amountFormatted}${isPom ? " (POM)" : ""}`,
+      html,
+    });
+
+    await db.emailEvent.create({
+      data: {
+        recipientEmail: ADMIN_NOTIFICATIONS_EMAIL,
+        orderId,
+        emailType: "admin_new_order",
+        providerMessageId: messageId,
+        sentAt: messageId ? new Date() : null,
+        status: messageId ? "sent" : "failed",
+      },
+    });
+  },
+);
+
 export const sendPaymentCapturedEmail = inngest.createFunction(
   { id: "send-payment-captured-email" },
   { event: "payment/captured" },

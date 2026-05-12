@@ -5,7 +5,7 @@ interface SectionProps {
 
 export function Section({ title, children }: SectionProps) {
   return (
-    <div className="rounded-[var(--radius-card)] border border-roots-green/10 bg-white p-6">
+    <div className="glass-card-strong rounded-[var(--radius-card)] p-6">
       <h3 className="mb-4 text-sm font-medium uppercase tracking-wider text-roots-navy/50">
         {title}
       </h3>

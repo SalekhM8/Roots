@@ -50,7 +50,7 @@ export default async function FulfillmentQueuePage({
           .map((o) => ({ id: o.id, orderNumber: o.orderNumber }))}
       />
 
-      <div className="overflow-x-auto rounded-[var(--radius-card)] border border-roots-green/10 bg-white">
+      <div className="glass-card-strong overflow-x-auto rounded-[var(--radius-card)]">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-roots-green/10 text-xs font-medium uppercase tracking-wider text-roots-navy/50">

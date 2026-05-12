@@ -22,7 +22,7 @@ export function CartSummary({
   );
 
   return (
-    <div className="rounded-[var(--radius-card)] border border-roots-green/10 bg-white p-6">
+    <div className="glass-card-strong rounded-[var(--radius-card)] p-6">
       <h2 className="mb-4 text-lg font-medium text-roots-navy">
         Order Summary
       </h2>

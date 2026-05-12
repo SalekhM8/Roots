@@ -870,11 +870,11 @@ export default function ConsultationForm() {
 
           <div className="space-y-8">
             {/* Safety information block */}
-            <div className="space-y-4 rounded-[var(--radius-card)] border border-amber-200 bg-amber-50 p-6">
-              <h3 className="text-base font-medium text-amber-900">
+            <div className="glass-warning space-y-4 rounded-[var(--radius-card)] p-6">
+              <h3 className="text-base font-medium text-roots-orange">
                 Important Safety Information
               </h3>
-              <div className="space-y-3 text-sm text-amber-800">
+              <div className="space-y-3 text-sm text-roots-navy/85">
                 <p>
                   <strong>Pregnancy &amp; breastfeeding:</strong> Mounjaro should not be
                   used during pregnancy or while breastfeeding. If you become pregnant
@@ -944,7 +944,7 @@ export default function ConsultationForm() {
             </div>
 
             {submitError && (
-              <div className="rounded-[var(--radius-input)] border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              <div className="glass-error rounded-[var(--radius-input)] p-4 text-sm text-red-700">
                 {submitError}
               </div>
             )}

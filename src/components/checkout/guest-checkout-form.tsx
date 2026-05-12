@@ -238,7 +238,7 @@ function GuestCartItemRow({
   onUpdateQuantity: (qty: number) => void;
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-roots-navy/10 bg-white p-4">
+    <div className="glass-card-strong flex items-center gap-4 rounded-xl p-4">
       {item.imageUrl && (
         <img
           src={item.imageUrl}
@@ -259,7 +259,7 @@ function GuestCartItemRow({
         <select
           value={item.quantity}
           onChange={(e) => onUpdateQuantity(Number(e.target.value))}
-          className="rounded-lg border border-roots-navy/20 bg-white px-2 py-1 text-sm"
+          className="rounded-lg border border-roots-green/20 bg-white/60 px-2 py-1 text-sm backdrop-blur-sm"
         >
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
             <option key={n} value={n}>

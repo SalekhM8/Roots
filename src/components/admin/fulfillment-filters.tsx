@@ -53,7 +53,7 @@ export function FulfillmentFilters() {
   const hasFilters = currentStatus || currentType;
 
   const selectClasses =
-    "rounded-lg border border-roots-green/15 bg-white px-3 py-2 text-sm text-roots-navy focus:border-roots-green/40 focus:outline-none focus:ring-1 focus:ring-roots-green/20 appearance-none cursor-pointer pr-8";
+    "rounded-lg border border-roots-green/15 bg-white/60 backdrop-blur-sm px-3 py-2 text-sm text-roots-navy focus:border-roots-green/40 focus:outline-none focus:ring-1 focus:ring-roots-green/20 appearance-none cursor-pointer pr-8";
 
   return (
     <div className="mb-6 flex flex-wrap items-center gap-3">

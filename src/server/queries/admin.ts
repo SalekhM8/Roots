@@ -70,7 +70,8 @@ export async function getConsultationQueue(page = 1) {
           take: 1,
         },
       },
-      orderBy: { submittedAt: "asc" },
+      // Newest submissions first — admins want the latest queue work on top.
+      orderBy: { submittedAt: "desc" },
       skip,
       take: PAGE_SIZE,
     }),
@@ -224,7 +225,8 @@ export async function getFulfillmentQueue(
           take: 1,
         },
       },
-      orderBy: { createdAt: "asc" },
+      // Newest fulfillment jobs first — admins start with today's orders.
+      orderBy: { createdAt: "desc" },
       skip,
       take: PAGE_SIZE,
     }),

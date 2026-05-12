@@ -80,25 +80,26 @@ export default function Header() {
                     <UserIcon />
                   </button>
 
-                  {/* User dropdown */}
+                  {/* User dropdown — glass-menu for translucent cream surface
+                     sitting over the green header without the harsh white. */}
                   {userMenuOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-48 rounded-lg border border-roots-green/10 bg-white py-1 shadow-lg">
+                    <div className="glass-menu absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-2xl py-1">
                       <Link
                         href={ROUTES.account}
-                        className="block px-4 py-2.5 text-sm font-medium text-roots-navy transition-colors duration-150 hover:bg-roots-cream/50"
+                        className="block px-4 py-2.5 text-sm font-medium text-roots-navy transition-colors duration-150 hover:bg-roots-green/10"
                       >
                         My Account
                       </Link>
                       <Link
                         href={ROUTES.accountOrders}
-                        className="block px-4 py-2.5 text-sm font-medium text-roots-navy transition-colors duration-150 hover:bg-roots-cream/50"
+                        className="block px-4 py-2.5 text-sm font-medium text-roots-navy transition-colors duration-150 hover:bg-roots-green/10"
                       >
                         My Orders
                       </Link>
                       <button
                         type="button"
                         onClick={handleSignOut}
-                        className="block w-full px-4 py-2.5 text-left text-sm font-medium text-roots-navy transition-colors duration-150 hover:bg-roots-cream/50"
+                        className="block w-full px-4 py-2.5 text-left text-sm font-medium text-roots-navy transition-colors duration-150 hover:bg-roots-green/10"
                       >
                         Sign Out
                       </button>

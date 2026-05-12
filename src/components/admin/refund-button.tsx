@@ -69,7 +69,7 @@ export function RefundButton({ orderId, maxRefundMinor }: RefundButtonProps) {
   }
 
   return (
-    <div className="rounded-[var(--radius-card)] border border-red-200 bg-red-50/50 p-4">
+    <div className="glass-error rounded-[var(--radius-card)] p-4">
       <h4 className="mb-3 text-sm font-medium text-roots-navy">
         Issue Refund — Max {formatPrice(maxRefundMinor)}
       </h4>

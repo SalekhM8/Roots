@@ -64,7 +64,7 @@ export default async function ConsultationsPage({ searchParams }: ConsultationsP
               return (
                 <div
                   key={c.id}
-                  className="rounded-[var(--radius-card)] border border-roots-green/10 bg-white p-5 transition-colors hover:border-roots-green/25"
+                  className="glass-card rounded-[var(--radius-card)] p-5 transition-all hover:bg-roots-cream/70"
                 >
                   <Link
                     href={`/account/consultations/${c.id}`}
@@ -93,7 +93,7 @@ export default async function ConsultationsPage({ searchParams }: ConsultationsP
                     )}
                   </Link>
                   {canResumeCheckout && (
-                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-input)] border border-roots-orange/30 bg-roots-orange/5 px-4 py-3">
+                    <div className="glass-warning mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-input)] px-4 py-3">
                       <p className="text-sm text-roots-navy">
                         Payment not completed — finish your order to send it
                         to a prescriber.

@@ -38,7 +38,7 @@ export function OrderSearchInput() {
           type="text"
           defaultValue={currentQuery}
           placeholder="Search by order #, email, name, or tracking #..."
-          className="w-full rounded-lg border border-roots-green/15 bg-white px-4 py-2 pr-10 text-sm text-roots-navy placeholder:text-roots-navy/40 focus:border-roots-green/40 focus:outline-none focus:ring-1 focus:ring-roots-green/20"
+          className="w-full rounded-lg border border-roots-green/15 bg-white/60 backdrop-blur-sm px-4 py-2 pr-10 text-sm text-roots-navy placeholder:text-roots-navy/40 focus:border-roots-green/40 focus:outline-none focus:ring-1 focus:ring-roots-green/20"
         />
         {isPending && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">

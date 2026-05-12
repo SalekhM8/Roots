@@ -123,7 +123,7 @@ export function ReviewActions({
         <textarea
           value={internalNote}
           onChange={(e) => setInternalNote(e.target.value)}
-          className="w-full rounded-xl border border-roots-green/15 bg-white p-3 text-sm outline-none focus:border-roots-green"
+          className="w-full rounded-xl border border-roots-green/20 bg-white/70 p-3 text-sm backdrop-blur-sm outline-none focus:border-roots-green"
           rows={2}
         />
       </div>
@@ -136,7 +136,7 @@ export function ReviewActions({
           <textarea
             value={customerMessage}
             onChange={(e) => setCustomerMessage(e.target.value)}
-            className="w-full rounded-xl border border-roots-green/15 bg-white p-3 text-sm outline-none focus:border-roots-green"
+            className="w-full rounded-xl border border-roots-green/20 bg-white/70 p-3 text-sm backdrop-blur-sm outline-none focus:border-roots-green"
             rows={3}
             required
           />

@@ -76,7 +76,7 @@ async function main() {
   // === EXISTING: Mounjaro ===
   const mounjaro = await prisma.product.upsert({
     where: { slug: "mounjaro" },
-    update: { defaultImageUrl: "/images/products/mounjaro.svg" },
+    update: { defaultImageUrl: "/images/products/mounjaro.jpg" },
     create: {
       name: "Mounjaro Weight Loss Programme",
       slug: "mounjaro",
@@ -84,7 +84,7 @@ async function main() {
       longDescription: "Mounjaro (tirzepatide) is a once-weekly injectable prescription medicine for weight management. Our programme includes a full clinical consultation reviewed by a qualified prescriber, personalised dosing, and ongoing pharmacy support.",
       productType: "pom",
       requiresConsultation: true,
-      defaultImageUrl: "/images/products/mounjaro.svg",
+      defaultImageUrl: "/images/products/mounjaro.jpg",
     },
   });
   const mounjaroDoses = [

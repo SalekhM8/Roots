@@ -83,7 +83,7 @@ export function DoseSelector({ variants, consultationId }: DoseSelectorProps) {
       )}
 
       {error && (
-        <div className="rounded-[var(--radius-input)] border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="glass-error rounded-[var(--radius-input)] p-4 text-sm text-red-700">
           {error}
         </div>
       )}

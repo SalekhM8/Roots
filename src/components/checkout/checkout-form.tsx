@@ -123,7 +123,7 @@ export function CheckoutForm(props: CheckoutFormProps) {
         </h2>
 
         {props.hasPomItems && (
-          <div className="mb-6 rounded-xl border border-roots-orange/30 bg-roots-orange/5 p-4 text-sm text-roots-navy/80">
+          <div className="glass-warning mb-6 rounded-2xl p-4 text-sm text-roots-navy/85">
             Prescription items require clinical approval. Your payment will be
             authorised but not charged until a prescriber reviews your
             consultation.
@@ -138,7 +138,7 @@ export function CheckoutForm(props: CheckoutFormProps) {
             <select
               value={selectedAddressId}
               onChange={(e) => handleSelectSavedAddress(e.target.value)}
-              className="w-full rounded-xl border border-roots-navy/20 bg-white px-4 py-3 text-sm text-roots-navy outline-none transition-colors focus:border-roots-green focus:ring-1 focus:ring-roots-green"
+              className="w-full rounded-xl border border-roots-green/20 bg-white/60 px-4 py-3 text-sm text-roots-navy outline-none backdrop-blur-sm transition-colors focus:border-roots-green focus:ring-1 focus:ring-roots-green"
             >
               <option value="">Enter a new address</option>
               {savedAddresses.map((addr) => (

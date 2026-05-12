@@ -68,7 +68,7 @@ export function CollectionManager({
               className={`rounded-[var(--radius-btn)] border px-4 py-3 text-left text-sm transition-colors ${
                 isAssigned
                   ? "border-roots-green bg-roots-green/5 font-medium text-roots-green"
-                  : "border-roots-green/10 bg-white text-roots-navy/50 hover:border-roots-green/30"
+                  : "border-roots-green/10 bg-white/60 backdrop-blur-sm text-roots-navy/50 hover:border-roots-green/30"
               } disabled:opacity-50`}
             >
               {collection.name}

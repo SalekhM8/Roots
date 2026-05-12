@@ -98,6 +98,109 @@ h3, h4, h5, h6 {
   }
 }
 
+/* ============================================
+   Glassmorphic surfaces
+   Cream-tinted translucent panels w/ backdrop blur.
+   Replaces flat white cards + AI-flavoured warning boxes.
+   ============================================ */
+
+.glass-card {
+  background-color: rgba(253, 240, 213, 0.55);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(253, 240, 213, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 1px 2px rgba(4, 92, 75, 0.04),
+    0 8px 24px -12px rgba(0, 48, 73, 0.08);
+}
+
+/* Slightly more opaque — use for content-heavy panels (forms, tables)
+   where readability beats the see-through effect. */
+.glass-card-strong {
+  background-color: rgba(253, 240, 213, 0.78);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid rgba(253, 240, 213, 0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 1px 2px rgba(4, 92, 75, 0.04),
+    0 10px 30px -16px rgba(0, 48, 73, 0.1);
+}
+
+/* Subtler still — for nested cards inside a glass-card-strong panel
+   where you'd otherwise get murky stacked translucency. */
+.glass-panel {
+  background-color: rgba(255, 252, 244, 0.6);
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  border: 1px solid rgba(253, 240, 213, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Tinted glass for status callouts. Same blur, just swap the hue.
+   Avoids the harsh `bg-amber-50 border-amber-200` look. */
+.glass-warning {
+  background-color: rgba(247, 127, 0, 0.10);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(247, 127, 0, 0.25);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 6px 20px -12px rgba(247, 127, 0, 0.15);
+}
+
+.glass-error {
+  background-color: rgba(220, 38, 38, 0.08);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(220, 38, 38, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 6px 20px -12px rgba(220, 38, 38, 0.12);
+}
+
+.glass-success {
+  background-color: rgba(4, 92, 75, 0.08);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(4, 92, 75, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 6px 20px -12px rgba(4, 92, 75, 0.12);
+}
+
+/* Dark glass — for dropdown menus over light pages where we want
+   the menu to sit forward, e.g. account/user dropdown. */
+.glass-menu {
+  background-color: rgba(253, 240, 213, 0.92);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid rgba(253, 240, 213, 0.7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 16px 40px -16px rgba(0, 48, 73, 0.18);
+}
+
+/* ============================================
+   Editorial serif headings (Voy / DoHealth feel)
+   Instrument Serif — a free GT Super Display lookalike.
+   ============================================ */
+
+.font-serif-display {
+  font-family: var(--font-serif-thin), "GT Super Display", "Tiempos Headline", Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+}
+
+.font-serif-display-medium {
+  font-family: var(--font-serif-thin), "GT Super Display", "Tiempos Headline", Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+}
+
 /* Hide scrollbar but keep scrolling */
 .scrollbar-hide {
   scrollbar-width: none;

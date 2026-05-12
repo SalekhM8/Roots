@@ -53,7 +53,7 @@ export function SavedCardsList({ initialCards }: SavedCardsListProps) {
       {cards.map((card) => (
         <div
           key={card.id}
-          className="flex items-center justify-between rounded-[var(--radius-card)] border border-roots-green/10 bg-white p-5 transition-shadow duration-200 hover:shadow-sm"
+          className="glass-card flex items-center justify-between rounded-[var(--radius-card)] p-5 transition-all duration-200 hover:bg-roots-cream/70"
         >
           <div className="flex items-center gap-4">
             <div className="flex h-10 w-14 items-center justify-center rounded-lg bg-roots-cream text-xs font-semibold uppercase text-roots-navy/60">

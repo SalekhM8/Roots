@@ -70,7 +70,7 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
       </p>
 
       {/* Assign Role Form */}
-      <div className="mb-8 rounded-[var(--radius-card)] border border-roots-green/10 bg-white p-6">
+      <div className="glass-card-strong mb-8 rounded-[var(--radius-card)] p-6">
         <h2 className="mb-4 text-lg font-medium text-roots-navy">Assign Role</h2>
         <AssignRoleForm />
       </div>
@@ -95,7 +95,7 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
       </form>
 
       {/* Users Table */}
-      <div className="overflow-x-auto rounded-[var(--radius-card)] border border-roots-green/10 bg-white">
+      <div className="glass-card-strong overflow-x-auto rounded-[var(--radius-card)]">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-roots-green/10 text-xs font-medium uppercase tracking-wider text-roots-navy/50">

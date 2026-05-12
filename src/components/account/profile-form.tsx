@@ -55,7 +55,7 @@ export function ProfileForm({ profile, email }: ProfileFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 rounded-[var(--radius-hero)] border border-roots-green/10 bg-white p-8">
+    <form onSubmit={handleSubmit} className="glass-card-strong space-y-6 rounded-[var(--radius-hero)] p-8">
       <div className="grid grid-cols-2 gap-4">
         <Input
           label="First Name"

@@ -38,7 +38,7 @@ export function ActionRequiredReply({
   }
 
   return (
-    <div className="rounded-[var(--radius-card)] border border-roots-orange/30 bg-roots-orange/5 p-5">
+    <div className="glass-warning rounded-[var(--radius-card)] p-5">
       <h2 className="mb-2 text-base font-medium text-roots-navy">
         Your prescriber has asked for more information
       </h2>
@@ -60,7 +60,7 @@ export function ActionRequiredReply({
             required
             minLength={10}
             placeholder="Please answer your prescriber's question in as much detail as you can."
-            className="mt-1 w-full rounded-[var(--radius-input)] border border-roots-green/20 bg-white p-3 text-sm text-roots-navy focus:border-roots-green focus:outline-none"
+            className="mt-1 w-full rounded-[var(--radius-input)] border border-roots-green/20 bg-white/70 p-3 text-sm text-roots-navy backdrop-blur-sm focus:border-roots-green focus:outline-none"
           />
         </label>
         <div className="flex items-center justify-between text-xs text-roots-navy/50">

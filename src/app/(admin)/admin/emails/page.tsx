@@ -40,7 +40,7 @@ export default async function EmailEventsPage({
         {total} email event{total !== 1 ? "s" : ""} recorded
       </p>
 
-      <div className="overflow-x-auto rounded-[var(--radius-card)] border border-roots-green/10 bg-white">
+      <div className="glass-card-strong overflow-x-auto rounded-[var(--radius-card)]">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-roots-green/10 text-xs font-medium uppercase tracking-wider text-roots-navy/50">

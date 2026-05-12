@@ -39,7 +39,7 @@ export function AddressCard({ address, onEdit }: AddressCardProps) {
   }
 
   return (
-    <div className="rounded-[var(--radius-card)] border border-roots-green/10 bg-white p-5">
+    <div className="glass-card rounded-[var(--radius-card)] p-5">
       <div className="mb-2 flex items-center gap-2">
         {address.label && (
           <span className="text-sm font-medium text-roots-navy">{address.label}</span>

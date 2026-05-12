@@ -13,31 +13,31 @@ export default async function AdminDashboardPage() {
     {
       label: "Consultations Awaiting Review",
       value: stats.awaitingReview,
-      color: "bg-amber-50 text-amber-800",
+      color: "glass-warning text-roots-orange",
       href: "/admin/consultations",
     },
     {
       label: "Orders Awaiting Fulfillment",
       value: stats.awaitingFulfillment,
-      color: "bg-blue-50 text-blue-800",
+      color: "glass-card-strong text-roots-navy",
       href: "/admin/fulfillment",
     },
     {
       label: "Action Required",
       value: stats.actionRequired,
-      color: "bg-red-50 text-red-800",
+      color: "glass-error text-red-700",
       href: "/admin/consultations",
     },
     {
       label: "Shipped Today",
       value: stats.shippedToday,
-      color: "bg-emerald-50 text-emerald-800",
+      color: "glass-success text-roots-green",
       href: "/admin/orders",
     },
     {
       label: "Auth Expiring < 24hrs",
       value: stats.authExpiring,
-      color: "bg-orange-50 text-orange-800",
+      color: "glass-warning text-roots-orange",
       href: "/admin/orders",
     },
   ];

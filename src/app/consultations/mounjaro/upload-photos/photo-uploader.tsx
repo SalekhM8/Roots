@@ -230,7 +230,7 @@ export function PhotoUploader({ consultationId }: PhotoUploaderProps) {
           <div
             key={slot.type}
             className={cn(
-              "relative overflow-hidden rounded-[16px] border-2 bg-white p-6 transition-colors",
+              "glass-card relative overflow-hidden rounded-[16px] border-2 p-6 transition-colors",
               isDone
                 ? "border-roots-green"
                 : isError

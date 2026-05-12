@@ -47,11 +47,11 @@ export default async function UploadPhotosPage({ searchParams }: UploadPhotosPag
           <div className="mx-auto max-w-2xl">
             {/* Header */}
             <div className="mb-10 text-center">
-              <p className="mb-2 text-sm font-medium uppercase tracking-wider text-roots-green/60">
+              <p className="mb-3 text-xs font-medium uppercase tracking-[0.18em] text-roots-green/60">
                 Consultation submitted
               </p>
-              <h1 className="mb-3 text-[32px] font-medium text-roots-green md:text-[42px]">
-                Upload Your Photos
+              <h1 className="font-serif-display mb-4 text-roots-green text-[40px] md:text-[56px]">
+                Upload your photos
               </h1>
               <p className="mx-auto max-w-lg text-base text-roots-navy/70">
                 Your prescriber needs a few photos to complete your assessment.
@@ -60,7 +60,7 @@ export default async function UploadPhotosPage({ searchParams }: UploadPhotosPag
             </div>
 
             {/* Instructions */}
-            <div className="mb-8 rounded-[var(--radius-card)] border border-roots-green/10 bg-white p-6">
+            <div className="glass-card-strong mb-8 rounded-[var(--radius-card)] p-6">
               <h2 className="mb-4 text-lg font-medium text-roots-green">
                 Photo Guidelines
               </h2>

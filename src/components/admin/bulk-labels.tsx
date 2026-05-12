@@ -87,7 +87,7 @@ export function BulkLabels({ eligibleOrders }: BulkLabelsProps) {
   if (eligibleOrders.length === 0) return null;
 
   return (
-    <div className="mb-6 rounded-[var(--radius-card)] border border-roots-green/10 bg-white p-4">
+    <div className="glass-card-strong mb-6 rounded-[var(--radius-card)] p-4">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 text-sm text-roots-navy/70">
@@ -141,8 +141,8 @@ export function BulkLabels({ eligibleOrders }: BulkLabelsProps) {
             feedback.type === "success"
               ? "bg-emerald-50 text-emerald-800"
               : feedback.type === "partial"
-                ? "bg-amber-50 text-amber-800"
-                : "bg-red-50 text-red-800"
+                ? "glass-warning text-roots-orange"
+                : "glass-error text-red-700"
           }`}
         >
           <p className="font-medium">{feedback.message}</p>

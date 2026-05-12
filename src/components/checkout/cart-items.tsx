@@ -34,7 +34,7 @@ export function CartItems({ items }: CartItemsProps) {
       {items.map((item) => (
         <div
           key={item.id}
-          className="flex flex-col gap-3 rounded-[var(--radius-card)] border border-roots-green/10 bg-white p-4 md:flex-row md:items-center md:gap-4 md:p-6"
+          className="glass-card-strong flex flex-col gap-3 rounded-[var(--radius-card)] p-4 md:flex-row md:items-center md:gap-4 md:p-6"
         >
           {/* Top row on mobile: image + product info + remove button */}
           <div className="flex items-center gap-4">
