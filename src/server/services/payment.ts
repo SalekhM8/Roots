@@ -41,6 +41,7 @@ import {
   VivaTransactionType,
 } from "@/lib/payments/viva-types";
 import { inngest } from "@/server/workflows/inngest";
+import { markUserActiveCartsConverted } from "@/server/services/cart";
 
 // ---------- Types -----------------------------------------------------------
 
@@ -490,6 +491,9 @@ async function handlePaymentCreated(
         captureBefore: captureBefore.toISOString(),
       },
     });
+
+    // Convert the customer's active cart now that payment is locked in.
+    await markUserActiveCartsConverted(payment.order.userId);
     return;
   }
 
@@ -535,6 +539,11 @@ async function handlePaymentCreated(
         viaWebhook: true,
       },
     });
+
+    // Convert the customer's active cart on the synchronous-charge path
+    // (supplement-only orders that capture immediately). Idempotent w.r.t.
+    // the preauth branch above for orders that came via authorize→capture.
+    await markUserActiveCartsConverted(payment.order.userId);
 
     if (!wasAuthorized) {
       await inngest.send({
@@ -680,7 +689,12 @@ export async function processVivaReturn(
 
   const payment = await db.payment.findFirst({
     where: { vivaOrderCode: tx.orderCode },
-    select: { id: true, orderId: true, status: true },
+    select: {
+      id: true,
+      orderId: true,
+      status: true,
+      order: { select: { userId: true } },
+    },
   });
   if (!payment) {
     return { outcome: "unknown", paymentId: null, orderId: null };
@@ -689,6 +703,10 @@ export async function processVivaReturn(
   // StatusId F (Finished) and C (Captured) and A (Active) all indicate
   // the customer's interaction succeeded — webhook will handle state.
   if (tx.statusId === "F" || tx.statusId === "C" || tx.statusId === "A") {
+    // Convert the cart immediately so the confirmation page (and any retry
+    // path) sees a clean post-checkout state without waiting for the 1796
+    // webhook. Idempotent w.r.t. the webhook handler.
+    await markUserActiveCartsConverted(payment.order.userId);
     return {
       outcome: "success",
       paymentId: payment.id,

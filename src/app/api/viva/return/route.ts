@@ -48,16 +48,17 @@ export async function GET(req: NextRequest) {
   }
 
   if (result.outcome === "failure") {
-    const url = new URL("/checkout", req.url);
-    url.searchParams.set("error", "payment_failed");
+    // Dedicated friendly landing. Cart is left active by payment.ts so
+    // /checkout will re-render the form with the same items on retry.
+    const url = new URL("/checkout/payment-failed", req.url);
     if (eventId) url.searchParams.set("eventId", eventId);
     return NextResponse.redirect(url);
   }
 
   // Unknown — Viva returned us here without a parseable transaction. Send
-  // the customer to a neutral landing rather than a confirmation we can't
-  // back up with a real order.
-  const url = new URL("/checkout", req.url);
-  url.searchParams.set("error", "payment_unknown");
+  // the customer to the failed landing too (the webhook owns canonical
+  // state); message reads as "try again" which is the right action for
+  // both genuine decline and the rare ambiguous-status case.
+  const url = new URL("/checkout/payment-failed", req.url);
   return NextResponse.redirect(url);
 }

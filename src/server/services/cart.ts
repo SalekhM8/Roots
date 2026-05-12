@@ -126,3 +126,21 @@ export async function markCartConverted(cartId: string) {
     data: { status: "converted" },
   });
 }
+
+/**
+ * Mark ALL of a user's currently-active carts as converted. Used by the
+ * payment success paths (return URL + webhook) so that a cart only flips to
+ * "converted" once payment is actually authorized/captured. If payment fails,
+ * the cart stays active and the customer can retry without re-adding items.
+ *
+ * Idempotent: `status: "active"` filter means re-running this is a no-op.
+ * Safe to call from both the return URL handler and the 1796 webhook — the
+ * second call simply matches zero rows.
+ */
+export async function markUserActiveCartsConverted(userId: string | null) {
+  if (!userId) return;
+  await db.cart.updateMany({
+    where: { userId, status: "active" },
+    data: { status: "converted" },
+  });
+}

@@ -4,7 +4,6 @@ import { createVivaPayment } from "@/server/services/payment";
 import { VivaError } from "@/lib/payments/viva";
 import { writeAuditLog } from "@/lib/security/audit";
 import { generateOrderNumber } from "@/lib/validation/schemas";
-import { markCartConverted } from "./cart";
 import type { CartWithItems } from "@/server/queries/cart";
 import type { AddressInput } from "@/lib/validation/schemas";
 import { calculateShipping } from "@/lib/constants";
@@ -180,9 +179,16 @@ export async function createOrder(
     };
   }
 
-  // Mark cart as converted + audit log + save address in parallel
+  // Audit log + save address in parallel.
+  //
+  // Note: the cart is intentionally NOT marked converted here. If we did,
+  // a failed Viva payment would leave the customer with an empty cart on
+  // return (no way to retry without re-adding items). Cart conversion is
+  // owned by the payment success paths: `processVivaReturn` (statusId
+  // F/C/A) and the 1796 webhook (`handlePaymentCreated`). Either signal
+  // calls `markUserActiveCartsConverted(userId)` — idempotent, so the race
+  // between webhook and return URL is safe.
   await Promise.all([
-    markCartConverted(cart.id),
     writeAuditLog({
       actorUserId: userId,
       actorRole: "customer",
