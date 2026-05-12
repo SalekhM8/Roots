@@ -97,7 +97,10 @@ export async function createVivaPayment(
     merchantTrns,
     customerTrns: params.description.slice(0, 255),
     customer: {
-      email: params.customer.email,
+      // Email intentionally omitted — Viva sends its own customer confirmation
+      // email when one is provided, which duplicates our Resend transactional
+      // email and confuses customers. Our DB already carries the email on the
+      // Order row, so we lose nothing operationally.
       fullName: params.customer.fullName,
       phone: params.customer.phone,
       countryCode: "GB",
