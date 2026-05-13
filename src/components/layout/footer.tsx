@@ -143,73 +143,70 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Regulatory disclosure — GPhC pharmacy + superintendent.
-            Required visible information on every page that discusses a POM. */}
-        <div className="mt-12 grid grid-cols-1 gap-8 border-t border-roots-line-soft pt-8 md:grid-cols-[auto,1fr] md:items-start md:gap-10">
-          {/* Internet Pharmacy logo placeholder. Once GPhC issues the live
-              registration the logo links to the register entry per
-              regulatory requirement. */}
-          <a
-            href={PHARMACY.licensedEntity.gphcRegisterUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="GPhC Internet Pharmacy register entry"
-            className="flex h-[88px] w-[88px] shrink-0 items-center justify-center rounded-md border border-roots-cream/30 bg-roots-cream/5 p-2 text-center text-[10px] leading-tight text-roots-cream/60 transition-opacity hover:opacity-90"
-          >
-            GPhC Internet Pharmacy logo
-          </a>
-          <div className="space-y-2 text-xs leading-relaxed text-roots-cream/60">
-            <p>
-              Prescription services are provided in partnership with{" "}
-              <span className="text-roots-cream/80">
-                {PHARMACY.licensedEntity.name}
-              </span>{" "}
-              (Company No.{" "}
-              <span className="text-roots-cream/80">
-                {PHARMACY.licensedEntity.companyNumber}
-              </span>
-              ), a GPhC-registered pharmacy. GPhC pharmacy registration number:{" "}
-              <span className="text-roots-cream/80">
-                {PHARMACY.licensedEntity.gphcRegistration}
-              </span>
-              .
-            </p>
-            <p>
-              Superintendent pharmacist:{" "}
-              <Link
-                href={`/team/${SUPERINTENDENT_PHARMACIST.slug}`}
-                className="text-roots-cream/85 underline underline-offset-2 hover:opacity-90"
-              >
-                {SUPERINTENDENT_PHARMACIST.name},{" "}
-                {SUPERINTENDENT_PHARMACIST.qualification}
-              </Link>{" "}
-              (GPhC{" "}
-              <a
-                href="https://www.pharmacyregulation.org/registers/pharmacist"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-roots-cream/80 underline underline-offset-2"
-              >
-                {SUPERINTENDENT_PHARMACIST.registerNumber}
-              </a>
-              ).
-            </p>
-            <p>
-              Every prescription is reviewed and approved by a qualified UK
-              prescriber. Suspected side effects can be reported to the MHRA
-              via the{" "}
-              <a
-                href="https://yellowcard.mhra.gov.uk/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-roots-cream/80 underline underline-offset-2"
-              >
-                Yellow Card scheme
-              </a>
-              .
-            </p>
-          </div>
-        </div>
+        {/* Regulatory disclosure — slim single-line strip, competitor-style.
+            Required visible info on every page that discusses a POM (Human
+            Medicines Regs 2012, GPhC standards), but the placeholder values
+            are suppressed until real registration numbers are populated so
+            we never ship a "TODO_GPHC_NUMBER" string to public. Same pattern
+            for the Internet Pharmacy logo — hidden until the SVG exists. */}
+        {(() => {
+          const pharmacyRegOk =
+            !PHARMACY.licensedEntity.gphcRegistration.startsWith("TODO");
+          const superintendentOk =
+            !SUPERINTENDENT_PHARMACIST.name.startsWith("TODO") &&
+            !SUPERINTENDENT_PHARMACIST.registerNumber.startsWith("TODO");
+          return (
+            <div className="mt-10 border-t border-roots-line-soft pt-6 text-[11px] leading-relaxed text-roots-cream/55">
+              <p>
+                Prescription services are provided in partnership with{" "}
+                <span className="text-roots-cream/75">
+                  {PHARMACY.licensedEntity.name}
+                </span>{" "}
+                (Company No.{" "}
+                <span className="text-roots-cream/75">
+                  {PHARMACY.licensedEntity.companyNumber}
+                </span>
+                ), a GPhC-registered pharmacy
+                {pharmacyRegOk && (
+                  <>
+                    {" "}— GPhC reg{" "}
+                    <a
+                      href={PHARMACY.licensedEntity.gphcRegisterUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-roots-cream/75 underline underline-offset-2"
+                    >
+                      {PHARMACY.licensedEntity.gphcRegistration}
+                    </a>
+                  </>
+                )}
+                {superintendentOk && (
+                  <>
+                    . Superintendent pharmacist:{" "}
+                    <Link
+                      href={`/team/${SUPERINTENDENT_PHARMACIST.slug}`}
+                      className="text-roots-cream/75 underline underline-offset-2"
+                    >
+                      {SUPERINTENDENT_PHARMACIST.name},{" "}
+                      {SUPERINTENDENT_PHARMACIST.qualification}
+                    </Link>{" "}
+                    (GPhC {SUPERINTENDENT_PHARMACIST.registerNumber})
+                  </>
+                )}
+                . Suspected side effects can be reported via the{" "}
+                <a
+                  href="https://yellowcard.mhra.gov.uk/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-roots-cream/75 underline underline-offset-2"
+                >
+                  MHRA Yellow Card scheme
+                </a>
+                .
+              </p>
+            </div>
+          );
+        })()}
 
         {/* Bottom bar */}
         <div className="mt-6 flex flex-col items-center justify-between gap-4 border-t border-roots-line-soft pt-6 text-xs text-roots-cream/60 sm:flex-row">
