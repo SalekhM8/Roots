@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LinkButton } from "@/components/ui/link-button";
 import {
   BreadcrumbJsonLd,
   FaqJsonLd,
@@ -69,7 +70,7 @@ export function GuideLayout({
             <span className="mx-2">/</span>
             <span className="text-roots-cream">{title}</span>
           </nav>
-          <h1 className="font-serif-display max-w-3xl text-[40px] leading-tight md:text-[56px]">
+          <h1 className="max-w-3xl text-[36px] font-medium leading-tight md:text-[52px]">
             {title}
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-roots-cream/85">
@@ -93,19 +94,18 @@ export function GuideLayout({
 
       <section className="page-container pb-16">
         <div className="mx-auto max-w-3xl rounded-[var(--radius-card)] bg-roots-green p-8 text-center text-roots-cream md:p-10">
-          <h2 className="font-serif-display text-2xl md:text-3xl">
+          <h2 className="text-2xl font-medium md:text-3xl">
             Ready to start a Mounjaro consultation?
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm text-roots-cream/85">
             A qualified UK GPhC-registered pharmacist reviews every consultation.
             No charge unless approved.
           </p>
-          <Link
-            href={ROUTES.consultation}
-            className="mt-6 inline-flex h-[52px] items-center justify-center rounded-[var(--radius-btn)] bg-roots-cream px-7 text-sm font-medium text-roots-green transition-opacity hover:opacity-90"
-          >
-            Start your consultation
-          </Link>
+          <div className="mt-6 flex justify-center">
+            <LinkButton href={ROUTES.consultation} variant="primary">
+              Start your consultation
+            </LinkButton>
+          </div>
         </div>
       </section>
     </div>

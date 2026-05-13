@@ -57,7 +57,7 @@ export default function GuidesIndexPage() {
     <div className="bg-roots-cream">
       <section className="bg-roots-green text-roots-cream">
         <div className="page-container py-20 md:py-28">
-          <h1 className="font-serif-display text-[42px] leading-tight md:text-[64px]">
+          <h1 className="text-[38px] font-medium leading-tight md:text-[56px]">
             Clinical guides
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-roots-cream/85">
@@ -76,7 +76,7 @@ export default function GuidesIndexPage() {
               href={`/guides/${g.slug}`}
               className="glass-card-strong group rounded-[var(--radius-card)] p-6 transition-shadow hover:shadow-lg"
             >
-              <h2 className="font-serif-display text-2xl text-roots-navy">
+              <h2 className="text-2xl font-medium text-roots-navy">
                 {g.title}
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-roots-navy/80">

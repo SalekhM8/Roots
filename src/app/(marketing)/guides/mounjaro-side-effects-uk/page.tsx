@@ -52,7 +52,7 @@ export default function GuidePage() {
       about={["Obesity"]}
       faqs={FAQS}
     >
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         How to read this guide
       </h2>
       <p>
@@ -66,7 +66,7 @@ export default function GuidePage() {
         the Patient Information Leaflet supplied with every pen.
       </p>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         Very common side effects
       </h2>
       <ul className="list-disc space-y-2 pl-5">
@@ -84,7 +84,7 @@ export default function GuidePage() {
         coincides with sleep.
       </p>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         Common side effects
       </h2>
       <ul className="list-disc space-y-2 pl-5">
@@ -99,7 +99,7 @@ export default function GuidePage() {
         <li>Heart rate increase of around 1–3 beats per minute on average</li>
       </ul>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         Less common but serious — seek urgent medical advice
       </h2>
       <p>
@@ -139,7 +139,7 @@ export default function GuidePage() {
         </li>
       </ul>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         Reporting side effects
       </h2>
       <p>
@@ -157,7 +157,7 @@ export default function GuidePage() {
         professionals.
       </p>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         When to stop the medicine and contact your prescriber
       </h2>
       <ul className="list-disc space-y-2 pl-5">

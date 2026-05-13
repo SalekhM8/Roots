@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LinkButton } from "@/components/ui/link-button";
 import {
   BreadcrumbJsonLd,
   DrugJsonLd,
@@ -69,15 +70,11 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-function StartCTA({ size = "lg" }: { size?: "lg" | "md" }) {
-  const cls =
-    size === "lg"
-      ? "inline-flex h-[60px] items-center justify-center rounded-[var(--radius-btn)] bg-roots-green px-8 text-base font-medium text-roots-cream transition-opacity hover:opacity-90"
-      : "inline-flex h-[48px] items-center justify-center rounded-[var(--radius-btn)] bg-roots-green px-6 text-sm font-medium text-roots-cream transition-opacity hover:opacity-90";
+function StartCTA() {
   return (
-    <Link href={ROUTES.consultation} className={cls}>
+    <LinkButton href={ROUTES.consultation} variant="primary">
       Start your consultation
-    </Link>
+    </LinkButton>
   );
 }
 
@@ -122,7 +119,7 @@ export default function MounjaroHubPage() {
             <span className="mx-2">/</span>
             <span className="text-roots-cream">Mounjaro</span>
           </nav>
-          <h1 className="font-serif-display max-w-3xl text-[42px] leading-tight md:text-[64px]">
+          <h1 className="max-w-3xl text-[38px] font-medium leading-tight md:text-[56px]">
             Mounjaro weight loss consultation
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-roots-cream/85">
@@ -184,7 +181,7 @@ export default function MounjaroHubPage() {
       {/* What is Mounjaro */}
       <section id="what-is" className="page-container py-12 md:py-16">
         <div className="mx-auto max-w-3xl space-y-6 text-base leading-relaxed text-roots-navy/85">
-          <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+          <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
             What Mounjaro is
           </h2>
           <p>
@@ -216,7 +213,7 @@ export default function MounjaroHubPage() {
       <section id="how-it-works" className="bg-roots-cream-2/40 py-12 md:py-16">
         <div className="page-container">
           <div className="mx-auto max-w-3xl space-y-6 text-base leading-relaxed text-roots-navy/85">
-            <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+            <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
               How Mounjaro works
             </h2>
             <p>
@@ -249,7 +246,7 @@ export default function MounjaroHubPage() {
       {/* Eligibility */}
       <section id="eligibility" className="page-container py-12 md:py-16">
         <div className="mx-auto max-w-3xl space-y-6 text-base leading-relaxed text-roots-navy/85">
-          <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+          <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
             Who Mounjaro is for
           </h2>
           <p>
@@ -291,7 +288,7 @@ export default function MounjaroHubPage() {
         <div className="page-container">
           <div className="mx-auto max-w-4xl">
             <div className="mx-auto max-w-3xl space-y-6 text-base leading-relaxed text-roots-navy/85">
-              <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+              <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
                 Doses and escalation
               </h2>
               <p>
@@ -312,7 +309,7 @@ export default function MounjaroHubPage() {
                   className="glass-card-strong group rounded-[var(--radius-card)] p-5 transition-shadow hover:shadow-lg"
                 >
                   <div className="flex items-baseline justify-between">
-                    <span className="font-serif-display text-2xl text-roots-green">
+                    <span className="text-2xl font-medium text-roots-green">
                       {d.label}
                     </span>
                     <span className="text-xs font-semibold uppercase tracking-wider text-roots-navy/50">
@@ -335,7 +332,7 @@ export default function MounjaroHubPage() {
       {/* How to use */}
       <section id="how-to-use" className="page-container py-12 md:py-16">
         <div className="mx-auto max-w-3xl space-y-6 text-base leading-relaxed text-roots-navy/85">
-          <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+          <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
             How to use Mounjaro
           </h2>
           <ul className="list-disc space-y-2 pl-5">
@@ -371,7 +368,7 @@ export default function MounjaroHubPage() {
       <section id="side-effects" className="bg-roots-cream-2/40 py-12 md:py-16">
         <div className="page-container">
           <div className="mx-auto max-w-3xl space-y-6 text-base leading-relaxed text-roots-navy/85">
-            <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+            <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
               Side effects
             </h2>
             <p>
@@ -382,7 +379,7 @@ export default function MounjaroHubPage() {
             </p>
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <div className="glass-card rounded-[var(--radius-card)] p-5">
-                <h3 className="font-serif-display text-xl text-roots-navy">
+                <h3 className="text-xl font-medium text-roots-navy">
                   Very common &amp; common
                 </h3>
                 <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-roots-navy/80">
@@ -400,7 +397,7 @@ export default function MounjaroHubPage() {
                 </ul>
               </div>
               <div className="glass-error rounded-[var(--radius-card)] p-5">
-                <h3 className="font-serif-display text-xl text-roots-navy">
+                <h3 className="text-xl font-medium text-roots-navy">
                   Serious — seek urgent medical advice
                 </h3>
                 <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-roots-navy/80">
@@ -443,7 +440,7 @@ export default function MounjaroHubPage() {
       {/* Contraindications */}
       <section id="contraindications" className="page-container py-12 md:py-16">
         <div className="mx-auto max-w-3xl space-y-6 text-base leading-relaxed text-roots-navy/85">
-          <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+          <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
             Who should not take Mounjaro
           </h2>
           <p>Mounjaro is not appropriate, or requires specialist input, if you:</p>
@@ -472,7 +469,7 @@ export default function MounjaroHubPage() {
       <section id="interactions" className="bg-roots-cream-2/40 py-12 md:py-16">
         <div className="page-container">
           <div className="mx-auto max-w-3xl space-y-6 text-base leading-relaxed text-roots-navy/85">
-            <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+            <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
               Interactions with other medicines
             </h2>
             <p>
@@ -509,7 +506,7 @@ export default function MounjaroHubPage() {
       {/* Expectations */}
       <section id="expectations" className="page-container py-12 md:py-16">
         <div className="mx-auto max-w-3xl space-y-6 text-base leading-relaxed text-roots-navy/85">
-          <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+          <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
             What to expect on treatment
           </h2>
           <p>
@@ -541,7 +538,7 @@ export default function MounjaroHubPage() {
       <section id="alternatives" className="bg-roots-cream-2/40 py-12 md:py-16">
         <div className="page-container">
           <div className="mx-auto max-w-3xl space-y-6 text-base leading-relaxed text-roots-navy/85">
-            <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+            <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
               Mounjaro compared with other weight loss medicines
             </h2>
             <p>
@@ -592,7 +589,7 @@ export default function MounjaroHubPage() {
       {/* Our service */}
       <section id="our-service" className="page-container py-12 md:py-16">
         <div className="mx-auto max-w-3xl space-y-6 text-base leading-relaxed text-roots-navy/85">
-          <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+          <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
             How a Mounjaro consultation works with Roots
           </h2>
           <ol className="list-decimal space-y-3 pl-5">
@@ -638,7 +635,7 @@ export default function MounjaroHubPage() {
       <section id="faqs" className="bg-roots-cream-2/40 py-12 md:py-16">
         <div className="page-container">
           <div className="mx-auto max-w-3xl">
-            <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+            <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
               Frequently asked questions
             </h2>
             <div className="mt-8 space-y-4">
@@ -663,7 +660,7 @@ export default function MounjaroHubPage() {
       {/* Final CTA + safety footer */}
       <section className="page-container py-16 md:py-20">
         <div className="mx-auto max-w-3xl space-y-6 text-center">
-          <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+          <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
             Ready to start your consultation?
           </h2>
           <p className="text-base leading-relaxed text-roots-navy/80">

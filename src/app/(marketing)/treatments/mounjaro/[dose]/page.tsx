@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { LinkButton } from "@/components/ui/link-button";
 import {
   BreadcrumbJsonLd,
   FaqJsonLd,
@@ -138,18 +139,17 @@ export default async function MounjaroDosePage({ params }: PageProps) {
           <p className="text-xs font-semibold uppercase tracking-wider text-roots-cream/70">
             Step {dose.step} of {MOUNJARO_DOSES.length}
           </p>
-          <h1 className="font-serif-display mt-3 max-w-3xl text-[40px] leading-tight md:text-[56px]">
+          <h1 className="mt-3 max-w-3xl text-[36px] font-medium leading-tight md:text-[52px]">
             Mounjaro {dose.label} (tirzepatide {dose.label})
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-roots-cream/85">
             {dose.positioning}
           </p>
-          <Link
-            href={ROUTES.consultation}
-            className="mt-8 inline-flex h-[60px] items-center justify-center rounded-[var(--radius-btn)] bg-roots-cream px-8 text-base font-medium text-roots-green transition-opacity hover:opacity-90"
-          >
-            Start your consultation
-          </Link>
+          <div className="mt-8">
+            <LinkButton href={ROUTES.consultation} variant="primary">
+              Start your consultation
+            </LinkButton>
+          </div>
         </div>
       </section>
 
@@ -163,14 +163,14 @@ export default async function MounjaroDosePage({ params }: PageProps) {
       <section className="page-container py-12 md:py-16">
         <div className="mx-auto max-w-3xl space-y-10 text-base leading-relaxed text-roots-navy/85">
           <div>
-            <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+            <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
               When Mounjaro {dose.label} is appropriate
             </h2>
             <p className="mt-4">{dose.whenAppropriate}</p>
           </div>
 
           <div>
-            <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+            <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
               What to expect at {dose.label}
             </h2>
             <p className="mt-4">{dose.whatToExpect}</p>
@@ -189,7 +189,7 @@ export default async function MounjaroDosePage({ params }: PageProps) {
           </div>
 
           <div>
-            <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+            <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
               Side-effect profile at this dose
             </h2>
             <p className="mt-4">
@@ -215,7 +215,7 @@ export default async function MounjaroDosePage({ params }: PageProps) {
           </div>
 
           <div>
-            <h2 className="font-serif-display text-3xl text-roots-navy md:text-4xl">
+            <h2 className="text-3xl font-medium text-roots-green md:text-4xl">
               Questions specific to {dose.label}
             </h2>
             <div className="mt-6 space-y-4">
@@ -245,7 +245,7 @@ export default async function MounjaroDosePage({ params }: PageProps) {
                 <span className="text-xs uppercase tracking-wider text-roots-navy/50">
                   Previous step
                 </span>
-                <span className="font-serif-display text-xl text-roots-green underline-offset-2 group-hover:underline">
+                <span className="text-xl font-medium text-roots-green underline-offset-2 group-hover:underline">
                   ← Mounjaro {prev.label}
                 </span>
               </Link>
@@ -260,7 +260,7 @@ export default async function MounjaroDosePage({ params }: PageProps) {
                 <span className="text-xs uppercase tracking-wider text-roots-navy/50">
                   Next step
                 </span>
-                <span className="font-serif-display text-xl text-roots-green underline-offset-2 group-hover:underline">
+                <span className="text-xl font-medium text-roots-green underline-offset-2 group-hover:underline">
                   Mounjaro {next.label} →
                 </span>
               </Link>

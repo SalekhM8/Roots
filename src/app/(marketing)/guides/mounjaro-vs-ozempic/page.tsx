@@ -47,7 +47,7 @@ export default function GuidePage() {
       about={["Obesity", "Type 2 diabetes"]}
       faqs={FAQS}
     >
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         The short answer
       </h2>
       <p>
@@ -71,7 +71,7 @@ export default function GuidePage() {
         </p>
       </div>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         What each medicine actually is
       </h2>
       <p>
@@ -91,7 +91,7 @@ export default function GuidePage() {
         a dual GLP-1 and GIP receptor agonist.
       </p>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         Why Mounjaro is the licensed comparison, not Ozempic
       </h2>
       <p>
@@ -102,7 +102,7 @@ export default function GuidePage() {
         BMI, comorbidities, and individual response.
       </p>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         What we do
       </h2>
       <p>

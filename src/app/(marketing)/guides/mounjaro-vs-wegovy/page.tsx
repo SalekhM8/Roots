@@ -52,7 +52,7 @@ export default function GuidePage() {
       about={["Obesity", "Overweight"]}
       faqs={FAQS}
     >
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         The short answer
       </h2>
       <p>
@@ -65,7 +65,7 @@ export default function GuidePage() {
         both GLP-1 and GIP receptors.
       </p>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         Mechanism of action
       </h2>
       <p>
@@ -78,7 +78,7 @@ export default function GuidePage() {
         and on metabolic function than GLP-1 alone.
       </p>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         Weight loss data
       </h2>
       <p>
@@ -94,7 +94,7 @@ export default function GuidePage() {
         relevant one for most clinical decisions.
       </p>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         Side effects
       </h2>
       <p>
@@ -117,7 +117,7 @@ export default function GuidePage() {
         .
       </p>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         Dosing
       </h2>
       <p>
@@ -129,7 +129,7 @@ export default function GuidePage() {
         not on patient preference.
       </p>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         UK availability
       </h2>
       <p>
@@ -140,7 +140,7 @@ export default function GuidePage() {
         patients access tirzepatide privately for that reason.
       </p>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         Which one is right for me?
       </h2>
       <p>

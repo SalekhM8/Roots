@@ -87,7 +87,7 @@ export default async function TeamPage({ params }: PageProps) {
           <p className="text-xs font-semibold uppercase tracking-wider text-roots-cream/70">
             {clinician.role}
           </p>
-          <h1 className="font-serif-display mt-3 max-w-3xl text-[42px] leading-tight md:text-[60px]">
+          <h1 className="mt-3 max-w-3xl text-[36px] font-medium leading-tight md:text-[52px]">
             {clinician.name}, {clinician.qualification}
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-roots-cream/85">
@@ -118,7 +118,7 @@ export default async function TeamPage({ params }: PageProps) {
           </div>
 
           <div className="space-y-4 text-base leading-relaxed text-roots-navy/85">
-            <h2 className="font-serif-display text-2xl text-roots-navy md:text-3xl">
+            <h2 className="text-2xl font-medium text-roots-navy md:text-3xl">
               Role at Roots Pharmacy
             </h2>
             <p>

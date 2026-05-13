@@ -47,7 +47,7 @@ export default function GuidePage() {
       about={["Obesity"]}
       faqs={FAQS}
     >
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         The two hormones Mounjaro mimics
       </h2>
       <p>
@@ -60,7 +60,7 @@ export default function GuidePage() {
         emptying and the body&apos;s post-meal insulin response.
       </p>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         What activating the GLP-1 receptor does
       </h2>
       <ul className="list-disc space-y-2 pl-5">
@@ -73,7 +73,7 @@ export default function GuidePage() {
         </li>
       </ul>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         What activating the GIP receptor adds
       </h2>
       <p>
@@ -85,7 +85,7 @@ export default function GuidePage() {
         tirzepatide pharmacologically distinct from semaglutide.
       </p>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         Why this matters in practice
       </h2>
       <p>
@@ -102,7 +102,7 @@ export default function GuidePage() {
         only on the medicine itself.
       </p>
 
-      <h2 className="font-serif-display text-3xl text-roots-navy">
+      <h2 className="text-3xl font-medium text-roots-green">
         What it does not do
       </h2>
       <ul className="list-disc space-y-2 pl-5">

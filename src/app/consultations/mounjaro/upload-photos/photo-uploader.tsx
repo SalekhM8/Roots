@@ -388,16 +388,6 @@ export function PhotoUploader({ consultationId }: PhotoUploaderProps) {
         </Button>
       </div>
 
-      {/* Skip link */}
-      <div className="text-center">
-        <button
-          type="button"
-          onClick={handleContinue}
-          className="text-sm text-roots-navy/50 underline underline-offset-2 transition-colors hover:text-roots-navy/70"
-        >
-          Skip for now — your prescriber can request photos later
-        </button>
-      </div>
     </div>
   );
 }

@@ -35,15 +35,28 @@ function registerUrl(reviewer: Clinician): string {
     : "https://www.gmc-uk.org/registration-and-licensing/the-medical-register";
 }
 
+/**
+ * Whether a clinician record has real (non-placeholder) details. We never
+ * want to render "TODO Superintendent Pharmacist Name" or
+ * "GPhC TODO_GPHC_NUMBER" to public — until real credentials are populated
+ * the byline degrades gracefully to just the "Last reviewed" date.
+ */
+function isPopulated(c: Clinician): boolean {
+  return !c.name.startsWith("TODO") && !c.registerNumber.startsWith("TODO");
+}
+
 export function MedicalReviewByline({
   reviewer,
   lastReviewedIso,
   author,
 }: MedicalReviewBylineProps) {
+  const reviewerOk = isPopulated(reviewer);
+  const authorOk = author ? isPopulated(author) : false;
+
   return (
     <div className="glass-card mb-6 rounded-[var(--radius-card)] p-4 text-sm text-roots-navy/80">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-        {author && author.slug !== reviewer.slug && (
+        {authorOk && author && author.slug !== reviewer.slug && (
           <span>
             Written by{" "}
             <Link
@@ -54,23 +67,25 @@ export function MedicalReviewByline({
             </Link>
           </span>
         )}
-        <span>
-          Medically reviewed by{" "}
-          <Link
-            href={`/team/${reviewer.slug}`}
-            className="font-medium text-roots-green underline-offset-2 hover:underline"
-          >
-            {reviewer.name}, {reviewer.qualification}
-          </Link>{" "}
-          <a
-            href={registerUrl(reviewer)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-roots-navy/60 underline underline-offset-2"
-          >
-            ({reviewer.registerType} {reviewer.registerNumber})
-          </a>
-        </span>
+        {reviewerOk && (
+          <span>
+            Medically reviewed by{" "}
+            <Link
+              href={`/team/${reviewer.slug}`}
+              className="font-medium text-roots-green underline-offset-2 hover:underline"
+            >
+              {reviewer.name}, {reviewer.qualification}
+            </Link>{" "}
+            <a
+              href={registerUrl(reviewer)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-roots-navy/60 underline underline-offset-2"
+            >
+              ({reviewer.registerType} {reviewer.registerNumber})
+            </a>
+          </span>
+        )}
         <span className="text-xs text-roots-navy/60">
           Last reviewed: <time dateTime={lastReviewedIso}>{formatLongDate(lastReviewedIso)}</time>
         </span>
