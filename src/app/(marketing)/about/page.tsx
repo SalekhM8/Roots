@@ -1,8 +1,20 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About",
-  description: "Learn about Roots Pharmacy — a GPhC-registered pharmacy offering clinician-led weight loss and premium wellness supplements.",
+  title: "About Roots Pharmacy",
+  description:
+    "Learn about Roots Pharmacy — a GPhC-registered pharmacy offering clinician-led weight loss and premium wellness supplements.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About Roots Pharmacy",
+    description:
+      "Learn about Roots Pharmacy — a GPhC-registered pharmacy offering clinician-led weight loss and premium wellness supplements.",
+    url: "/about",
+    type: "website",
+    locale: "en_GB",
+    siteName: "Roots Pharmacy",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function AboutPage() {

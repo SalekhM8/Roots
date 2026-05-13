@@ -309,6 +309,17 @@ export default async function WeightLossLandingPage() {
             Takes 2–3 minutes · Reviewed by UK clinician · No obligation
           </p>
 
+          <p className="mt-2 text-xs text-roots-cream/55">
+            Or{" "}
+            <Link
+              href="/treatments/mounjaro"
+              className="underline underline-offset-2 hover:text-roots-cream"
+            >
+              read the full Mounjaro information hub
+            </Link>{" "}
+            before you start.
+          </p>
+
           {/* Stat nuggets */}
           <div className="mt-14 flex flex-wrap items-center justify-center gap-3 md:gap-4">
             {[

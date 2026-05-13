@@ -5,6 +5,17 @@ export const metadata: Metadata = {
   title: "Return Policy",
   description:
     "Roots Pharmacy return policy. Medicines and healthcare products cannot be returned unless faulty or incorrect.",
+  alternates: { canonical: "/return-policy" },
+  openGraph: {
+    title: "Return Policy",
+    description:
+      "Roots Pharmacy return policy. Medicines and healthcare products cannot be returned unless faulty or incorrect.",
+    url: "/return-policy",
+    type: "website",
+    locale: "en_GB",
+    siteName: "Roots Pharmacy",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function ReturnPolicyPage() {

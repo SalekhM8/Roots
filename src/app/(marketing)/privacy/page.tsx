@@ -3,6 +3,16 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description: "Roots Pharmacy privacy policy — how we handle your personal and medical data.",
+  alternates: { canonical: "/privacy" },
+  openGraph: {
+    title: "Privacy Policy",
+    description: "Roots Pharmacy privacy policy — how we handle your personal and medical data.",
+    url: "/privacy",
+    type: "website",
+    locale: "en_GB",
+    siteName: "Roots Pharmacy",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function PrivacyPage() {

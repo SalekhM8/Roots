@@ -1,8 +1,20 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact",
-  description: "Get in touch with Roots Pharmacy. We're here to help with orders, consultations, and general enquiries.",
+  title: "Contact Roots Pharmacy",
+  description:
+    "Get in touch with Roots Pharmacy. We're here to help with orders, consultations, and general enquiries.",
+  alternates: { canonical: "/contact" },
+  openGraph: {
+    title: "Contact Roots Pharmacy",
+    description:
+      "Get in touch with Roots Pharmacy. We're here to help with orders, consultations, and general enquiries.",
+    url: "/contact",
+    type: "website",
+    locale: "en_GB",
+    siteName: "Roots Pharmacy",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function ContactPage() {

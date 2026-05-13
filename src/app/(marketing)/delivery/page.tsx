@@ -3,6 +3,16 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Delivery Information",
   description: "Roots Pharmacy delivery information — tracked UK shipping via Royal Mail.",
+  alternates: { canonical: "/delivery" },
+  openGraph: {
+    title: "Delivery Information",
+    description: "Roots Pharmacy delivery information — tracked UK shipping via Royal Mail.",
+    url: "/delivery",
+    type: "website",
+    locale: "en_GB",
+    siteName: "Roots Pharmacy",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function DeliveryPage() {

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SHOP_LINKS, SUPPORT_LINKS, ROUTES } from "@/lib/constants";
 import { Logo } from "@/components/layout/logo";
+import { PHARMACY, SUPERINTENDENT_PHARMACIST } from "@/lib/clinical/credentials";
 
 export default function Footer() {
   return (
@@ -74,32 +75,140 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* About */}
+          {/* Learn — internal-linking surface for Mounjaro hub + cluster.
+              Footer links are a low-effort but reliable signal of topical
+              hierarchy for crawlers; every public page inherits them. */}
           <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider">
-              About
+              Learn
             </h3>
-            <p className="text-sm leading-relaxed text-roots-cream/80">
-              We believe everyone deserves access to safe, effective weight
-              management. Every consultation is reviewed by a qualified
-              prescriber. Every order handled with care.
-            </p>
-            <Link
-              href={ROUTES.about}
-              className="mt-3 inline-block border-b border-roots-cream/40 pb-0.5 text-sm font-medium transition-opacity duration-200 hover:opacity-80"
-            >
-              Learn More
-            </Link>
+            <ul className="space-y-3">
+              <li>
+                <Link
+                  href="/treatments/mounjaro"
+                  className="text-sm text-roots-cream/80 transition-opacity duration-200 hover:opacity-100"
+                >
+                  Mounjaro information
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/guides/how-does-mounjaro-work"
+                  className="text-sm text-roots-cream/80 transition-opacity duration-200 hover:opacity-100"
+                >
+                  How Mounjaro works
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/guides/mounjaro-side-effects-uk"
+                  className="text-sm text-roots-cream/80 transition-opacity duration-200 hover:opacity-100"
+                >
+                  Side effects
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/guides/mounjaro-vs-wegovy"
+                  className="text-sm text-roots-cream/80 transition-opacity duration-200 hover:opacity-100"
+                >
+                  Mounjaro vs Wegovy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/guides/mounjaro-vs-ozempic"
+                  className="text-sm text-roots-cream/80 transition-opacity duration-200 hover:opacity-100"
+                >
+                  Mounjaro vs Ozempic
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/blog"
+                  className="text-sm text-roots-cream/80 transition-opacity duration-200 hover:opacity-100"
+                >
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={ROUTES.about}
+                  className="text-sm text-roots-cream/80 transition-opacity duration-200 hover:opacity-100"
+                >
+                  About Roots
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Lumina Pharma disclosure */}
-        <div className="mt-12 border-t border-roots-line-soft pt-8">
-          <p className="text-center text-xs leading-relaxed text-roots-cream/50">
-            Prescription services provided in partnership with Lumina Pharma Ltd
-            (Company No. 16803872), a GPhC-registered pharmacy. All prescriptions
-            are reviewed and approved by qualified prescribers.
-          </p>
+        {/* Regulatory disclosure — GPhC pharmacy + superintendent.
+            Required visible information on every page that discusses a POM. */}
+        <div className="mt-12 grid grid-cols-1 gap-8 border-t border-roots-line-soft pt-8 md:grid-cols-[auto,1fr] md:items-start md:gap-10">
+          {/* Internet Pharmacy logo placeholder. Once GPhC issues the live
+              registration the logo links to the register entry per
+              regulatory requirement. */}
+          <a
+            href={PHARMACY.licensedEntity.gphcRegisterUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="GPhC Internet Pharmacy register entry"
+            className="flex h-[88px] w-[88px] shrink-0 items-center justify-center rounded-md border border-roots-cream/30 bg-roots-cream/5 p-2 text-center text-[10px] leading-tight text-roots-cream/60 transition-opacity hover:opacity-90"
+          >
+            GPhC Internet Pharmacy logo
+          </a>
+          <div className="space-y-2 text-xs leading-relaxed text-roots-cream/60">
+            <p>
+              Prescription services are provided in partnership with{" "}
+              <span className="text-roots-cream/80">
+                {PHARMACY.licensedEntity.name}
+              </span>{" "}
+              (Company No.{" "}
+              <span className="text-roots-cream/80">
+                {PHARMACY.licensedEntity.companyNumber}
+              </span>
+              ), a GPhC-registered pharmacy. GPhC pharmacy registration number:{" "}
+              <span className="text-roots-cream/80">
+                {PHARMACY.licensedEntity.gphcRegistration}
+              </span>
+              .
+            </p>
+            <p>
+              Superintendent pharmacist:{" "}
+              <Link
+                href={`/team/${SUPERINTENDENT_PHARMACIST.slug}`}
+                className="text-roots-cream/85 underline underline-offset-2 hover:opacity-90"
+              >
+                {SUPERINTENDENT_PHARMACIST.name},{" "}
+                {SUPERINTENDENT_PHARMACIST.qualification}
+              </Link>{" "}
+              (GPhC{" "}
+              <a
+                href="https://www.pharmacyregulation.org/registers/pharmacist"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-roots-cream/80 underline underline-offset-2"
+              >
+                {SUPERINTENDENT_PHARMACIST.registerNumber}
+              </a>
+              ).
+            </p>
+            <p>
+              Every prescription is reviewed and approved by a qualified UK
+              prescriber. Suspected side effects can be reported to the MHRA
+              via the{" "}
+              <a
+                href="https://yellowcard.mhra.gov.uk/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-roots-cream/80 underline underline-offset-2"
+              >
+                Yellow Card scheme
+              </a>
+              .
+            </p>
+          </div>
         </div>
 
         {/* Bottom bar */}

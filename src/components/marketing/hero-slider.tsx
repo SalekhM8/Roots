@@ -18,7 +18,7 @@ const slides: Slide[] = [
   {
     subtitle: "Mounjaro Weight Loss Programme",
     headline: "Effective, medically supervised weight management",
-    cta: { label: "Learn More", href: "/products/mounjaro" },
+    cta: { label: "Learn More", href: "/treatments/mounjaro" },
   },
   {
     subtitle: "Premium Wellness",

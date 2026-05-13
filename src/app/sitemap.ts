@@ -1,10 +1,70 @@
 import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
 import { getAllBlogPosts } from "@/data/blog-posts";
+import { MOUNJARO_DOSES } from "@/data/mounjaro";
+import { CLINICIANS, CLINICAL_CONTENT_LAST_REVIEWED } from "@/lib/clinical/credentials";
 
 const BASE_URL = "https://rootspharmacy.co.uk";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // High-priority Mounjaro hub + clinical guide cluster. These are the
+  // pages we want indexed first and refreshed most often.
+  const clinicalLastReviewed = new Date(CLINICAL_CONTENT_LAST_REVIEWED);
+  const mounjaroPages: MetadataRoute.Sitemap = [
+    {
+      url: `${BASE_URL}/treatments/mounjaro`,
+      lastModified: clinicalLastReviewed,
+      changeFrequency: "weekly",
+      priority: 1.0,
+    },
+    ...MOUNJARO_DOSES.map((d) => ({
+      url: `${BASE_URL}/treatments/mounjaro/${d.slug}`,
+      lastModified: clinicalLastReviewed,
+      changeFrequency: "monthly" as const,
+      priority: 0.85,
+    })),
+    {
+      url: `${BASE_URL}/guides`,
+      lastModified: clinicalLastReviewed,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${BASE_URL}/guides/mounjaro-vs-wegovy`,
+      lastModified: clinicalLastReviewed,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
+      url: `${BASE_URL}/guides/mounjaro-vs-ozempic`,
+      lastModified: clinicalLastReviewed,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
+      url: `${BASE_URL}/guides/how-does-mounjaro-work`,
+      lastModified: clinicalLastReviewed,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/guides/mounjaro-side-effects-uk`,
+      lastModified: clinicalLastReviewed,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+  ];
+
+  // Clinician author hubs — required destinations for MedicalWebPage
+  // reviewedBy schema. Even if there is only one clinician at launch,
+  // emitting this list keeps the sitemap honest as the team grows.
+  const teamPages: MetadataRoute.Sitemap = Object.keys(CLINICIANS).map((slug) => ({
+    url: `${BASE_URL}/team/${slug}`,
+    lastModified: clinicalLastReviewed,
+    changeFrequency: "yearly" as const,
+    priority: 0.5,
+  }));
+
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
     { url: BASE_URL, changeFrequency: "weekly", priority: 1.0 },
@@ -54,5 +114,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticPages, ...blogPages, ...collectionPages, ...productPages];
+  return [
+    ...staticPages,
+    ...mounjaroPages,
+    ...teamPages,
+    ...blogPages,
+    ...collectionPages,
+    ...productPages,
+  ];
 }

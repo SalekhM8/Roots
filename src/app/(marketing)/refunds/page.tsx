@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Refund Policy — Roots Pharmacy",
   description:
     "Roots Pharmacy refund policy. Full refunds if your consultation is not approved. 14-day return window on unopened supplements.",
+  alternates: { canonical: "/refunds" },
+  openGraph: {
+    title: "Refund Policy — Roots Pharmacy",
+    description:
+      "Roots Pharmacy refund policy. Full refunds if your consultation is not approved. 14-day return window on unopened supplements.",
+    url: "/refunds",
+    type: "website",
+    locale: "en_GB",
+    siteName: "Roots Pharmacy",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RefundsPage() {

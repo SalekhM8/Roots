@@ -3,6 +3,16 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Terms & Conditions",
   description: "Roots Pharmacy terms and conditions of use.",
+  alternates: { canonical: "/terms" },
+  openGraph: {
+    title: "Terms & Conditions",
+    description: "Roots Pharmacy terms and conditions of use.",
+    url: "/terms",
+    type: "website",
+    locale: "en_GB",
+    siteName: "Roots Pharmacy",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function TermsPage() {

@@ -32,15 +32,18 @@ export const ROUTES = {
   consultation: "/consultations/mounjaro",
   consultationUploadPhotos: "/consultations/mounjaro/upload-photos",
   consultationSelectDose: "/consultations/mounjaro/select-dose",
+  mounjaroHub: "/treatments/mounjaro",
+  guides: "/guides",
   collection: (slug: string) => `/collections/${slug}` as const,
   product: (slug: string) => `/products/${slug}` as const,
 } as const;
 
 export const NAV_LINKS = [
   { href: ROUTES.home, label: "Home" },
+  { href: ROUTES.mounjaroHub, label: "Mounjaro" },
   { href: ROUTES.collection("weight-loss"), label: "Weight Loss" },
   { href: "/supplements", label: "Supplements" },
-  { href: "/blog", label: "Blog" },
+  { href: ROUTES.guides, label: "Guides" },
   { href: ROUTES.about, label: "About" },
   { href: ROUTES.contact, label: "Contact" },
 ] as const;
