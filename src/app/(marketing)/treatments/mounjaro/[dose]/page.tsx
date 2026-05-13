@@ -9,6 +9,7 @@ import {
   MedicalWebPageJsonLd,
 } from "@/components/seo/json-ld";
 import { MedicalReviewByline } from "@/components/seo/medical-review-byline";
+import { MetaPixelEvent } from "@/components/observability/meta-pixel-event";
 import {
   CLINICAL_CONTENT_LAST_REVIEWED,
   MEDICAL_REVIEWER,
@@ -105,6 +106,13 @@ export default async function MounjaroDosePage({ params }: PageProps) {
 
   return (
     <div className="bg-roots-cream">
+      <MetaPixelEvent
+        event="ViewContent"
+        contentName={`Mounjaro ${dose.label}`}
+        contentCategory="Weight Loss"
+        contentIds={[`mounjaro-${dose.slug}`]}
+        contentType="product_group"
+      />
       <MedicalOrganizationJsonLd />
       <MedicalWebPageJsonLd
         url={urlPath}

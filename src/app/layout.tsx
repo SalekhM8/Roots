@@ -6,6 +6,7 @@ import { CartCountProvider } from "@/components/cart/cart-count-provider";
 import { PendingCartReplay } from "@/components/cart/pending-cart-replay";
 import NewsletterPopup from "@/components/marketing/newsletter-popup";
 import { PostHogBootstrap } from "@/components/observability/posthog-bootstrap";
+import { MetaPixelBase } from "@/components/observability/meta-pixel-base";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -126,23 +127,6 @@ export default function RootLayout({
             src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js"
             strategy="afterInteractive"
           />
-          {/* Meta (Facebook) Pixel — paired with Google Ads above for the
-              marketing team's cross-channel attribution. Fires PageView on
-              every route load via next/script's afterInteractive strategy. */}
-          <Script id="meta-pixel" strategy="afterInteractive">
-            {`
-              !function(f,b,e,v,n,t,s)
-              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-              n.queue=[];t=b.createElement(e);t.async=!0;
-              t.src=v;s=b.getElementsByTagName(e)[0];
-              s.parentNode.insertBefore(t,s)}(window, document,'script',
-              'https://connect.facebook.net/en_US/fbevents.js');
-              fbq('init', '1010067568024762');
-              fbq('track', 'PageView');
-            `}
-          </Script>
           <noscript>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -156,6 +140,9 @@ export default function RootLayout({
         </head>
         <body className="min-h-screen bg-roots-cream font-sans text-roots-navy antialiased">
           <PostHogBootstrap />
+          {/* Meta Pixel base loader + auto-PageView with PHI route
+              blocklist and CAPI deduplication. See meta-pixel-base.tsx. */}
+          <MetaPixelBase />
           <CartCountProvider>
             <PendingCartReplay />
             {children}

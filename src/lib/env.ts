@@ -54,6 +54,13 @@ const serverSchema = z.object({
   CLICK_DROP_API_KEY: z.string().min(1).optional(),
   OPS_ALERT_EMAIL: z.string().email().optional(),
 
+  // Meta Conversions API — server-side complement to the browser Pixel.
+  // Required only if you want events to survive ad-blockers / iOS. The
+  // server endpoint at /api/meta/capi is a safe no-op when this is unset.
+  META_PIXEL_ID: z.string().min(1).optional(),
+  META_CAPI_ACCESS_TOKEN: z.string().min(1).optional(),
+  META_CAPI_TEST_EVENT_CODE: z.string().min(1).optional(),
+
   // Vercel KV (rate limiter — added in C2)
   KV_REST_API_URL: z.string().url().optional(),
   KV_REST_API_TOKEN: z.string().min(1).optional(),

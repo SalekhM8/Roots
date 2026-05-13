@@ -13,6 +13,7 @@ import { PRODUCT_FAQS } from "@/data/product-faqs";
 import { ProductRecommendations } from "@/components/product/product-recommendations";
 import { BundleImage, isBundle } from "@/components/product/bundle-image";
 import { ProductDetailInteractive } from "@/components/product/product-detail-interactive";
+import { MetaPixelEvent } from "@/components/observability/meta-pixel-event";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -101,6 +102,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <div className={isPom ? "bg-roots-green text-roots-cream" : "bg-roots-cream text-roots-green"}>
+      <MetaPixelEvent
+        event="ViewContent"
+        contentName={product.name}
+        contentCategory={isPom ? "Weight Loss" : "Wellness Supplements"}
+        contentIds={[product.slug]}
+        contentType="product"
+        value={lowestPrice / 100}
+        currency="GBP"
+      />
       <ProductJsonLd
         name={product.name}
         description={product.shortDescription}
