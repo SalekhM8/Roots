@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { getCartWithItems } from "@/server/queries/cart";
 import { getCustomerAddresses } from "@/server/queries/account";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
+import { MetaPixelEvent } from "@/components/observability/meta-pixel-event";
 import { ROUTES, calculateShipping } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -35,6 +36,12 @@ export default async function CheckoutPage() {
 
   return (
     <div className="page-container py-16 md:py-20">
+      <MetaPixelEvent
+        event="InitiateCheckout"
+        value={totalMinor / 100}
+        currency="GBP"
+        numItems={itemCount}
+      />
       <h1 className="mb-8 text-[32px] font-medium text-roots-green md:text-[42px]">
         Checkout
       </h1>

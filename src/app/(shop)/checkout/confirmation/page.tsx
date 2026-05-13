@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { ROUTES } from "@/lib/constants";
 import { ChecklistIcon } from "@/components/icons";
 import { ClearGuestCart } from "@/components/checkout/clear-guest-cart";
+import { MetaPixelEvent } from "@/components/observability/meta-pixel-event";
 
 export const metadata: Metadata = {
   title: "Order Confirmed",
@@ -48,6 +49,8 @@ export default async function ConfirmationPage({
       orderType: true,
       guestEmail: true,
       paymentStatus: true,
+      totalMinor: true,
+      currency: true,
       payments: {
         select: { status: true },
         orderBy: { createdAt: "desc" },
@@ -131,8 +134,20 @@ export default async function ConfirmationPage({
   }
 
   // ---- Success path: authorized (POM preauth) or captured (charge)
+  // Meta Pixel Purchase event. For POM/mixed orders the card has only been
+  // authorised (capture happens on prescriber approval), but Meta still
+  // counts an authorisation as a Purchase for attribution — and matches
+  // standard practice for pharmacies on Shopify, who fire Purchase at the
+  // same point. The `value` is in MAJOR units (£), order number is the
+  // only identifier we attach (never PII / consultation answers).
   return (
     <div className="page-container py-16 md:py-20">
+      <MetaPixelEvent
+        event="Purchase"
+        value={order.totalMinor / 100}
+        currency={order.currency}
+        contentIds={[order.orderNumber]}
+      />
       {isGuest && <ClearGuestCart />}
       <div className="mx-auto max-w-lg text-center">
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-roots-green/10">

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { LockIcon, CartIcon } from "@/components/icons";
 import { CartSummary } from "./cart-summary";
 import { CheckoutReviews } from "./checkout-reviews";
+import { MetaPixelEvent } from "@/components/observability/meta-pixel-event";
 import { createGuestCheckoutAction } from "@/app/(shop)/checkout/guest/actions";
 import { useGuestCart, type GuestCartItem } from "@/hooks/use-guest-cart";
 import { formatPrice } from "@/lib/utils";
@@ -95,6 +96,12 @@ export function GuestCheckoutClient() {
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <MetaPixelEvent
+        event="InitiateCheckout"
+        value={totalMinor / 100}
+        currency="GBP"
+        numItems={count}
+      />
       <div className="lg:col-span-2 space-y-8">
         {/* Cart items */}
         <div>
