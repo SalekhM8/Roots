@@ -591,3 +591,99 @@ export const checkExpiringAuthorizations = inngest.createFunction(
     return { checked: expiringPayments.length, voided, emailed };
   }
 );
+
+/**
+ * Abandoned-consultation recovery: nudges patients who submitted a
+ * consultation but never authorised payment. Fires three durable nudges
+ * at 2h, 24h, and 72h after submission. Each nudge re-checks the
+ * consultation state at send time so anyone who pays before the next
+ * step never receives a follow-up.
+ *
+ * Triggered by `consultation/submitted` — same event as the customer-
+ * facing "Consultation Received" email. Durable step.sleep means a
+ * Vercel restart or deploy mid-wait does not lose the timer.
+ */
+export const remindAbandonedConsultations = inngest.createFunction(
+  { id: "remind-abandoned-consultations" },
+  { event: "consultation/submitted" },
+  async ({ event, step }) => {
+    const { userId, consultationId } = event.data;
+
+    async function sendIfStillAbandoned(
+      nudgeNumber: 1 | 2 | 3,
+      subject: string,
+    ): Promise<{ sent: boolean; reason?: string }> {
+      const consultation = await db.consultation.findUnique({
+        where: { id: consultationId },
+        include: { orders: { select: { paymentStatus: true } } },
+      });
+      if (!consultation) return { sent: false, reason: "consultation_missing" };
+      if (consultation.status !== "submitted") {
+        return { sent: false, reason: `status_${consultation.status}` };
+      }
+      const hasPaid = consultation.orders.some(
+        (o) =>
+          o.paymentStatus === "authorized" || o.paymentStatus === "captured",
+      );
+      if (hasPaid) return { sent: false, reason: "payment_present" };
+
+      const user = await db.user.findUnique({
+        where: { id: userId },
+        include: { customerProfile: { select: { firstName: true } } },
+      });
+      if (!user) return { sent: false, reason: "user_missing" };
+
+      const name = user.customerProfile?.firstName ?? "there";
+      const html = templates.consultationAbandonedNudge(
+        name,
+        consultationId,
+        nudgeNumber,
+      );
+
+      const { messageId } = await sendEmail({
+        to: user.email,
+        subject,
+        html,
+      });
+
+      await db.emailEvent.create({
+        data: {
+          userId,
+          consultationId,
+          emailType: `consultation_abandoned_nudge_${nudgeNumber}`,
+          providerMessageId: messageId,
+          sentAt: messageId ? new Date() : null,
+          status: messageId ? "sent" : "failed",
+        },
+      });
+
+      return { sent: true };
+    }
+
+    await step.sleep("wait-2h", "2h");
+    const nudge1 = await step.run("nudge-1", () =>
+      sendIfStillAbandoned(
+        1,
+        "You're one step away — finish your Mounjaro consultation",
+      ),
+    );
+
+    await step.sleep("wait-22h", "22h");
+    const nudge2 = await step.run("nudge-2", () =>
+      sendIfStillAbandoned(
+        2,
+        "Your Mounjaro consultation is waiting",
+      ),
+    );
+
+    await step.sleep("wait-48h", "48h");
+    const nudge3 = await step.run("nudge-3", () =>
+      sendIfStillAbandoned(
+        3,
+        "Final reminder: complete your Mounjaro consultation",
+      ),
+    );
+
+    return { nudge1, nudge2, nudge3 };
+  },
+);

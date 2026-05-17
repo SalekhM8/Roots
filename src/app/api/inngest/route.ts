@@ -12,6 +12,7 @@ import {
   sendPaymentCapturedEmail,
   sendReviewRequestEmail,
   checkExpiringAuthorizations,
+  remindAbandonedConsultations,
 } from "@/server/workflows/email-workflows";
 import {
   cleanupStaleDraftConsultations,
@@ -33,6 +34,7 @@ export const { GET, POST, PUT } = serve({
     sendPaymentCapturedEmail,
     sendReviewRequestEmail,
     checkExpiringAuthorizations,
+    remindAbandonedConsultations,
     cleanupStaleDraftConsultations,
     remindActionRequiredConsultations,
     alertStuckPackedOrders,

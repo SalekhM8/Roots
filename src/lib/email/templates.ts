@@ -359,6 +359,66 @@ export function adminNewOrder(params: {
   );
 }
 
+/**
+ * Abandoned-consultation nudge. Fired by `remindAbandonedConsultations`
+ * at 2h, 24h, and 72h after consultation submit, if the patient has not
+ * yet authorised payment. Same template, different subject + intro per
+ * nudge number so each one feels distinct without rewriting the body.
+ *
+ * The CTA deep-links straight to /consultations/mounjaro/select-dose
+ * with the consultation id pre-filled — Clerk's middleware handles the
+ * sign-in bounce and returns them to the same URL after auth, so the
+ * journey is: click → sign in → pick dose → pay. No re-typing.
+ */
+export function consultationAbandonedNudge(
+  name: string,
+  consultationId: string,
+  nudgeNumber: 1 | 2 | 3,
+): string {
+  const resumeUrl = `${BRAND.siteUrl}/consultations/mounjaro/select-dose?consultation=${consultationId}`;
+
+  const intros: Record<1 | 2 | 3, { title: string; lead: string; preheader: string }> = {
+    1: {
+      title: "You're one step away",
+      lead: "You've completed your Mounjaro consultation but haven't selected a dose yet. To send it to a prescriber for review, the next step is to choose your dose and authorise payment.",
+      preheader: `Hi ${name}, finish your Mounjaro order in two minutes.`,
+    },
+    2: {
+      title: "Your consultation is waiting",
+      lead: "Your Mounjaro consultation is saved and ready, but a prescriber can't review it until you've selected a dose and authorised payment. It only takes a minute to complete.",
+      preheader: `Hi ${name}, your consultation is still waiting — pick your dose to continue.`,
+    },
+    3: {
+      title: "Final reminder",
+      lead: "This is a final reminder that your Mounjaro consultation is still incomplete. Select your dose and authorise payment to send it for prescriber review — otherwise we'll close this consultation soon.",
+      preheader: `Hi ${name}, last reminder to complete your Mounjaro consultation.`,
+    },
+  };
+
+  const { title, lead, preheader } = intros[nudgeNumber];
+
+  return layout(
+    `${title} — ROOTS Pharmacy`,
+    preheader,
+    `${heading(title)}
+    ${greeting(name)}
+    ${paragraph(lead)}
+    ${infoBox(`
+      <p style="margin:0 0 8px;font-size:14px;color:${BRAND.navy};line-height:1.6;">
+        <strong>How it works from here</strong>
+      </p>
+      <ol style="margin:0;padding-left:18px;font-size:14px;color:${BRAND.navy};line-height:1.7;">
+        <li>Click below — you'll be taken straight back to where you left off.</li>
+        <li>Sign in to your account (we'll remember the rest).</li>
+        <li>Choose your preferred dose and confirm.</li>
+        <li>Authorise payment — your card is <strong>not charged</strong> until a UK prescriber approves you. If you're not suitable, we cancel the authorisation and you pay nothing.</li>
+      </ol>
+    `, "green")}
+    ${cta("Continue my consultation", resumeUrl)}
+    <p style="margin:24px 0 0;font-size:13px;color:${BRAND.grey};line-height:1.6;">Questions before you continue? <a href="${BRAND.siteUrl}/contact" style="color:${BRAND.green};text-decoration:none;font-weight:500;">Contact our team</a> — we're here to help.</p>`,
+  );
+}
+
 export function accountCreated(name: string): string {
   return layout(
     "Welcome to ROOTS Pharmacy",
