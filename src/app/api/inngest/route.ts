@@ -13,6 +13,7 @@ import {
   sendReviewRequestEmail,
   checkExpiringAuthorizations,
   remindAbandonedConsultations,
+  remindRepeatSupply,
 } from "@/server/workflows/email-workflows";
 import {
   cleanupStaleDraftConsultations,
@@ -35,6 +36,7 @@ export const { GET, POST, PUT } = serve({
     sendReviewRequestEmail,
     checkExpiringAuthorizations,
     remindAbandonedConsultations,
+    remindRepeatSupply,
     cleanupStaleDraftConsultations,
     remindActionRequiredConsultations,
     alertStuckPackedOrders,

@@ -87,6 +87,37 @@ export const consultationAnswersSchema = z.object({
   }),
 });
 
+// ---- Refill Consultation ----
+// Short follow-up form for returning Mounjaro patients. We inherit the
+// chronic medical history from their prior approved consultation and only
+// ask the delta: weight + tolerability + anything-changed. Re-asks the
+// safety-critical items (pregnancy, pancreatitis episode, mood) because
+// those can change between supplies and a stale answer is unsafe.
+export const refillConsultationSchema = z.object({
+  weightKg: z
+    .number()
+    .min(30, "Weight must be at least 30kg")
+    .max(300, "Weight cannot exceed 300kg"),
+  supplyExperience: z
+    .string()
+    .min(10, "Please tell us briefly how it has been going")
+    .max(2000),
+  hadSideEffects: z.boolean(),
+  sideEffectsText: z.string().max(2000).optional(),
+  isPregnantOrBreastfeeding: z.boolean(),
+  hasNewConditions: z.boolean(),
+  newConditionsText: z.string().max(2000).optional(),
+  hasNewMedications: z.boolean(),
+  newMedicationsText: z.string().max(2000).optional(),
+  hadPancreatitisEpisode: z.boolean(),
+  hadMentalHealthConcerns: z.boolean(),
+  mentalHealthDetails: z.string().max(2000).optional(),
+  dosePreference: z.enum(["same", "escalate", "discuss"]),
+  consentConfirmed: z.literal(true, {
+    message: "You must confirm the declaration",
+  }),
+});
+
 // ---- Order Number ----
 export function generateOrderNumber(): string {
   const now = new Date();
@@ -147,6 +178,7 @@ export type AddressSnapshot = z.infer<typeof addressSnapshotSchema>;
 export type AddressInput = z.infer<typeof addressSchema>;
 export type ProfileInput = z.infer<typeof profileSchema>;
 export type ConsultationAnswersInput = z.infer<typeof consultationAnswersSchema>;
+export type RefillConsultationInput = z.infer<typeof refillConsultationSchema>;
 export type AddToCartInput = z.infer<typeof addToCartSchema>;
 export type UpdateCartItemInput = z.infer<typeof updateCartItemSchema>;
 export type CheckoutInput = z.infer<typeof checkoutSchema>;

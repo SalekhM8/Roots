@@ -419,6 +419,58 @@ export function consultationAbandonedNudge(
   );
 }
 
+/**
+ * Repeat-supply reminder for Mounjaro patients. Fires twice after a
+ * shipment based on the standard 4-week supply window:
+ *   - nudge 1: ~3 weeks out  — "supply running low, plan ahead"
+ *   - nudge 2: ~4 weeks out  — "time to reorder for continuity"
+ *
+ * Deep-links straight into the refill consultation entry point so the
+ * customer skips the full questionnaire and only answers the short
+ * follow-up. Server-side route still validates eligibility, so a stale
+ * link can't bypass the rules.
+ */
+export function repeatSupplyReminder(
+  name: string,
+  prevConsultationId: string,
+  nudgeNumber: 1 | 2,
+): string {
+  const refillUrl = `${BRAND.siteUrl}/consultations/mounjaro/refill?from=${prevConsultationId}`;
+
+  const intros: Record<1 | 2, { title: string; lead: string; preheader: string }> = {
+    1: {
+      title: "Your next supply may be due soon",
+      lead: "It's been about three weeks since your last Mounjaro supply was shipped. Most patients start thinking about their next pen around now so there's no gap between supplies. A quick refill consultation takes about a minute — no need to repeat the full questionnaire.",
+      preheader: `Hi ${name}, plan your next Mounjaro supply in a minute.`,
+    },
+    2: {
+      title: "Time to reorder your Mounjaro",
+      lead: "Your last Mounjaro supply was shipped about four weeks ago — you may be running low or already out. To keep your treatment continuous, complete a short refill consultation and your prescriber will authorise your next supply.",
+      preheader: `Hi ${name}, reorder your next Mounjaro supply.`,
+    },
+  };
+
+  const { title, lead, preheader } = intros[nudgeNumber];
+
+  return layout(
+    `${title} — ROOTS Pharmacy`,
+    preheader,
+    `${heading(title)}
+    ${greeting(name)}
+    ${paragraph(lead)}
+    ${infoBox(`
+      <p style="margin:0 0 8px;font-size:14px;color:${BRAND.navy};line-height:1.6;">
+        <strong>Why the refill is short</strong>
+      </p>
+      <p style="margin:0;font-size:14px;color:${BRAND.navy};line-height:1.7;">
+        Because we already have your medical history from your last consultation, the refill only asks about your current weight, how the last supply went, and anything that has changed. Your prescriber reviews it against your previous answers before authorising the next supply.
+      </p>
+    `, "green")}
+    ${cta("Start refill consultation", refillUrl)}
+    <p style="margin:24px 0 0;font-size:13px;color:${BRAND.grey};line-height:1.6;">Not ready yet? You can come back to this any time from your <a href="${BRAND.siteUrl}/account/orders" style="color:${BRAND.green};text-decoration:none;font-weight:500;">account</a>.</p>`,
+  );
+}
+
 export function accountCreated(name: string): string {
   return layout(
     "Welcome to ROOTS Pharmacy",

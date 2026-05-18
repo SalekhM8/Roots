@@ -687,3 +687,122 @@ export const remindAbandonedConsultations = inngest.createFunction(
     return { nudge1, nudge2, nudge3 };
   },
 );
+
+/**
+ * Repeat-supply reminders for Mounjaro patients. Mounjaro pens are a
+ * 4-week supply; without a nudge most customers slip out of treatment
+ * continuity because they forget to start the short refill consultation
+ * before they run out.
+ *
+ * Listens on `order/shipped`. The same event already drives the review
+ * request email, so we know it fires for every dispatched order. We
+ * filter to orders that have an approved Mounjaro consultation attached
+ * — supplement-only orders have no consultation and skip this whole
+ * function. Two sends: 21 days then a further 7 days.
+ *
+ * Suppression rules (checked at send time, not schedule time):
+ *  - The customer already started a NEW consultation (active status that
+ *    isn't approved/rejected/expired). They're back in flow — leave them
+ *    alone.
+ *  - We already wrote an emailEvent for this orderId + this nudge
+ *    number. Belt-and-braces against re-fired `order/shipped` events.
+ */
+export const remindRepeatSupply = inngest.createFunction(
+  { id: "remind-repeat-supply" },
+  { event: "order/shipped" },
+  async ({ event, step }) => {
+    const { userId, orderId } = event.data;
+
+    async function sendIfStillDue(
+      nudgeNumber: 1 | 2,
+      subject: string,
+    ): Promise<{ sent: boolean; reason?: string }> {
+      // Re-pull the order each send so consultation status / new
+      // consultations etc are fresh, not as they were 3 weeks ago.
+      const order = await db.order.findUnique({
+        where: { id: orderId },
+        select: {
+          id: true,
+          consultationId: true,
+          consultation: { select: { id: true, status: true } },
+        },
+      });
+      if (!order) return { sent: false, reason: "order_missing" };
+      if (!order.consultation || order.consultation.status !== "approved") {
+        return { sent: false, reason: "not_mounjaro_or_not_approved" };
+      }
+
+      // Has the customer already started a new consultation since this
+      // shipment? If so, they're already in flow — don't nag.
+      const existingActive = await db.consultation.findFirst({
+        where: {
+          userId,
+          status: { notIn: ["rejected", "expired", "approved"] },
+        },
+        select: { id: true },
+      });
+      if (existingActive) return { sent: false, reason: "already_re_engaged" };
+
+      // Idempotency — never send the same reminder twice for one order.
+      const alreadySent = await db.emailEvent.findFirst({
+        where: {
+          orderId,
+          emailType: `repeat_supply_reminder_${nudgeNumber}`,
+        },
+        select: { id: true },
+      });
+      if (alreadySent) return { sent: false, reason: "already_sent" };
+
+      const user = await db.user.findUnique({
+        where: { id: userId },
+        include: { customerProfile: { select: { firstName: true } } },
+      });
+      if (!user) return { sent: false, reason: "user_missing" };
+
+      const name = user.customerProfile?.firstName ?? "there";
+      const html = templates.repeatSupplyReminder(
+        name,
+        order.consultation.id,
+        nudgeNumber,
+      );
+
+      const { messageId } = await sendEmail({
+        to: user.email,
+        subject,
+        html,
+      });
+
+      await db.emailEvent.create({
+        data: {
+          userId,
+          orderId,
+          consultationId: order.consultation.id,
+          emailType: `repeat_supply_reminder_${nudgeNumber}`,
+          providerMessageId: messageId,
+          sentAt: messageId ? new Date() : null,
+          status: messageId ? "sent" : "failed",
+        },
+      });
+
+      return { sent: true };
+    }
+
+    await step.sleep("wait-21d", "21d");
+    const nudge1 = await step.run("nudge-1", () =>
+      sendIfStillDue(
+        1,
+        "Your next Mounjaro supply may be due soon",
+      ),
+    );
+
+    await step.sleep("wait-7d", "7d");
+    const nudge2 = await step.run("nudge-2", () =>
+      sendIfStillDue(
+        2,
+        "Time to reorder your Mounjaro",
+      ),
+    );
+
+    return { nudge1, nudge2 };
+  },
+);

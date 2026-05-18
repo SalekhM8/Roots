@@ -192,6 +192,29 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
               </p>
             </Section>
           )}
+
+          {/* Refill CTA. Only surfaced for completed Mounjaro orders
+              (approved consultation + captured payment) so we never
+              prompt a refill before the prescriber even confirmed the
+              first supply. Server-side refill flow re-validates all of
+              this — this is just the entry point. */}
+          {order.consultation &&
+            order.consultation.status === "approved" &&
+            order.paymentStatus === "captured" && (
+              <Section title="Need your next supply?">
+                <p className="mb-3 text-sm text-roots-navy/70">
+                  Skip the full questionnaire — a quick follow-up tells
+                  your prescriber how the last supply went so they can
+                  authorise the next one.
+                </p>
+                <Link
+                  href={`/consultations/mounjaro/refill?from=${order.consultation.id}`}
+                  className="inline-flex items-center rounded-full bg-roots-green px-4 py-2 text-sm font-medium text-white hover:bg-roots-green/90"
+                >
+                  Start refill consultation
+                </Link>
+              </Section>
+            )}
         </div>
       </div>
     </div>
