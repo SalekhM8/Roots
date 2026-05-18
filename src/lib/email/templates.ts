@@ -420,6 +420,56 @@ export function consultationAbandonedNudge(
 }
 
 /**
+ * Admin notification fired when a patient submits a consultation.
+ * Mirror of adminNewOrder so the admin inbox treats them as a pair:
+ * "consultation submitted" → review queue, then "new order" → fulfillment.
+ *
+ * No PHI in the email: we surface customer label + product + BMI bucket
+ * so admin knows what's waiting without exposing the medical answers
+ * themselves. Anything sensitive is behind the admin login on the
+ * review page.
+ */
+export function adminConsultationSubmitted(params: {
+  consultationId: string;
+  customerLabel: string;
+  productName: string;
+  isRefill: boolean;
+  bmiFormatted: string | null;
+  paymentStatus: "authorised" | "pending" | "none";
+}): string {
+  const adminUrl = `${BRAND.siteUrl}/admin/consultations/${params.consultationId}`;
+  const refillBadge = params.isRefill
+    ? `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background-color:${BRAND.creamDark};color:${BRAND.navy};font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;margin-left:8px;">Refill</span>`
+    : "";
+  const paymentBadge = (() => {
+    if (params.paymentStatus === "authorised") {
+      return `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background-color:${BRAND.green};color:${BRAND.cream};font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">Payment authorised</span>`;
+    }
+    if (params.paymentStatus === "pending") {
+      return `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background-color:#fef9ee;color:${BRAND.navy};border:1px solid #fde68a;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">Payment pending</span>`;
+    }
+    return `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background-color:${BRAND.greyLight};color:${BRAND.grey};font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">No payment yet</span>`;
+  })();
+
+  return layout(
+    `Consultation submitted — ROOTS Admin`,
+    `${params.customerLabel} submitted a ${params.productName} consultation.`,
+    `${heading("Consultation Submitted")}
+    ${paragraph(`A patient has submitted a consultation for prescriber review.`)}
+    ${infoBox(`
+      <p style="margin:0 0 12px;">${paymentBadge}${refillBadge}</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;color:${BRAND.navy};line-height:1.7;">
+        <tr><td style="padding:2px 0;width:130px;color:${BRAND.grey};vertical-align:top;">Customer</td><td style="padding:2px 0;">${params.customerLabel}</td></tr>
+        <tr><td style="padding:2px 0;color:${BRAND.grey};">Product</td><td style="padding:2px 0;font-weight:600;">${params.productName}</td></tr>
+        ${params.bmiFormatted ? `<tr><td style="padding:2px 0;color:${BRAND.grey};">BMI</td><td style="padding:2px 0;">${params.bmiFormatted}</td></tr>` : ""}
+      </table>
+    `, "green")}
+    ${params.paymentStatus === "none" ? paragraph("No payment authorised yet — this consultation will not appear in the prescriber queue until checkout is completed.") : paragraph("Payment is authorised pending prescriber review — capture happens on approval, void on rejection.")}
+    ${cta("Open Consultation in Admin", adminUrl)}`
+  );
+}
+
+/**
  * Repeat-supply reminder for Mounjaro patients. Fires twice after a
  * shipment based on the standard 4-week supply window:
  *   - nudge 1: ~3 weeks out  — "supply running low, plan ahead"

@@ -368,6 +368,104 @@ export const sendAdminNewOrderEmail = inngest.createFunction(
   },
 );
 
+/**
+ * Admin notification fired when a patient submits a consultation.
+ * Listens on the same `consultation/submitted` event as the customer
+ * "Consultation Received" email — separate function so the customer
+ * send is unaffected if this one fails. Idempotent: deduped on
+ * (consultationId, emailType) so a re-fire never double-sends.
+ */
+export const sendAdminConsultationSubmittedEmail = inngest.createFunction(
+  { id: "send-admin-consultation-submitted-email" },
+  { event: "consultation/submitted" },
+  async ({ event }) => {
+    const { consultationId } = event.data;
+
+    const alreadySent = await db.emailEvent.findFirst({
+      where: { consultationId, emailType: "admin_consultation_submitted" },
+      select: { id: true },
+    });
+    if (alreadySent) return { skipped: true };
+
+    const consultation = await db.consultation.findUnique({
+      where: { id: consultationId },
+      include: {
+        user: { include: { customerProfile: true } },
+        product: { select: { name: true } },
+        answers: { select: { bmi: true, answersJson: true } },
+        orders: {
+          select: { paymentStatus: true },
+          orderBy: { createdAt: "desc" },
+        },
+      },
+    });
+    if (!consultation) return;
+
+    // Customer label — same convention as adminNewOrder so the inbox
+    // shows the patient consistently across both notifications.
+    const profile = consultation.user.customerProfile;
+    const fullName = profile
+      ? [profile.firstName, profile.lastName].filter(Boolean).join(" ")
+      : "";
+    const customerLabel = fullName
+      ? `${fullName} (${consultation.user.email})`
+      : consultation.user.email;
+
+    // Refill detection — submitRefillConsultation tags answersJson.refill.isRefill.
+    const answersJson = consultation.answers?.answersJson as
+      | { refill?: { isRefill?: boolean } }
+      | null
+      | undefined;
+    const isRefill = answersJson?.refill?.isRefill === true;
+
+    const bmiFormatted = consultation.answers?.bmi
+      ? (consultation.answers.bmi as number).toFixed(1)
+      : null;
+
+    const hasAuthorised = consultation.orders.some(
+      (o) => o.paymentStatus === "authorized" || o.paymentStatus === "captured",
+    );
+    const hasPending = consultation.orders.some(
+      (o) => o.paymentStatus === "pending",
+    );
+    const paymentStatus: "authorised" | "pending" | "none" = hasAuthorised
+      ? "authorised"
+      : hasPending
+        ? "pending"
+        : "none";
+
+    const html = templates.adminConsultationSubmitted({
+      consultationId,
+      customerLabel,
+      productName: consultation.product.name,
+      isRefill,
+      bmiFormatted,
+      paymentStatus,
+    });
+
+    const subjectPrefix = isRefill
+      ? "Refill consultation submitted"
+      : "New consultation submitted";
+
+    const { messageId } = await sendEmail({
+      to: ADMIN_NOTIFICATIONS_EMAIL,
+      subject: `${subjectPrefix} — ${customerLabel}`,
+      html,
+    });
+
+    await db.emailEvent.create({
+      data: {
+        recipientEmail: ADMIN_NOTIFICATIONS_EMAIL,
+        consultationId,
+        emailType: "admin_consultation_submitted",
+        providerMessageId: messageId,
+        sentAt: messageId ? new Date() : null,
+        status: messageId ? "sent" : "failed",
+      },
+    });
+  },
+);
+
 export const sendPaymentCapturedEmail = inngest.createFunction(
   { id: "send-payment-captured-email" },
   { event: "payment/captured" },

@@ -42,11 +42,25 @@ export async function getDashboardStats() {
 export async function getConsultationQueue(page = 1) {
   const skip = (page - 1) * PAGE_SIZE;
 
+  // Payment gate: only surface consultations once at least one linked
+  // order has a payment in authorized or captured state. Previously the
+  // queue showed every submitted consultation regardless of payment,
+  // which meant prescribers wasted time reviewing patients who never
+  // paid and whose treatment we couldn't actually fulfil. Customers who
+  // bounce at checkout are caught by the abandoned-consultation nudge
+  // instead, so they're not abandoned — just not in the clinical queue.
+  const queueWhere: Prisma.ConsultationWhereInput = {
+    status: { in: ["submitted", "under_review", "action_required"] },
+    orders: {
+      some: {
+        paymentStatus: { in: ["authorized", "captured"] },
+      },
+    },
+  };
+
   const [consultations, total] = await Promise.all([
     db.consultation.findMany({
-      where: {
-        status: { in: ["submitted", "under_review", "action_required"] },
-      },
+      where: queueWhere,
       include: {
         user: {
           include: {
@@ -75,11 +89,7 @@ export async function getConsultationQueue(page = 1) {
       skip,
       take: PAGE_SIZE,
     }),
-    db.consultation.count({
-      where: {
-        status: { in: ["submitted", "under_review", "action_required"] },
-      },
-    }),
+    db.consultation.count({ where: queueWhere }),
   ]);
 
   return { consultations, total, pageSize: PAGE_SIZE, page };
