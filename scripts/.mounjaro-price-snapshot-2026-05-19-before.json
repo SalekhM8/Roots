@@ -1,0 +1,41 @@
+{
+  "takenAt": "2026-05-19T09:49:27.459Z",
+  "variants": [
+    {
+      "id": "b0229fd6-dbb3-4065-9172-690a981430a9",
+      "sku": "MNJ-2.5MG",
+      "name": "2.5mg",
+      "priceMinor": 14999
+    },
+    {
+      "id": "a6936111-d6a2-48be-a3ad-5f28e9a37017",
+      "sku": "MNJ-5MG",
+      "name": "5mg",
+      "priceMinor": 16999
+    },
+    {
+      "id": "12614b47-3938-4548-8c74-a94faf7ba060",
+      "sku": "MNJ-7.5MG",
+      "name": "7.5mg",
+      "priceMinor": 18999
+    },
+    {
+      "id": "5a58e4ed-35c8-4be5-bd33-a04621a7adfa",
+      "sku": "MNJ-10MG",
+      "name": "10mg",
+      "priceMinor": 20999
+    },
+    {
+      "id": "2be5cd7e-3937-4a2b-bbdd-c3f3b0aead60",
+      "sku": "MNJ-12.5MG",
+      "name": "12.5mg",
+      "priceMinor": 22999
+    },
+    {
+      "id": "3b65a263-a39c-47b3-b7d4-ff9b0b323226",
+      "sku": "MNJ-15MG",
+      "name": "15mg",
+      "priceMinor": 24999
+    }
+  ]
+}

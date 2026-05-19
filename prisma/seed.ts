@@ -87,13 +87,16 @@ async function main() {
       defaultImageUrl: "/images/products/mounjaro.jpg",
     },
   });
+  // Canonical Mounjaro pricing (updated 2026-05-19). Old prices were
+  // below cost on 5/6 doses — these target margins +£15–£58 per dose.
+  // If you change these, also update scripts/reset-mounjaro-prices.ts.
   const mounjaroDoses = [
-    { name: "2.5mg", sku: "MNJ-2.5MG", priceMinor: 14999, weightGrams: 150 },
-    { name: "5mg", sku: "MNJ-5MG", priceMinor: 16999, weightGrams: 150 },
-    { name: "7.5mg", sku: "MNJ-7.5MG", priceMinor: 18999, weightGrams: 150 },
-    { name: "10mg", sku: "MNJ-10MG", priceMinor: 20999, weightGrams: 150 },
-    { name: "12.5mg", sku: "MNJ-12.5MG", priceMinor: 22999, weightGrams: 150 },
-    { name: "15mg", sku: "MNJ-15MG", priceMinor: 24999, weightGrams: 150 },
+    { name: "2.5mg", sku: "MNJ-2.5MG", priceMinor: 18000, weightGrams: 150 },
+    { name: "5mg", sku: "MNJ-5MG", priceMinor: 19999, weightGrams: 150 },
+    { name: "7.5mg", sku: "MNJ-7.5MG", priceMinor: 28500, weightGrams: 150 },
+    { name: "10mg", sku: "MNJ-10MG", priceMinor: 31000, weightGrams: 150 },
+    { name: "12.5mg", sku: "MNJ-12.5MG", priceMinor: 34000, weightGrams: 150 },
+    { name: "15mg", sku: "MNJ-15MG", priceMinor: 36000, weightGrams: 150 },
   ];
   for (const dose of mounjaroDoses) {
     await prisma.productVariant.upsert({
