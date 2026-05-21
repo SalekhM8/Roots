@@ -60,6 +60,9 @@ export default async function AdminOrderDetailPage({
         <span className="text-sm capitalize text-roots-navy/50">
           {order.orderType}
         </span>
+        {order.needsSharps && (
+          <StatusPill variant="info">Sharps + needles requested</StatusPill>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -209,6 +212,27 @@ export default async function AdminOrderDetailPage({
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Sharps requirement — surfaced prominently so packers can't
+              miss it while assembling the parcel. Always shown, even
+              when No, so the packer has a positive confirmation either
+              way rather than absence-of-flag ambiguity. */}
+          <Section title="Sharps + Needles">
+            {order.needsSharps ? (
+              <div className="rounded-[var(--radius-input)] border border-roots-green/30 bg-roots-green/5 p-3">
+                <p className="text-sm font-semibold text-roots-green">
+                  Include sharps box + needles
+                </p>
+                <p className="mt-1 text-xs text-roots-navy/60">
+                  Customer requested these be supplied with this order.
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-roots-navy/60">
+                Not requested — customer has their own supplies.
+              </p>
+            )}
+          </Section>
+
           {/* Customer */}
           <Section title="Customer">
             <p className="text-sm font-medium text-roots-navy">

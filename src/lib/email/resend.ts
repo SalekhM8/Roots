@@ -14,7 +14,13 @@ export function getResend(): Resend {
 const FROM_ADDRESS = process.env.EMAIL_FROM ?? "ROOTS Pharmacy <noreply@rootspharmacy.co.uk>";
 
 export interface EmailPayload {
-  to: string;
+  /**
+   * Recipient address, or an array of addresses for a single send to
+   * multiple recipients (e.g. admin notifications fanned out to both
+   * the operations inbox and the dispensing pharmacist). Resend supports
+   * both shapes natively.
+   */
+  to: string | string[];
   subject: string;
   html: string;
 }

@@ -317,6 +317,13 @@ model Order {
   taxMinor                Int               @default(0) @map("tax_minor")
   discountMinor           Int               @default(0) @map("discount_minor")
   totalMinor              Int               @map("total_minor")
+  // Whether the customer requested a sharps box + needles supply with this
+  // order. Set at dose-selection time via the sharps modal (one combined
+  // Yes/No question). Copied from Consultation.needsSharps at order
+  // creation so packers can read the flag without joining through the
+  // consultation. Free of charge — sharps + needles cost pennies and the
+  // safe-disposal benefit is much larger than the unit cost.
+  needsSharps             Boolean           @default(false) @map("needs_sharps")
   placedAt                DateTime          @map("placed_at")
   createdAt               DateTime          @default(now()) @map("created_at")
   updatedAt               DateTime          @updatedAt @map("updated_at")
@@ -425,6 +432,12 @@ model Consultation {
   approvedAt       DateTime?          @map("approved_at")
   rejectedAt       DateTime?          @map("rejected_at")
   expiresAt        DateTime?          @map("expires_at")
+  // Whether the customer asked for a sharps box + needles supply when they
+  // picked their dose. Captured via the post-dose-selection modal; this
+  // value is then propagated onto the Order at checkout creation. Stored
+  // on the consultation so we have a permanent clinical record even if
+  // the order is later voided / replaced.
+  needsSharps      Boolean            @default(false) @map("needs_sharps")
   createdAt        DateTime           @default(now()) @map("created_at")
   updatedAt        DateTime           @updatedAt @map("updated_at")
 

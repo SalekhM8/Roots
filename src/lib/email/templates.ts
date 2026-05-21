@@ -334,24 +334,39 @@ export function adminNewOrder(params: {
   isPom: boolean;
   itemsSummary: string; // multi-line "1× MNJ-5MG\n2× Berocca"
   orderId: string;
+  /**
+   * Whether the customer requested a sharps box + needles supply on the
+   * dose-selection modal. Shown as a badge and a dedicated row so the
+   * dispensing pharmacist sees it in the inbox without opening admin.
+   * Always present (Yes/No) — positive confirmation rather than the
+   * absence-of-flag ambiguity that defaults can introduce.
+   */
+  needsSharps: boolean;
 }): string {
   const adminOrderUrl = `${BRAND.siteUrl}/admin/orders/${params.orderId}`;
   const typeBadge = params.isPom
     ? `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background-color:${BRAND.green};color:${BRAND.cream};font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">POM · Mounjaro</span>`
     : `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background-color:${BRAND.creamDark};color:${BRAND.navy};font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">Supplement</span>`;
+  const sharpsBadge = params.needsSharps
+    ? `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background-color:${BRAND.green};color:${BRAND.cream};font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;margin-left:8px;">+ Sharps &amp; Needles</span>`
+    : "";
+  const sharpsValueText = params.needsSharps
+    ? `<span style="font-weight:600;color:${BRAND.green};">Yes — include sharps box and needles</span>`
+    : `<span style="color:${BRAND.grey};">No — customer has their own</span>`;
 
   return layout(
     `New Order ${params.orderNumber} — ROOTS Admin`,
-    `New order placed: ${params.orderNumber} for ${params.amountFormatted}`,
+    `New order placed: ${params.orderNumber} for ${params.amountFormatted}${params.needsSharps ? " (sharps + needles requested)" : ""}`,
     `${heading("New Order Received")}
     ${paragraph(`A new order has been placed on ROOTS Pharmacy.`)}
     ${infoBox(`
-      <p style="margin:0 0 12px;">${typeBadge}</p>
+      <p style="margin:0 0 12px;">${typeBadge}${sharpsBadge}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;color:${BRAND.navy};line-height:1.7;">
         <tr><td style="padding:2px 0;width:130px;color:${BRAND.grey};">Order number</td><td style="padding:2px 0;font-weight:600;">${params.orderNumber}</td></tr>
         <tr><td style="padding:2px 0;color:${BRAND.grey};">Amount</td><td style="padding:2px 0;font-weight:600;">${params.amountFormatted}</td></tr>
         <tr><td style="padding:2px 0;color:${BRAND.grey};vertical-align:top;">Customer</td><td style="padding:2px 0;">${params.customerLabel}</td></tr>
         <tr><td style="padding:2px 0;color:${BRAND.grey};vertical-align:top;">Items</td><td style="padding:2px 0;white-space:pre-line;">${params.itemsSummary}</td></tr>
+        <tr><td style="padding:2px 0;color:${BRAND.grey};vertical-align:top;">Sharps</td><td style="padding:2px 0;">${sharpsValueText}</td></tr>
       </table>
     `, "green")}
     ${params.isPom ? paragraph("This is a POM order. Payment is authorised pending prescriber review — capture happens on approval, void on rejection.") : paragraph("Supplement order — payment captured at checkout, ready to enter the fulfillment queue.")}

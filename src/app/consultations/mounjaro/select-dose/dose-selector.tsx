@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { cn, formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { SharpsModal } from "@/components/consultation/sharps-modal";
 import { addDoseToCartAction } from "./actions";
 
 interface Variant {
@@ -21,21 +22,39 @@ export function DoseSelector({ variants, consultationId }: DoseSelectorProps) {
   const [selectedId, setSelectedId] = useState(variants[0]?.id ?? "");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  // Sharps modal is opened by "Continue to Checkout" click and is the
+  // gate between dose-selection and the cart-add + checkout redirect.
+  // Cannot be dismissed without answering — the answer is required so
+  // the dispensing pharmacist knows whether to include sharps + needles
+  // in the parcel.
+  const [showSharpsModal, setShowSharpsModal] = useState(false);
 
   const selected = variants.find((v) => v.id === selectedId);
   const outOfStock = selected ? selected.stockQuantity <= 0 : true;
 
   function handleContinue() {
-    if (!selectedId || outOfStock) return;
+    if (!selectedId || outOfStock || isPending) return;
     setError(null);
+    setShowSharpsModal(true);
+  }
 
+  function handleSharpsConfirm(needsSharps: boolean) {
     // The server action redirects to /checkout on success. It only returns
-    // here if there's an error to surface inline.
+    // here if there's an error to surface inline. Keep the modal open
+    // while submitting so the customer sees the loading state in context
+    // rather than the modal vanishing first and looking like a no-op.
     startTransition(async () => {
-      const result = await addDoseToCartAction(selectedId, consultationId);
+      const result = await addDoseToCartAction(
+        selectedId,
+        consultationId,
+        needsSharps,
+      );
       if (result && !result.success) {
         setError(result.error);
+        setShowSharpsModal(false);
       }
+      // On success the server-side redirect supersedes everything below;
+      // no explicit modal close needed.
     });
   }
 
@@ -91,7 +110,7 @@ export function DoseSelector({ variants, consultationId }: DoseSelectorProps) {
       <Button
         variant="secondary"
         disabled={!selectedId || outOfStock || isPending}
-        loading={isPending}
+        loading={isPending && !showSharpsModal}
         onClick={handleContinue}
         className="w-full"
       >
@@ -102,6 +121,13 @@ export function DoseSelector({ variants, consultationId }: DoseSelectorProps) {
         Your consultation has been submitted. A prescriber will review it before
         your medication is dispatched.
       </p>
+
+      {showSharpsModal && (
+        <SharpsModal
+          onConfirm={handleSharpsConfirm}
+          submitting={isPending}
+        />
+      )}
     </div>
   );
 }

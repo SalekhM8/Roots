@@ -119,6 +119,10 @@ export async function createOrder(
   // be retrying a checkout where the first Viva URL never completed.
   // The duplicate-pending risk is low because the select-dose page
   // also redirects them away in that case.
+  // Sharps + needles request — captured at dose-selection time on the
+  // consultation. Copied onto the order so packers see it without a join.
+  // Supplement-only orders (no consultation) default to false.
+  let needsSharps = false;
   if (linkedConsultationId) {
     const liveOrder = await db.order.findFirst({
       where: {
@@ -134,6 +138,12 @@ export async function createOrder(
           "This consultation already has an active order. Please visit your account to view it.",
       };
     }
+
+    const consultation = await db.consultation.findUnique({
+      where: { id: linkedConsultationId },
+      select: { needsSharps: true },
+    });
+    needsSharps = consultation?.needsSharps ?? false;
   }
 
   const orderNumber = generateOrderNumber();
@@ -158,6 +168,7 @@ export async function createOrder(
       shippingMinor,
       taxMinor,
       totalMinor,
+      needsSharps,
       placedAt: new Date(),
       items: {
         create: cart.items.map((item) => ({

@@ -107,13 +107,20 @@ export default async function FulfillmentQueuePage({
                       {totalItems}
                     </td>
                     <td className="px-4 py-3">
-                      <StatusPill
-                        variant={fulfillmentStatusVariant(
-                          order.fulfillmentStatus
+                      <div className="flex flex-col gap-1">
+                        <StatusPill
+                          variant={fulfillmentStatusVariant(
+                            order.fulfillmentStatus
+                          )}
+                        >
+                          {humanizeStatus(order.fulfillmentStatus)}
+                        </StatusPill>
+                        {order.needsSharps && (
+                          <StatusPill variant="info">
+                            + Sharps
+                          </StatusPill>
                         )}
-                      >
-                        {humanizeStatus(order.fulfillmentStatus)}
-                      </StatusPill>
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-roots-navy/70">
                       <div className="flex flex-col gap-1">

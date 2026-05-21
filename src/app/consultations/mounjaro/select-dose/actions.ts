@@ -25,6 +25,14 @@ import { ROUTES } from "@/lib/constants";
 export async function addDoseToCartAction(
   variantId: string,
   consultationId: string,
+  /**
+   * Whether the customer asked for a sharps box + needles supply on the
+   * sharps modal that fires between dose-click and checkout. Defaults to
+   * false if the client somehow omits it (legacy callers, defensive).
+   * Persisted onto the consultation here and copied onto the order at
+   * checkout creation by createPomOrder.
+   */
+  needsSharps: boolean = false,
 ): Promise<{ success: false; error: string }> {
   const user = await requireUser();
 
@@ -100,7 +108,7 @@ export async function addDoseToCartAction(
 
     await tx.consultation.update({
       where: { id: consultationId },
-      data: { productVariantId: variantId },
+      data: { productVariantId: variantId, needsSharps },
     });
   });
 

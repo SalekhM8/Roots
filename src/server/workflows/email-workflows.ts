@@ -272,18 +272,31 @@ export const sendOrderConfirmationEmail = inngest.createFunction(
 );
 
 /**
- * Internal admin notification on every new order.
+ * Internal admin notification recipients. Every admin-internal email
+ * (new order, consultation submitted, etc.) goes to ALL addresses in this
+ * list — single Resend send, both addresses on the To: line.
  *
  * Listens to the same `order/created` event as the customer-facing
  * confirmation, so any future provider that emits this event (Viva today,
  * a backup acquirer tomorrow) gets admin notifications for free.
  *
- * Goes to ADMIN_NOTIFICATIONS_EMAIL (defaults to admin@rootspharmacy.co.uk).
+ * Recipients:
+ *   - admin@rootspharmacy.co.uk (or ADMIN_NOTIFICATIONS_EMAIL env override)
+ *   - Pharmacy.fvy88@nhs.net (always — hardcoded so it survives env drift,
+ *     this is the dispensing pharmacist who must see every new order /
+ *     submitted consultation for clinical oversight)
+ *
  * Resend send failures still create an email_events row with status=failed
- * so we can spot a broken pipeline at a glance.
+ * so we can spot a broken pipeline at a glance. The recipientEmail audit
+ * column stores the comma-joined list so we can verify in the DB which
+ * addresses were on a given send.
  */
-const ADMIN_NOTIFICATIONS_EMAIL =
-  process.env.ADMIN_NOTIFICATIONS_EMAIL ?? "admin@rootspharmacy.co.uk";
+const ADMIN_NOTIFICATIONS_RECIPIENTS: string[] = [
+  process.env.ADMIN_NOTIFICATIONS_EMAIL ?? "admin@rootspharmacy.co.uk",
+  "Pharmacy.fvy88@nhs.net",
+];
+const ADMIN_NOTIFICATIONS_AUDIT_LABEL =
+  ADMIN_NOTIFICATIONS_RECIPIENTS.join(", ");
 
 export const sendAdminNewOrderEmail = inngest.createFunction(
   { id: "send-admin-new-order-email" },
@@ -347,17 +360,18 @@ export const sendAdminNewOrderEmail = inngest.createFunction(
       isPom,
       itemsSummary,
       orderId: order.id,
+      needsSharps: order.needsSharps,
     });
 
     const { messageId } = await sendEmail({
-      to: ADMIN_NOTIFICATIONS_EMAIL,
+      to: ADMIN_NOTIFICATIONS_RECIPIENTS,
       subject: `New Order ${order.orderNumber} — ${amountFormatted}${isPom ? " (POM)" : ""}`,
       html,
     });
 
     await db.emailEvent.create({
       data: {
-        recipientEmail: ADMIN_NOTIFICATIONS_EMAIL,
+        recipientEmail: ADMIN_NOTIFICATIONS_AUDIT_LABEL,
         orderId,
         emailType: "admin_new_order",
         providerMessageId: messageId,
@@ -448,14 +462,14 @@ export const sendAdminConsultationSubmittedEmail = inngest.createFunction(
       : "New consultation submitted";
 
     const { messageId } = await sendEmail({
-      to: ADMIN_NOTIFICATIONS_EMAIL,
+      to: ADMIN_NOTIFICATIONS_RECIPIENTS,
       subject: `${subjectPrefix} — ${customerLabel}`,
       html,
     });
 
     await db.emailEvent.create({
       data: {
-        recipientEmail: ADMIN_NOTIFICATIONS_EMAIL,
+        recipientEmail: ADMIN_NOTIFICATIONS_AUDIT_LABEL,
         consultationId,
         emailType: "admin_consultation_submitted",
         providerMessageId: messageId,
