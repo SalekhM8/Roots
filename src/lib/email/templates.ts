@@ -170,6 +170,10 @@ export function consultationApproved(name: string, orderNumber?: string): string
       </table>
     `, "green") : ""}
     ${paragraph("Your payment has been captured and your order is now being prepared for dispatch. You'll receive a shipping confirmation with tracking details once it's on its way.")}
+    ${infoBox(`
+      <p style="margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:${BRAND.grey};font-weight:600;">Storing your medication</p>
+      <p style="margin:0;font-size:14px;color:${BRAND.navy};line-height:1.6;">Please refrigerate your pen between 2–8&deg;C as soon as it arrives. Once removed from the fridge, it can be kept at room temperature (up to 30&deg;C) for up to <strong>21 days</strong>. We recommend beginning your treatment within <strong>5 days</strong> of receiving the delivery to ensure all four weekly doses are used within the safe storage window.</p>
+    `, "amber")}
     ${cta("View My Orders", `${BRAND.siteUrl}/account/orders`)}`
   );
 }
