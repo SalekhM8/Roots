@@ -4,6 +4,10 @@ import { sendEmail } from "@/lib/email/resend";
 import * as templates from "@/lib/email/templates";
 import { voidOrRefundVivaPayment } from "@/server/services/payment";
 import { VivaError } from "@/lib/payments/viva";
+import {
+  consultationNeedsPhotos,
+  photosComplete,
+} from "@/lib/consultation/photos";
 
 /**
  * All transactional emails are triggered through Inngest workflows,
@@ -249,7 +253,28 @@ export const sendOrderConfirmationEmail = inngest.createFunction(
       name = "there";
     }
 
-    const html = templates.orderConfirmation(name, orderNumber, !!isPom);
+    // First-time POM orders now collect photos AFTER payment. Surface the
+    // upload CTA in the confirmation email (the guaranteed first touch) when
+    // the linked consultation still needs photos. Refills are excluded.
+    let uploadConsultationId: string | undefined;
+    if (isPom) {
+      const orderRow = await db.order.findUnique({
+        where: { id: orderId },
+        select: {
+          consultation: {
+            select: { id: true, answers: { select: { answersJson: true } } },
+          },
+        },
+      });
+      const c = orderRow?.consultation;
+      if (c && consultationNeedsPhotos(c.answers?.answersJson)) {
+        uploadConsultationId = c.id;
+      }
+    }
+
+    const html = templates.orderConfirmation(name, orderNumber, !!isPom, {
+      uploadConsultationId,
+    });
 
     const { messageId } = await sendEmail({
       to: toEmail,
@@ -916,5 +941,143 @@ export const remindRepeatSupply = inngest.createFunction(
     );
 
     return { nudge1, nudge2 };
+  },
+);
+
+/**
+ * Post-payment photo-upload nudges. Photos are now collected AFTER payment, so
+ * a customer can pay and then never upload — leaving an authorised order a
+ * prescriber can't review. Without a nudge they'd hear nothing until the ~5-day
+ * preauth-expiry sweeper voids it. This fills that gap with three durable nudges
+ * at 2h / 24h / 72h after the order is created.
+ *
+ * Triggered by `order/created` (same event as the confirmation email). Only
+ * acts on first-time POM orders whose consultation still needs photos — refills
+ * skip the photo step entirely and are excluded.
+ *
+ * Suppression (re-checked at each send time, not schedule time):
+ *  - Order no longer live (payment voided / failed / expired).
+ *  - Consultation no longer awaiting (approved / rejected / expired).
+ *  - All required photos are now present.
+ *  - We already sent this nudge number for this order (idempotency).
+ */
+export const remindUploadPhotos = inngest.createFunction(
+  { id: "remind-upload-photos" },
+  { event: "order/created" },
+  async ({ event, step }) => {
+    const { userId, orderId } = event.data;
+
+    // Cheap eligibility gate before scheduling any durable sleeps: skip
+    // supplements, guests, refills, and anything without a consultation.
+    const eligible = await step.run("check-eligible", async () => {
+      const order = await db.order.findUnique({
+        where: { id: orderId },
+        select: {
+          orderType: true,
+          consultation: {
+            select: { answers: { select: { answersJson: true } } },
+          },
+        },
+      });
+      if (!order || order.orderType === "supplement") return false;
+      if (!order.consultation) return false;
+      return consultationNeedsPhotos(order.consultation.answers?.answersJson);
+    });
+    if (!eligible) return { skipped: true };
+
+    async function sendIfStillMissing(
+      nudgeNumber: 1 | 2 | 3,
+      subject: string,
+    ): Promise<{ sent: boolean; reason?: string }> {
+      const order = await db.order.findUnique({
+        where: { id: orderId },
+        select: {
+          paymentStatus: true,
+          consultation: {
+            select: {
+              id: true,
+              status: true,
+              answers: { select: { answersJson: true } },
+              uploads: { select: { uploadType: true, status: true } },
+            },
+          },
+        },
+      });
+      if (!order) return { sent: false, reason: "order_missing" };
+      const c = order.consultation;
+      if (!c) return { sent: false, reason: "no_consultation" };
+      if (!consultationNeedsPhotos(c.answers?.answersJson)) {
+        return { sent: false, reason: "refill_or_no_photos" };
+      }
+      // Payment must still be live — if it was voided/failed/expired the order
+      // is dead and there's nothing to chase.
+      if (
+        order.paymentStatus !== "authorized" &&
+        order.paymentStatus !== "captured"
+      ) {
+        return { sent: false, reason: `payment_${order.paymentStatus}` };
+      }
+      // Consultation must still be awaiting review.
+      if (c.status !== "submitted" && c.status !== "action_required") {
+        return { sent: false, reason: `status_${c.status}` };
+      }
+      if (photosComplete(c.uploads)) {
+        return { sent: false, reason: "photos_complete" };
+      }
+
+      const alreadySent = await db.emailEvent.findFirst({
+        where: { orderId, emailType: `photos_required_nudge_${nudgeNumber}` },
+        select: { id: true },
+      });
+      if (alreadySent) return { sent: false, reason: "already_sent" };
+
+      const user = await db.user.findUnique({
+        where: { id: userId },
+        include: { customerProfile: { select: { firstName: true } } },
+      });
+      if (!user) return { sent: false, reason: "user_missing" };
+
+      const name = user.customerProfile?.firstName ?? "there";
+      const html = templates.photosRequired(name, c.id, nudgeNumber);
+
+      const { messageId } = await sendEmail({ to: user.email, subject, html });
+
+      await db.emailEvent.create({
+        data: {
+          userId,
+          orderId,
+          consultationId: c.id,
+          emailType: `photos_required_nudge_${nudgeNumber}`,
+          providerMessageId: messageId,
+          sentAt: messageId ? new Date() : null,
+          status: messageId ? "sent" : "failed",
+        },
+      });
+
+      return { sent: true };
+    }
+
+    await step.sleep("wait-2h", "2h");
+    const nudge1 = await step.run("nudge-1", () =>
+      sendIfStillMissing(
+        1,
+        "One step left — upload your photos for your Mounjaro review",
+      ),
+    );
+
+    await step.sleep("wait-22h", "22h");
+    const nudge2 = await step.run("nudge-2", () =>
+      sendIfStillMissing(2, "Your prescriber is waiting for your photos"),
+    );
+
+    await step.sleep("wait-48h", "48h");
+    const nudge3 = await step.run("nudge-3", () =>
+      sendIfStillMissing(
+        3,
+        "Final reminder: upload your photos to start your Mounjaro review",
+      ),
+    );
+
+    return { nudge1, nudge2, nudge3 };
   },
 );

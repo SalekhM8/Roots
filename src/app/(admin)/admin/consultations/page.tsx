@@ -4,6 +4,7 @@ import { getConsultationQueue, consultationStatusVariant } from "@/server/querie
 import { StatusPill } from "@/components/ui/status-pill";
 import { AdminPagination } from "@/components/admin/pagination";
 import { calculateAge, formatDate, parsePage, humanizeStatus, getDisplayName } from "@/lib/utils";
+import { consultationNeedsPhotos, photosComplete } from "@/lib/consultation/photos";
 
 export const metadata: Metadata = {
   title: "Prescriber Queue",
@@ -68,6 +69,12 @@ export default async function ConsultationQueuePage({
                 const uploadedCount = c.uploads.filter(
                   (u) => u.status === "uploaded" || u.status === "accepted"
                 ).length;
+                // Post-payment photo step: flag first-time consultations that
+                // have paid but not yet supplied all required photos. Refills
+                // never need photos (consultationNeedsPhotos handles that).
+                const awaitingPhotos =
+                  consultationNeedsPhotos(c.answers?.answersJson) &&
+                  !photosComplete(c.uploads);
                 const order = c.orders[0];
                 const authExpiry = order?.payments[0]?.captureBefore;
                 const hoursUntilExpiry = authExpiry
@@ -98,10 +105,16 @@ export default async function ConsultationQueuePage({
                         {humanizeStatus(c.status)}
                       </StatusPill>
                     </td>
-                    <td className="px-4 py-3 text-roots-navy/70">
-                      {uploadCount > 0
-                        ? `${uploadedCount}/${uploadCount}`
-                        : "—"}
+                    <td className="px-4 py-3">
+                      {awaitingPhotos ? (
+                        <StatusPill variant="warning">Awaiting photos</StatusPill>
+                      ) : (
+                        <span className="text-roots-navy/70">
+                          {uploadCount > 0
+                            ? `${uploadedCount}/${uploadCount}`
+                            : "—"}
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       {authExpiry ? (

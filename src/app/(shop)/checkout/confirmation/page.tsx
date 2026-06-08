@@ -6,6 +6,10 @@ import { ROUTES } from "@/lib/constants";
 import { ChecklistIcon } from "@/components/icons";
 import { ClearGuestCart } from "@/components/checkout/clear-guest-cart";
 import { MetaPixelEvent } from "@/components/observability/meta-pixel-event";
+import {
+  consultationNeedsPhotos,
+  photosComplete,
+} from "@/lib/consultation/photos";
 
 export const metadata: Metadata = {
   title: "Order Confirmed",
@@ -56,6 +60,16 @@ export default async function ConfirmationPage({
         orderBy: { createdAt: "desc" },
         take: 1,
       },
+      // Drive the post-payment "Upload your photos" CTA on the POM success
+      // screen. Refill detection (answersJson) + completeness (uploads).
+      consultation: {
+        select: {
+          id: true,
+          status: true,
+          answers: { select: { answersJson: true } },
+          uploads: { select: { uploadType: true, status: true } },
+        },
+      },
     },
   });
 
@@ -73,6 +87,18 @@ export default async function ConfirmationPage({
   const isPom = order.orderType === "pom" || order.orderType === "mixed";
   const isGuest = !user;
   const paymentStatus = order.payments[0]?.status ?? order.paymentStatus;
+
+  // First-time POM orders now collect photos AFTER payment. On the success
+  // screen, prompt the upload as the primary next step when photos are still
+  // outstanding. Refills are excluded (consultationNeedsPhotos).
+  const consultation = order.consultation;
+  const awaitingPhotos =
+    isPom &&
+    !!consultation &&
+    consultationNeedsPhotos(consultation.answers?.answersJson) &&
+    !photosComplete(consultation.uploads) &&
+    (consultation.status === "submitted" ||
+      consultation.status === "action_required");
 
   // ---- Failed / expired: tell the customer what happened + offer a retry path
   if (paymentStatus === "failed" || paymentStatus === "expired") {
@@ -155,7 +181,11 @@ export default async function ConfirmationPage({
         </div>
 
         <h1 className="mb-3 text-[32px] font-medium text-roots-green">
-          {isPom ? "Order Placed" : "Payment Confirmed"}
+          {awaitingPhotos
+            ? "Almost there — one last step"
+            : isPom
+              ? "Order Placed"
+              : "Payment Confirmed"}
         </h1>
 
         <p className="mb-2 text-lg text-roots-navy/70">
@@ -163,11 +193,31 @@ export default async function ConfirmationPage({
         </p>
 
         {isPom ? (
-          <p className="mb-8 text-roots-navy/60">
-            Your payment has been authorised. We will charge your card once a
-            prescriber has reviewed and approved your consultation. You will
-            receive an email update shortly.
-          </p>
+          awaitingPhotos && consultation ? (
+            <div className="mb-8">
+              <p className="mb-6 text-roots-navy/70">
+                Your payment is secured — and you&apos;re not charged until a
+                prescriber approves you. <strong className="text-roots-navy">Upload your
+                photos now</strong> so we can review and approve your
+                consultation and get your treatment on its way to you.
+              </p>
+              <Link
+                href={`/consultations/mounjaro/upload-photos?consultation=${consultation.id}`}
+                className="inline-flex items-center rounded-full bg-roots-green px-7 py-3.5 text-base font-medium text-white shadow-sm hover:bg-roots-green/90"
+              >
+                Upload my photos now
+              </Link>
+              <p className="mt-4 text-xs text-roots-navy/45">
+                Your review only begins once we&apos;ve received your photos.
+              </p>
+            </div>
+          ) : (
+            <p className="mb-8 text-roots-navy/60">
+              Your payment has been authorised. We will charge your card once a
+              prescriber has reviewed and approved your consultation. You will
+              receive an email update shortly.
+            </p>
+          )
         ) : (
           <p className="mb-8 text-roots-navy/60">
             Your payment has been processed. We are preparing your order for

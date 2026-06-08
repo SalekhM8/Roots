@@ -12,6 +12,7 @@ import { ReviewActions } from "@/components/admin/review-actions";
 import { Section, Field } from "@/components/admin/section";
 import { formatPrice, formatDateTime, calculateAge, humanizeStatus } from "@/lib/utils";
 import { createPresignedViewUrl } from "@/lib/uploads/s3";
+import { consultationNeedsPhotos, photosComplete } from "@/lib/consultation/photos";
 
 export const metadata: Metadata = {
   title: "Review Consultation",
@@ -40,6 +41,11 @@ export default async function ConsultationReviewPage({
   const isReviewable =
     consultation.status === "submitted" ||
     consultation.status === "under_review";
+  // Post-payment photo step: warn (don't block) when a first-time consultation
+  // has no/incomplete photos. Refills never need photos.
+  const photosMissing =
+    consultationNeedsPhotos(answers?.answersJson) &&
+    !photosComplete(consultation.uploads);
 
   return (
     <div className="p-6 md:p-10">
@@ -290,9 +296,17 @@ export default async function ConsultationReviewPage({
         <div className="space-y-6">
           {/* Actions */}
           <Section title="Actions">
+            {isReviewable && photosMissing && (
+              <div className="mb-4 rounded-[var(--radius-input)] border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+                <strong>Awaiting patient photos.</strong> This patient has paid
+                but not yet uploaded all required photos. You can still act, but
+                approval normally waits until photos are received.
+              </div>
+            )}
             <ReviewActions
               consultationId={consultation.id}
               isReviewable={isReviewable}
+              photosMissing={photosMissing}
             />
           </Section>
 

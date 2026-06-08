@@ -53,9 +53,12 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
 interface PhotoUploaderProps {
   consultationId: string;
+  /** The paid order this consultation belongs to — where we send the customer
+   *  once their photos are in. */
+  orderId: string;
 }
 
-export function PhotoUploader({ consultationId }: PhotoUploaderProps) {
+export function PhotoUploader({ consultationId, orderId }: PhotoUploaderProps) {
   const router = useRouter();
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -207,9 +210,9 @@ export function PhotoUploader({ consultationId }: PhotoUploaderProps) {
   );
 
   const handleContinue = () => {
-    router.push(
-      `/consultations/mounjaro/select-dose?consultation=${consultationId}`,
-    );
+    // Photos are the last step — send the customer to their order, where they
+    // can track progress while the prescriber reviews.
+    router.push(`/account/orders/${orderId}`);
   };
 
   // ---------------------------------------------------------------------------
@@ -384,7 +387,7 @@ export function PhotoUploader({ consultationId }: PhotoUploaderProps) {
           onClick={handleContinue}
           className="w-full"
         >
-          Continue
+          {allDone ? "Done — view my order" : "Continue"}
         </Button>
       </div>
 

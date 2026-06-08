@@ -10,6 +10,11 @@ import { formatDate, formatDateTime, formatPrice, humanizeStatus } from "@/lib/u
 import { consultationStatusVariant } from "@/server/queries/admin";
 import { createPresignedViewUrl } from "@/lib/uploads/s3";
 import { ActionRequiredReply } from "@/components/account/action-required-reply";
+import {
+  consultationNeedsPhotos,
+  photosComplete,
+  findPaidOrder,
+} from "@/lib/consultation/photos";
 
 export const metadata: Metadata = {
   title: "Consultation Detail",
@@ -29,6 +34,16 @@ export default async function ConsultationDetailPage({ params }: ConsultationDet
   const answers = consultation.answers;
   const order = consultation.orders[0];
   const prescription = consultation.prescriptions[0];
+
+  // Post-payment photo step: surface a prominent "Upload your photos" CTA when
+  // this is a first-time consultation that has been paid for but doesn't yet
+  // have all required photos. Refills are excluded (consultationNeedsPhotos).
+  const awaitingPhotos =
+    consultationNeedsPhotos(answers?.answersJson) &&
+    !!findPaidOrder(consultation.orders) &&
+    !photosComplete(consultation.uploads) &&
+    (consultation.status === "submitted" ||
+      consultation.status === "action_required");
 
   // Generate presigned view URLs for each upload in parallel. URLs are short-
   // lived (10 min) so a leaked URL has minimal blast radius. Generated
@@ -73,6 +88,29 @@ export default async function ConsultationDetailPage({ params }: ConsultationDet
 
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
+          {/* Post-payment photo step. Highest-priority call to action: the
+              prescriber cannot complete the review until these are in. */}
+          {awaitingPhotos && (
+            <div className="glass-card-strong rounded-[var(--radius-card)] border-2 border-roots-green p-6">
+              <p className="mb-1 text-xs font-medium uppercase tracking-[0.18em] text-roots-green/60">
+                Action needed
+              </p>
+              <h2 className="mb-2 text-lg font-medium text-roots-green">
+                Upload your photos to start your review
+              </h2>
+              <p className="mb-4 text-sm text-roots-navy/70">
+                Your payment is secured. We can only approve your treatment once
+                your prescriber has received your photos — it only takes a minute.
+              </p>
+              <Link
+                href={`/consultations/mounjaro/upload-photos?consultation=${consultation.id}`}
+                className="inline-flex items-center rounded-full bg-roots-green px-5 py-2.5 text-sm font-medium text-white hover:bg-roots-green/90"
+              >
+                Upload photos
+              </Link>
+            </div>
+          )}
+
           {/* Action required reply form. Surface this above the timeline so
               the customer sees the question + reply box together without
               scrolling. Once they reply the page refreshes, status flips to

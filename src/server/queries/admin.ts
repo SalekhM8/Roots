@@ -70,8 +70,10 @@ export async function getConsultationQueue(page = 1) {
           },
         },
         product: { select: { name: true } },
-        answers: { select: { bmi: true } },
-        uploads: { select: { id: true, status: true } },
+        // answersJson → refill detection; uploadType → photo completeness, both
+        // feed the "Awaiting photos" badge.
+        answers: { select: { bmi: true, answersJson: true } },
+        uploads: { select: { id: true, status: true, uploadType: true } },
         orders: {
           select: {
             id: true,

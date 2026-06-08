@@ -55,7 +55,14 @@ export async function getCustomerOrderDetail(userId: string, orderId: string) {
         include: { trackingEvents: { orderBy: { occurredAt: "desc" } } },
       },
       consultation: {
-        select: { id: true, status: true },
+        select: {
+          id: true,
+          status: true,
+          // Needed for the post-payment "Upload your photos" CTA on the order
+          // page: refill detection (answersJson) + completeness (uploads).
+          answers: { select: { answersJson: true } },
+          uploads: { select: { uploadType: true, status: true } },
+        },
       },
     },
   });
@@ -119,9 +126,11 @@ export async function getCustomerConsultationDetail(userId: string, consultation
         },
         orderBy: { createdAt: "desc" },
       },
+      // Newest-first, unbounded: the Order panel uses orders[0] (newest) and
+      // the "Upload your photos" CTA scans all orders for a paid one.
       orders: {
         select: { id: true, orderNumber: true, paymentStatus: true },
-        take: 1,
+        orderBy: { createdAt: "desc" },
       },
       prescriptions: {
         select: { referenceCode: true, directions: true, issuedAt: true },

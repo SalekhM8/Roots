@@ -9,6 +9,10 @@ import { Section, Field } from "@/components/admin/section";
 import { formatDate, formatDateTime, formatPrice, humanizeStatus } from "@/lib/utils";
 import { paymentStatusVariant, fulfillmentStatusVariant } from "@/server/queries/admin";
 import { ROUTES } from "@/lib/constants";
+import {
+  consultationNeedsPhotos,
+  photosComplete,
+} from "@/lib/consultation/photos";
 
 export const metadata: Metadata = {
   title: "Order Detail",
@@ -28,6 +32,17 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   const shipment = order.shipments[0];
   const payment = order.payments[0];
   const shippingAddress = order.shippingAddressSnapshot as Record<string, string> | null;
+
+  // Post-payment photo step: prompt to upload if this is a paid first-time
+  // consultation order still missing required photos. Refills excluded.
+  const consultation = order.consultation;
+  const awaitingPhotos =
+    !!consultation &&
+    consultationNeedsPhotos(consultation.answers?.answersJson) &&
+    (order.paymentStatus === "authorized" || order.paymentStatus === "captured") &&
+    !photosComplete(consultation.uploads) &&
+    (consultation.status === "submitted" ||
+      consultation.status === "action_required");
 
   return (
     <div className="page-container py-16 md:py-20">
@@ -135,6 +150,29 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Post-payment photo step — prescriber can't approve until photos
+              are in. Highest priority in the sidebar. */}
+          {awaitingPhotos && consultation && (
+            <div className="glass-card-strong rounded-[var(--radius-card)] border-2 border-roots-green p-6">
+              <p className="mb-1 text-xs font-medium uppercase tracking-[0.18em] text-roots-green/60">
+                Action needed
+              </p>
+              <h3 className="mb-2 text-base font-medium text-roots-green">
+                Upload your photos
+              </h3>
+              <p className="mb-4 text-sm text-roots-navy/70">
+                We can only approve your treatment once your prescriber has
+                received your photos.
+              </p>
+              <Link
+                href={`/consultations/mounjaro/upload-photos?consultation=${consultation.id}`}
+                className="inline-flex items-center rounded-full bg-roots-green px-4 py-2 text-sm font-medium text-white hover:bg-roots-green/90"
+              >
+                Upload photos
+              </Link>
+            </div>
+          )}
+
           {payment && (
             <Section title="Payment">
               <div className="space-y-3">

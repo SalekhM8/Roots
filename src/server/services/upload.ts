@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { createPresignedUploadUrl } from "@/lib/uploads/s3";
 import { writeAuditLog } from "@/lib/security/audit";
+import { findPaidOrder } from "@/lib/consultation/photos";
 import type { UploadType } from "@/generated/prisma/client";
 import { z } from "zod";
 
@@ -37,7 +38,11 @@ export async function requestPresignedUpload(
   // Verify consultation belongs to this user
   const consultation = await db.consultation.findFirst({
     where: { id: data.consultationId, userId },
-    select: { id: true, status: true },
+    select: {
+      id: true,
+      status: true,
+      orders: { select: { paymentStatus: true } },
+    },
   });
 
   if (!consultation) {
@@ -50,6 +55,16 @@ export async function requestPresignedUpload(
     consultation.status !== "submitted"
   ) {
     return { success: false, error: "Uploads not accepted for this consultation." };
+  }
+
+  // Photos are a post-payment step (Juniper-style): refuse a presign until the
+  // customer has an authorized/captured order. Defence-in-depth behind the now
+  // post-payment upload UI.
+  if (!findPaidOrder(consultation.orders)) {
+    return {
+      success: false,
+      error: "Payment is required before uploading photos.",
+    };
   }
 
   const { url, key } = await createPresignedUploadUrl({

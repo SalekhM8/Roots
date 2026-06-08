@@ -12,6 +12,9 @@ import {
 interface ReviewActionsProps {
   consultationId: string;
   isReviewable: boolean;
+  /** Soft signal: first-time consultation with no/incomplete photos. We warn
+   *  on the approve step but never block it. */
+  photosMissing?: boolean;
 }
 
 type ActionType = "approve" | "reject" | "more_info" | null;
@@ -19,6 +22,7 @@ type ActionType = "approve" | "reject" | "more_info" | null;
 export function ReviewActions({
   consultationId,
   isReviewable,
+  photosMissing = false,
 }: ReviewActionsProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -115,6 +119,13 @@ export function ReviewActions({
   return (
     <div className="space-y-4">
       <h4 className="font-medium text-roots-navy">{actionLabel}</h4>
+
+      {activeAction === "approve" && photosMissing && (
+        <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+          No photos received yet — you&apos;re approving without the patient&apos;s
+          photos. Continue only if you&apos;re sure.
+        </p>
+      )}
 
       <div>
         <label className="mb-1 block text-sm text-roots-navy/70">

@@ -210,13 +210,19 @@ export function actionRequired(name: string, message: string): string {
   );
 }
 
-export function orderConfirmation(name: string, orderNumber: string, isPom: boolean): string {
-  return layout(
-    "Order Confirmed — ROOTS Pharmacy",
-    `Hi ${name}, your order ${orderNumber} has been confirmed.`,
-    `${heading("Order Confirmed")}
-    ${greeting(name)}
-    ${infoBox(`
+export function orderConfirmation(
+  name: string,
+  orderNumber: string,
+  isPom: boolean,
+  options?: {
+    /** When set (first-time POM orders), the email leads with a photo-upload
+     *  CTA — photos are collected after payment and the review can't start
+     *  until they're in. Omitted for supplements and refills. */
+    uploadConsultationId?: string;
+  },
+): string {
+  const uploadConsultationId = options?.uploadConsultationId;
+  const orderRefBox = infoBox(`
       <table role="presentation" cellpadding="0" cellspacing="0">
         <tr>
           <td style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:${BRAND.grey};font-weight:600;padding-bottom:4px;">Order Reference</td>
@@ -225,7 +231,35 @@ export function orderConfirmation(name: string, orderNumber: string, isPom: bool
           <td style="font-size:20px;font-weight:700;color:${BRAND.green};letter-spacing:-0.5px;">${orderNumber}</td>
         </tr>
       </table>
-    `, "green")}
+    `, "green");
+
+  // First-time POM: photos are the blocking next step. Lead the email with the
+  // upload CTA so it's the first and strongest nudge.
+  if (uploadConsultationId) {
+    const uploadUrl = `${BRAND.siteUrl}/consultations/mounjaro/upload-photos?consultation=${uploadConsultationId}`;
+    return layout(
+      "Order Confirmed — Upload Your Photos — ROOTS Pharmacy",
+      `Hi ${name}, your order ${orderNumber} is confirmed — upload your photos to start your review.`,
+      `${heading("Order Confirmed")}
+      ${greeting(name)}
+      ${orderRefBox}
+      ${paragraph("Your payment has been <strong>authorised</strong> (not yet charged) — we only charge your card once a prescriber approves your treatment.")}
+      ${infoBox(`
+        <p style="margin:0;font-size:14px;color:${BRAND.navy};line-height:1.6;">
+          <strong>One step left.</strong> A prescriber can only begin your review once we've received your photos. It takes about a minute.
+        </p>
+      `, "amber")}
+      ${cta("Upload my photos", uploadUrl)}
+      <p style="margin:24px 0 0;font-size:13px;color:${BRAND.grey};line-height:1.6;">You can also do this any time from your <a href="${BRAND.siteUrl}/account/orders" style="color:${BRAND.green};text-decoration:none;font-weight:500;">account</a>.</p>`
+    );
+  }
+
+  return layout(
+    "Order Confirmed — ROOTS Pharmacy",
+    `Hi ${name}, your order ${orderNumber} has been confirmed.`,
+    `${heading("Order Confirmed")}
+    ${greeting(name)}
+    ${orderRefBox}
     ${isPom
       ? paragraph("Your payment has been <strong>authorised</strong> (not yet charged). We'll capture payment once your consultation has been reviewed and approved by our prescriber.")
       : paragraph("Your payment has been processed and we're now <strong>preparing your order</strong> for dispatch.")
@@ -537,6 +571,63 @@ export function repeatSupplyReminder(
     `, "green")}
     ${cta("Start refill consultation", refillUrl)}
     <p style="margin:24px 0 0;font-size:13px;color:${BRAND.grey};line-height:1.6;">Not ready yet? You can come back to this any time from your <a href="${BRAND.siteUrl}/account/orders" style="color:${BRAND.green};text-decoration:none;font-weight:500;">account</a>.</p>`,
+  );
+}
+
+/**
+ * Post-payment photo-upload nudge. Fired by `remindUploadPhotos` at 2h, 24h,
+ * and 72h after a first-time POM order is paid, if the patient still hasn't
+ * uploaded all required photos. Photos are now collected AFTER payment, and a
+ * prescriber cannot complete the review until they're in — so this is the
+ * highest-intent recovery email in the funnel.
+ *
+ * Deep-links straight to the upload page with the consultation id pre-filled.
+ */
+export function photosRequired(
+  name: string,
+  consultationId: string,
+  nudgeNumber: 1 | 2 | 3,
+): string {
+  const uploadUrl = `${BRAND.siteUrl}/consultations/mounjaro/upload-photos?consultation=${consultationId}`;
+
+  const intros: Record<1 | 2 | 3, { title: string; lead: string; preheader: string }> = {
+    1: {
+      title: "One step left",
+      lead: "Thanks for your payment — your card is authorised but not yet charged. Before a prescriber can review your consultation, we need a few photos. It only takes a minute, and your review begins as soon as they're in.",
+      preheader: `Hi ${name}, upload your photos to start your Mounjaro review.`,
+    },
+    2: {
+      title: "Your prescriber is waiting for your photos",
+      lead: "Your Mounjaro consultation is paid and ready, but a prescriber can't review it until we've received your photos. Upload them now so your treatment can move forward — your card is still only authorised, not charged.",
+      preheader: `Hi ${name}, your review can't start until your photos are in.`,
+    },
+    3: {
+      title: "Final reminder: upload your photos",
+      lead: "This is a final reminder that your Mounjaro consultation is still waiting on your photos. Without them a prescriber cannot review or approve your treatment, and your payment authorisation will eventually expire and release. Uploading takes about a minute.",
+      preheader: `Hi ${name}, last reminder to upload your photos.`,
+    },
+  };
+
+  const { title, lead, preheader } = intros[nudgeNumber];
+
+  return layout(
+    `${title} — ROOTS Pharmacy`,
+    preheader,
+    `${heading(title)}
+    ${greeting(name)}
+    ${paragraph(lead)}
+    ${infoBox(`
+      <p style="margin:0 0 8px;font-size:14px;color:${BRAND.navy};line-height:1.6;">
+        <strong>What we need</strong>
+      </p>
+      <ul style="margin:0;padding-left:18px;font-size:14px;color:${BRAND.navy};line-height:1.7;">
+        <li>A clear, well-lit front-facing body photo</li>
+        <li>A side-facing body photo</li>
+        <li>Photographic ID (passport, driving licence, or national ID)</li>
+      </ul>
+    `, "green")}
+    ${cta("Upload my photos", uploadUrl)}
+    <p style="margin:24px 0 0;font-size:13px;color:${BRAND.grey};line-height:1.6;">Already uploaded them? You can ignore this email. Questions? <a href="${BRAND.siteUrl}/contact" style="color:${BRAND.green};text-decoration:none;font-weight:500;">Contact our team</a>.</p>`,
   );
 }
 

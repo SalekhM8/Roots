@@ -206,10 +206,10 @@ const MEDICAL_CONDITIONS_CHECKBOXES: { field: keyof FormState; label: string }[]
 
 const PROCESS_STEPS = [
   "Complete this online medical consultation form.",
-  "A qualified prescriber will review your answers within 24 hours.",
-  "If approved, your medication will be dispensed from our UK pharmacy.",
-  "Your order will be dispatched via tracked delivery.",
-  "Ongoing support is available from our clinical team throughout your treatment.",
+  "Choose your dose and check out — your card is authorised, not charged.",
+  "Upload your photos and ID — your review can only begin once we've received them.",
+  "A qualified prescriber reviews your consultation, usually within 24 hours of receiving your photos. We only charge your card if you are approved.",
+  "If approved, your medication is dispensed from our UK pharmacy and dispatched via tracked delivery, with ongoing clinical support.",
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -451,7 +451,10 @@ export default function ConsultationForm() {
 
       if (result.success) {
         clearConsultationState();
-        router.push(`/consultations/mounjaro/upload-photos?consultation=${result.consultationId}`);
+        // Photos now come AFTER payment (Juniper-style). Go straight to dose
+        // selection → checkout; the upload step is surfaced post-payment on the
+        // confirmation page, in the account area, and via email.
+        router.push(`/consultations/mounjaro/select-dose?consultation=${result.consultationId}`);
       } else {
         setSubmitError(result.error ?? "Something went wrong. Please try again.");
       }
@@ -496,7 +499,9 @@ export default function ConsultationForm() {
 
           <p className="mt-8 text-sm text-roots-navy/60">
             The consultation takes approximately 5 minutes. Your answers are confidential
-            and reviewed only by our clinical team.
+            and reviewed only by our clinical team. You will upload your photos and ID as
+            the final step after payment — your prescriber begins their review once we have
+            received them.
           </p>
 
           <div className="mt-8 space-y-5">

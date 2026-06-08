@@ -15,6 +15,7 @@ import {
   checkExpiringAuthorizations,
   remindAbandonedConsultations,
   remindRepeatSupply,
+  remindUploadPhotos,
 } from "@/server/workflows/email-workflows";
 import {
   cleanupStaleDraftConsultations,
@@ -39,6 +40,7 @@ export const { GET, POST, PUT } = serve({
     checkExpiringAuthorizations,
     remindAbandonedConsultations,
     remindRepeatSupply,
+    remindUploadPhotos,
     cleanupStaleDraftConsultations,
     remindActionRequiredConsultations,
     alertStuckPackedOrders,
